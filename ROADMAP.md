@@ -66,8 +66,8 @@ Pre-development. Documentation phase in progress.
 
 **Goal:** Engineers can see and manage incidents in the React UI.
 
-- [ ] FastAPI endpoints: incident list, incident detail, metrics
-- [ ] Pagination, filtering by status / priority / date
+- [x] FastAPI endpoints: incident list, incident detail, metrics
+- [x] Pagination, filtering by status / priority / date
 - [ ] React dashboard: incident list view
 - [ ] React dashboard: incident detail view with root cause and recommendations
 - [ ] React dashboard: metrics panel (volume, by status, top errors)

@@ -6,6 +6,8 @@ from fastapi import FastAPI, Request, Response
 
 from apps.api.core.config import get_settings
 from apps.api.core.logging import configure_logging, get_logger
+from apps.api.routers.incidents import router as incidents_router
+from apps.api.routers.metrics import router as metrics_router
 
 settings = get_settings()
 configure_logging(settings.app_env, settings.log_level)
@@ -36,6 +38,10 @@ async def correlation_id_middleware(request: Request, call_next: object) -> Resp
         response.headers[settings.correlation_id_header] = correlation_id
     structlog.contextvars.clear_contextvars()
     return response
+
+
+app.include_router(incidents_router)
+app.include_router(metrics_router)
 
 
 @app.get("/health", tags=["system"])

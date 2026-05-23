@@ -29,9 +29,9 @@ Pre-development. Documentation phase in progress.
 - [x] Azure Monitor KQL connector implemented
 - [x] Exception fingerprinting logic
 - [x] Deduplication against existing incidents
-- [ ] Service Bus publisher
-- [ ] Incident ingestion service running on schedule
-- [ ] Integration test with mock Application Insights client
+- [x] Service Bus publisher
+- [x] Incident ingestion service running on schedule
+- [x] Integration test with mock Application Insights client
 
 ---
 

@@ -7,6 +7,7 @@ from packages.domain.models.analysis import (
     RootCauseJson,
 )
 from packages.domain.models.audit import AgentTraceEntry, AuditLog
+from packages.domain.models.events import IncidentEvent
 from packages.domain.models.incident import Incident, IncidentPriority, IncidentStatus
 from packages.domain.models.work_item import WorkItem, WorkItemType
 
@@ -16,6 +17,7 @@ __all__ = [
     "CodeSnippet",
     "Incident",
     "IncidentAnalysis",
+    "IncidentEvent",
     "IncidentPriority",
     "IncidentState",
     "IncidentStatus",

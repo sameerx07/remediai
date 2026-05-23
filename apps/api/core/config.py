@@ -31,6 +31,10 @@ class Settings(BaseSettings):
     azure_servicebus_topic: str = "incident-events"
     azure_servicebus_subscription: str = "agent-worker"
 
+    @property
+    def servicebus_fqdn(self) -> str:
+        return f"{self.azure_servicebus_namespace}.servicebus.windows.net"
+
     # Azure DevOps
     azure_devops_org_url: str = ""
     azure_devops_project: str = ""

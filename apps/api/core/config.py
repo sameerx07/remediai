@@ -38,6 +38,8 @@ class Settings(BaseSettings):
     # Azure DevOps
     azure_devops_org_url: str = ""
     azure_devops_project: str = ""
+    azure_devops_repository: str = ""
+    azure_devops_branch: str = "main"
     azure_devops_pat: str = ""
 
     # Azure AI Search

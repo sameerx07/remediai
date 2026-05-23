@@ -1,4 +1,4 @@
-.PHONY: install dev stop api test test-unit test-agent-evals lint format typecheck check-prompts ci migrate migrate-down
+.PHONY: install dev stop api test test-unit test-agent-evals lint format typecheck check-prompts ci migrate migrate-down ui ui-install ui-build ui-dev
 
 PYTHON ?= python3
 
@@ -40,5 +40,14 @@ migrate:
 
 migrate-down:
 	alembic downgrade -1
+
+ui-install:
+	cd apps/dashboard && npm install --legacy-peer-deps
+
+ui-build:
+	cd apps/dashboard && npm run build
+
+ui-dev:
+	cd apps/dashboard && npm run dev
 
 ci: lint typecheck check-prompts test

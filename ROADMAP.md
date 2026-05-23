@@ -68,10 +68,10 @@ Pre-development. Documentation phase in progress.
 
 - [x] FastAPI endpoints: incident list, incident detail, metrics
 - [x] Pagination, filtering by status / priority / date
-- [ ] React dashboard: incident list view
-- [ ] React dashboard: incident detail view with root cause and recommendations
-- [ ] React dashboard: metrics panel (volume, by status, top errors)
-- [ ] Work item link visible on incident detail
+- [x] React dashboard: incident list view
+- [x] React dashboard: incident detail view with root cause and recommendations
+- [x] React dashboard: metrics panel (volume, by status, top errors)
+- [x] Work item link visible on incident detail
 - [ ] End-to-end acceptance test of first milestone flow
 
 ---
@@ -83,8 +83,8 @@ Pre-development. Documentation phase in progress.
 - [ ] Azure AI Search index populated with repo code and runbooks
 - [ ] RAG results improve fix recommendation quality
 - [ ] Code snippet context improves root cause precision
-- [ ] Prompt versioning system in place
-- [ ] Agent eval harness with sample incident fixtures
+- [x] Prompt versioning system in place
+- [x] Agent eval harness with sample incident fixtures
 
 ---
 

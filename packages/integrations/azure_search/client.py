@@ -36,10 +36,31 @@ class AzureSearchClient:
             credential=credential,
         )
 
-    async def search(self, query: str, top: int = 10) -> list[dict[str, Any]]:
-        """Return up to *top* results for *query*, each as a plain ``dict``."""
+    async def search(
+        self,
+        query: str,
+        top: int = 10,
+        *,
+        vector_text: str | None = None,
+        filter_expr: str | None = None,
+    ) -> list[dict[str, Any]]:
+        """Return up to *top* hybrid-search results as plain ``dict`` objects."""
         results: list[dict[str, Any]] = []
-        async for result in await self._client.search(search_text=query, top=top):
+        search_kwargs: dict[str, Any] = {"search_text": query, "top": top}
+        if filter_expr:
+            search_kwargs["filter"] = filter_expr
+        if vector_text:
+            try:
+                from azure.search.documents.models import VectorizableTextQuery
+
+                search_kwargs["vector_queries"] = [
+                    VectorizableTextQuery(text=vector_text, k_nearest_neighbors=top, fields="content_vector")
+                ]
+            except Exception:
+                # Fall back to keyword/semantic-only search if vector query types are unavailable.
+                logger.warning("azure_search_vector_query_unavailable")
+
+        async for result in await self._client.search(**search_kwargs):
             results.append(dict(result))
         return results
 

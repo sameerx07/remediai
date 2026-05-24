@@ -9,6 +9,7 @@ class RAGResult(BaseModel):
     excerpt: str
     relevance_score: float = Field(default=0.0)
     url: str | None = None
+    exception_type: str | None = None
 
     @field_validator("relevance_score")
     @classmethod

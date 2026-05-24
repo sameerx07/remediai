@@ -2,11 +2,11 @@
 
 ## Current Status
 
-**Active development.** Phases 1–16 complete and committed. MVP core pipeline
+**Active development.** Phases 1–19 are complete and committed. The end-to-end
+flow now includes approval-gated draft PR creation and validation
 (ingestion → triage → root cause → code context → RAG → fix planner → bug
-creation) is fully operational with a React dashboard and versioned prompt
-registry. Work remaining is organised below into milestones and parallel
-development tracks.
+creation → approval gate → PR agent → validation agent). Work remaining is
+organised below into milestones and parallel development tracks.
 
 ---
 
@@ -86,9 +86,9 @@ development tracks.
 **Goal:** Production-ready analysis quality and security baseline.
 
 - [x] PII scrubbing before LLM transmission → Phase 15 ✅
-- [ ] Azure AI Search index populated with runbooks, source code, prior fixes → **Phase 17**
-- [ ] RAG results demonstrably improve fix recommendation quality → **Phase 17**
-- [ ] Code snippet context improves root cause precision → **Phase 17**
+- [x] Azure AI Search index populated with runbooks, source code, prior fixes → **Phase 17**
+- [x] RAG results demonstrably improve fix recommendation quality → **Phase 17**
+- [x] Code snippet context improves root cause precision → **Phase 17**
 - [x] Prompt versioning system in place
 - [x] Agent eval harness with sample incident fixtures
 
@@ -135,19 +135,12 @@ development tracks.
 
 ## Parallel Development Tracks
 
-Phases 17–26 split into four independent tracks that can be staffed in
-parallel.  Phase 26 (Load + Security Testing) is the final merge gate — it
-runs only after all four tracks are complete.
+Remaining work in Phases 20–26 is split into three independent tracks that can
+be staffed in parallel. Phase 26 (Load + Security Testing) is the final merge
+gate and runs only after all three tracks are complete.
 
 ```
-Track A — Quality & RAG              Track B — PR Workflow
-──────────────────────────────────   ─────────────────────────────────
-Phase 17: Search + RAG Quality           Phase 19: PR Agent + Approval
-                                             ↓
-                                         Phase 18: Validation Agent
-
-
-Track C — DevOps & Infrastructure    Track D — Observability
+Track A — DevOps & Infrastructure    Track B — Observability
 ──────────────────────────────────   ─────────────────────────────────
 Phase 20: Local Docker Compose           Phase 22: Structured Logging
     ↓                                        + OpenTelemetry
@@ -158,37 +151,28 @@ Phase 23: Terraform + AKS + Helm
 Phase 24: Key Vault + KEDA
     ↓
 Phase 25: Azure Monitor Alerts
+
+
+Track C — Validation Gate
+──────────────────────────────────
+Phase 26: Load + Security Testing
 ```
 
 **All tracks merge at Phase 26 (Load + Security Testing).**
 
-Starting points (all depend only on completed Phase 16):
-- Track A: start Phase 17
-- Track B: start Phase 19
-- Track C: start Phase 20
-- Track D: start Phase 22
+Starting points (with Phases 1–19 complete):
+- Track A: start Phase 20
+- Track B: start Phase 22
+- Track C: start Phase 26 after Tracks A and B
 
 ---
 
-## Pending Phases — Spec Required Before Implementation
+## Remaining Phases — Spec Required Before Implementation
 
 A spec (`docs/specs/phase-NN-*.md`) must exist and be reviewed before any
 code is written for that phase.
 
-### Track A — Quality & RAG
-
-| Phase | Title | Depends on | Spec |
-|---|---|---|---|
-| 17 | AI Search Index + RAG Quality Hardening | Phase 16 | `docs/specs/phase-17-search-rag-quality.md` |
-
-### Track B — PR Workflow
-
-| Phase | Title | Depends on | Spec |
-|---|---|---|---|
-| 19 | PR Agent + Human Approval Gate | Phase 16 | `docs/specs/phase-19-pr-agent-and-approval.md` |
-| 18 | Validation Agent — PR Diff Review | Phase 19 | `docs/specs/phase-18-validation-agent.md` |
-
-### Track C — DevOps & Infrastructure
+### Track A — DevOps & Infrastructure
 
 | Phase | Title | Depends on | Spec |
 |---|---|---|---|
@@ -198,7 +182,7 @@ code is written for that phase.
 | 24 | Key Vault + Workload Identity + KEDA | Phase 23 | `docs/specs/phase-24-keyvault-keda.md` |
 | 25 | Azure Monitor Alerts + Runbook | Phase 24 | `docs/specs/phase-25-alerting-runbook.md` |
 
-### Track D — Observability
+### Track B — Observability
 
 | Phase | Title | Depends on | Spec |
 |---|---|---|---|
@@ -218,7 +202,7 @@ code is written for that phase.
 ## Is This a Complete Product?
 
 At the end of Phase 26, RemediAI is a production-ready, fully deployed
-enterprise platform.  The 29-phase count (16 done + 13 remaining) is the
+enterprise platform.  The 29-phase count (19 done + 10 remaining) is the
 ceiling — **no phases will be added** unless product requirements change.
 
 | Capability | Covered by |
@@ -229,8 +213,8 @@ ceiling — **no phases will be added** unless product requirements change.
 | React dashboard | Phase 14 ✅ |
 | PII scrubbing + data security | Phase 15 ✅ |
 | E2E test coverage | Phase 16 ✅ |
-| RAG quality + populated search index | Phase 17 |
-| Draft PR with human approval | Phases 18–19 |
+| RAG quality + populated search index | Phase 17 ✅ |
+| Draft PR with human approval | Phases 18–19 ✅ |
 | Full local dev stack (browser-testable) | Phase 20 |
 | CI/CD pipeline | Phase 21 |
 | Structured logging + tracing | Phase 22 |
@@ -259,8 +243,11 @@ ceiling — **no phases will be added** unless product requirements change.
 | 12 | FastAPI Dashboard Endpoints | `47539b5` |
 | 13 | Prompt Versioning Registry + Agent Eval Harness | `cc59329` |
 | 14 | React Dashboard | `1521a40` |
-| 15 | PII Scrubbing (pending commit) | — |
+| 15 | PII Scrubbing | `fe4132d` |
 | 16 | End-to-End Acceptance Tests | `d4ab7fc` |
+| 17 | AI Search Index Population + RAG Quality Hardening | `3a2e33c` |
+| 18 | Validation Agent — PR Diff Review | `63c0862` |
+| 19 | PR Agent + Human Approval Gate | `63c0862` |
 
 ---
 

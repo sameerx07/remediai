@@ -21,6 +21,7 @@ def _make_raw_result(
     content: str = "Check for null guards before dereferencing objects.",
     source_type: str = "runbook",
     url: str | None = "https://wiki/null-reference",
+    exception_type: str | None = None,
 ) -> dict[str, Any]:
     return {
         "@search.score": score,
@@ -28,6 +29,7 @@ def _make_raw_result(
         "content": content,
         "source_type": source_type,
         "url": url,
+        "exception_type": exception_type,
     }
 
 
@@ -102,6 +104,27 @@ class TestRagNodeHappyPath:
         assert sources[0] == "prior_fix"
         assert sources[1] == "runbook"
         assert sources[2] == "documentation"
+
+    @pytest.mark.asyncio
+    async def test_exception_type_affinity_boosts_prior_fix_match(self) -> None:
+        raw = [
+            _make_raw_result(
+                score=0.95,
+                source_type="runbook",
+                title="Generic Runbook",
+                exception_type=None,
+            ),
+            _make_raw_result(
+                score=0.8,
+                source_type="prior_fix",
+                title="Matching Prior Fix",
+                exception_type="System.NullReferenceException",
+            ),
+        ]
+        client = _mock_search(raw)
+        node = make_rag_node(search_client=client)
+        result = await node(_make_state())
+        assert result["rag_results"][0]["title"] == "Matching Prior Fix"
 
     @pytest.mark.asyncio
     async def test_results_limited_to_five(self) -> None:

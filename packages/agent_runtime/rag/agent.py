@@ -23,7 +23,14 @@ _MAX_RAW_RESULTS = 10
 class SearchClientProtocol(Protocol):
     """Minimal interface required by the RAG agent."""
 
-    async def search(self, query: str, top: int = 10) -> list[dict[str, Any]]: ...
+    async def search(
+        self,
+        query: str,
+        top: int = 10,
+        *,
+        vector_text: str | None = None,
+        filter_expr: str | None = None,
+    ) -> list[dict[str, Any]]: ...
 
 
 def make_rag_node(
@@ -47,7 +54,12 @@ def make_rag_node(
 
         try:
             search_query = build_search_query(state)
-            raw_results = await client.search(query=search_query.text, top=_MAX_RAW_RESULTS)
+            raw_results = await client.search(
+                query=search_query.text,
+                top=search_query.top,
+                vector_text=search_query.vector_text,
+                filter_expr=search_query.filter_expr,
+            )
             candidates = _map_results(raw_results)
             rag_results = rerank(candidates, state)
             log.info("rag_complete", results_returned=len(rag_results))
@@ -109,10 +121,13 @@ def _map_result(raw: dict[str, Any]) -> RAGResult | None:
     source = str(raw.get("source_type") or raw.get("source") or "documentation")
     raw_url = raw.get("url") or raw.get("path")
     url = str(raw_url) if raw_url else None
+    exception_type_raw = raw.get("exception_type")
+    exception_type = str(exception_type_raw) if exception_type_raw else None
     return RAGResult(
         source=source,
         title=title,
         excerpt=content[:500],
         relevance_score=score,
         url=url,
+        exception_type=exception_type,
     )

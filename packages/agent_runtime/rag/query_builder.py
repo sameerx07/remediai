@@ -40,7 +40,10 @@ def build_search_query(state: IncidentState) -> SearchQuery:
     filter_expr: str | None = None
     if exception_type:
         safe_type = exception_type.replace("'", "''")
-        filter_expr = f"exception_type eq '{safe_type}' or source_type eq 'runbook'"
+        filter_expr = (
+            f"(source_type eq 'prior_fix' and exception_type eq '{safe_type}') "
+            "or source_type eq 'runbook'"
+        )
 
     return SearchQuery(
         text=text_query or exception_type,

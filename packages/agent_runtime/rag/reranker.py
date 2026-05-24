@@ -37,9 +37,8 @@ def rerank(results: list[RAGResult], state: IncidentState) -> list[RAGResult]:
         source_score = _SOURCE_TYPE_SCORE.get(result.source, 0.25)
 
         affinity_score = 0.0
-        if exception_type and hasattr(result, "exception_type"):
-            # RAGResult doesn't carry exception_type; handled via source scoring
-            pass
+        if exception_type and result.exception_type == exception_type:
+            affinity_score = 1.0
 
         composite = _W_SEARCH * raw_score + _W_SOURCE * source_score + _W_AFFINITY * affinity_score
         scored.append((composite, result))
@@ -55,6 +54,7 @@ def rerank(results: list[RAGResult], state: IncidentState) -> list[RAGResult]:
                 excerpt=result.excerpt,
                 relevance_score=round(composite_score, 4),
                 url=result.url,
+                exception_type=result.exception_type,
             )
         )
 

@@ -6,6 +6,7 @@ from typing import Any, Protocol
 
 import structlog
 
+from packages.agent_runtime.code_context.frame_filter import filter_frames
 from packages.agent_runtime.code_context.models import CodeSnippet
 from packages.agent_runtime.root_cause.stack_parser import parse_stack_frames
 from packages.domain.models.agent_state import IncidentState
@@ -49,11 +50,8 @@ def make_code_context_node(
         try:
             commit_sha = await client.get_latest_commit_sha()
             frames = parse_stack_frames(stack_trace)
-            qualifying = [
-                f
-                for f in frames
-                if f.is_user_code and f.file_path is not None and f.line_number is not None
-            ]
+            path_prefix: str = getattr(settings, "ado_source_path_prefix", "") if settings is not None else ""
+            qualifying = filter_frames(frames, path_prefix=path_prefix)
 
             for frame in qualifying[:_MAX_SNIPPETS]:
                 content = await client.get_file_content(frame.file_path)  # type: ignore[arg-type]

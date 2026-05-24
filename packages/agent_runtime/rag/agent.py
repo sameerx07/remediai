@@ -7,6 +7,8 @@ from typing import Any, Protocol
 import structlog
 
 from packages.agent_runtime.rag.models import RAGResult
+from packages.agent_runtime.rag.query_builder import build_search_query
+from packages.agent_runtime.rag.reranker import rerank
 from packages.domain.models.agent_state import IncidentState
 from packages.domain.models.audit import AgentTraceEntry
 
@@ -14,17 +16,8 @@ logger = structlog.get_logger()
 
 AGENT_NAME = "rag"
 
-_SCORE_THRESHOLD = 0.6
-_MAX_RESULTS = 5
-_MAX_QUERY_LEN = 1000
-
-# Lower number = higher priority
-_SOURCE_PRIORITY: dict[str, int] = {
-    "runbook": 0,
-    "prior_fix": 1,
-    "documentation": 2,
-    "source_code": 3,
-}
+_SCORE_THRESHOLD = 0.3  # Lowered to allow reranker to make final selection
+_MAX_RAW_RESULTS = 10
 
 
 class SearchClientProtocol(Protocol):
@@ -42,7 +35,6 @@ def make_rag_node(
     async def rag_node(state: IncidentState) -> dict[str, Any]:
         start_ms = int(time.monotonic() * 1000)
         incident_id: str = state.get("incident_id", "")
-        root_cause_summary: str = state.get("root_cause_summary", "") or ""
         exception_type: str = state.get("exception_type", "")
         triage_labels: list[str] = state.get("triage_labels", [])
 
@@ -54,9 +46,10 @@ def make_rag_node(
         rag_results: list[RAGResult] = []
 
         try:
-            query = _build_query(root_cause_summary, exception_type, triage_labels)
-            raw_results = await client.search(query=query, top=_MAX_RESULTS * 2)
-            rag_results = _process_results(raw_results)
+            search_query = build_search_query(state)
+            raw_results = await client.search(query=search_query.text, top=_MAX_RAW_RESULTS)
+            candidates = _map_results(raw_results)
+            rag_results = rerank(candidates, state)
             log.info("rag_complete", results_returned=len(rag_results))
         except Exception as exc:
             log.error("rag_failed", error=str(exc))
@@ -99,21 +92,14 @@ def _resolve_client(
     return AzureSearchClient.from_settings(s)
 
 
-def _build_query(
-    root_cause_summary: str,
-    exception_type: str,
-    triage_labels: list[str],
-) -> str:
-    parts = [root_cause_summary, exception_type] + triage_labels
-    query = " ".join(p for p in parts if p).strip()
-    return query[:_MAX_QUERY_LEN]
-
-
-def _process_results(raw: list[dict[str, Any]]) -> list[RAGResult]:
-    mapped = [_map_result(r) for r in raw]
-    valid = [r for r in mapped if r is not None and r.relevance_score > _SCORE_THRESHOLD]
-    valid.sort(key=lambda r: (_SOURCE_PRIORITY.get(r.source, 99), -r.relevance_score))
-    return valid[:_MAX_RESULTS]
+def _map_results(raw: list[dict[str, Any]]) -> list[RAGResult]:
+    """Convert raw search dicts to RAGResult, filtering below score threshold."""
+    results: list[RAGResult] = []
+    for r in raw:
+        mapped = _map_result(r)
+        if mapped is not None and mapped.relevance_score > _SCORE_THRESHOLD:
+            results.append(mapped)
+    return results
 
 
 def _map_result(raw: dict[str, Any]) -> RAGResult | None:

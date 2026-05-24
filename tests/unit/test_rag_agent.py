@@ -88,6 +88,8 @@ class TestRagNodeHappyPath:
 
     @pytest.mark.asyncio
     async def test_results_sorted_by_source_priority(self) -> None:
+        # Reranker weights: prior_fix(1.0) > runbook(0.75) > documentation(0.5)
+        # With equal search scores, prior_fix composite score is highest
         raw = [
             _make_raw_result(score=0.9, source_type="documentation", title="Doc"),
             _make_raw_result(score=0.9, source_type="runbook", title="Runbook"),
@@ -97,8 +99,8 @@ class TestRagNodeHappyPath:
         node = make_rag_node(search_client=client)
         result = await node(_make_state())
         sources = [r["source"] for r in result["rag_results"]]
-        assert sources[0] == "runbook"
-        assert sources[1] == "prior_fix"
+        assert sources[0] == "prior_fix"
+        assert sources[1] == "runbook"
         assert sources[2] == "documentation"
 
     @pytest.mark.asyncio

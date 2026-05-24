@@ -1,4 +1,4 @@
-.PHONY: install dev stop api test test-unit test-agent-evals test-e2e lint format typecheck check-prompts ci migrate migrate-down ui ui-install ui-build ui-dev
+.PHONY: install dev stop api test test-unit test-agent-evals test-e2e lint format typecheck check-prompts ci migrate migrate-down ui ui-install ui-build ui-dev index-populate
 
 PYTHON ?= python3
 
@@ -52,5 +52,8 @@ ui-build:
 
 ui-dev:
 	cd apps/dashboard && npm run dev
+
+index-populate:
+	$(PYTHON) scripts/populate_search_index.py --source all
 
 ci: lint typecheck check-prompts test

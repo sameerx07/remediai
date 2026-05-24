@@ -8,6 +8,7 @@ class RootCauseJson(BaseModel):
     likely_cause: str
     contributing_factors: list[str] = Field(default_factory=list)
     confidence: float = Field(default=0.5)
+    affected_namespace: str = ""
 
     @field_validator("confidence")
     @classmethod

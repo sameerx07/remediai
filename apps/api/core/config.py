@@ -46,6 +46,11 @@ class Settings(BaseSettings):
     azure_search_endpoint: str = ""
     azure_search_index: str = "remediai-rag"
     azure_search_api_key: str = ""
+    search_index_name: str = "remediai-incidents"
+    openai_embedding_model: str = "text-embedding-3-small"
+    openai_embedding_deployment: str = ""
+    ado_source_repo: str = ""
+    ado_source_path_prefix: str = "src/"
 
     # Azure Monitor
     azure_monitor_workspace_id: str = ""

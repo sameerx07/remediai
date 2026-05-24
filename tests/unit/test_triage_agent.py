@@ -165,7 +165,7 @@ class TestTriageNodeLLMPath:
         )
         node = make_triage_node(llm)
         result = await node(_make_state(exception_type="Unknown.Error"))
-        assert result["agent_trace"][0]["prompt_version"] == "triage_v1"
+        assert result["agent_trace"][0]["prompt_version"] == "triage_v2"
 
 
 class TestTriageNodeStateIntegration:

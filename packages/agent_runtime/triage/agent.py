@@ -19,7 +19,7 @@ from packages.integrations.pii_scrubber import scrub
 logger = structlog.get_logger()
 
 AGENT_NAME = "triage"
-PROMPT_VERSION = "triage_v1"
+PROMPT_VERSION = "triage_v2"
 
 
 def make_triage_node(

@@ -19,7 +19,7 @@ from packages.integrations.pii_scrubber import scrub
 logger = structlog.get_logger()
 
 AGENT_NAME = "root_cause"
-PROMPT_VERSION = "root_cause_v1"
+PROMPT_VERSION = "root_cause_v2"
 
 _DEFAULT_OUTPUT = RootCauseOutput(
     root_cause_summary="Root cause analysis failed; manual review required.",

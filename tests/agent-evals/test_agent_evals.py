@@ -82,7 +82,17 @@ def _mock_ado() -> MagicMock:
 
 def _mock_search() -> MagicMock:
     search = MagicMock()
-    search.search = AsyncMock(return_value=[])
+    search.search = AsyncMock(
+        return_value=[
+            {
+                "@search.score": 0.85,
+                "title": "Payment Gateway Retry Runbook",
+                "content": "Wrap the gateway call in a Polly retry policy for transient 503 failures.",
+                "source_type": "runbook",
+                "url": "docs/runbooks/gateway-retry.md",
+            }
+        ]
+    )
     return search
 
 
@@ -171,6 +181,50 @@ class TestNullReferenceFixture:
         await pipeline.ainvoke(_make_state(fixture))
         assert llm.ainvoke.await_count == 2  # root_cause + fix_planner; triage used rule
 
+    @pytest.mark.asyncio
+    async def test_null_reference_rag_results(self) -> None:
+        fixture = _load_fixture("null_reference.json")
+        expected = fixture["expected"]
+        pipeline = build_pipeline(
+            llm=_mock_llm_rule_path(),
+            ado_client=_mock_ado(),
+            search_client=_mock_search(),
+            boards_client=_mock_boards(),
+        )
+        result: IncidentState = await pipeline.ainvoke(_make_state(fixture))
+        min_count = expected.get("rag_results_min_count", 0)
+        assert len(result.get("rag_results", [])) >= min_count
+
+    @pytest.mark.asyncio
+    async def test_null_reference_recommendation_confidence(self) -> None:
+        fixture = _load_fixture("null_reference.json")
+        expected = fixture["expected"]
+        pipeline = build_pipeline(
+            llm=_mock_llm_rule_path(),
+            ado_client=_mock_ado(),
+            search_client=_mock_search(),
+            boards_client=_mock_boards(),
+        )
+        result: IncidentState = await pipeline.ainvoke(_make_state(fixture))
+        recs = result.get("recommendations", [])
+        min_conf = expected.get("recommendation_confidence_min", 0.0)
+        assert any(float(r.get("confidence", 0.0)) >= min_conf for r in recs)
+
+    @pytest.mark.asyncio
+    async def test_null_reference_root_cause_component_not_empty(self) -> None:
+        fixture = _load_fixture("null_reference.json")
+        expected = fixture["expected"]
+        pipeline = build_pipeline(
+            llm=_mock_llm_rule_path(),
+            ado_client=_mock_ado(),
+            search_client=_mock_search(),
+            boards_client=_mock_boards(),
+        )
+        result: IncidentState = await pipeline.ainvoke(_make_state(fixture))
+        if expected.get("root_cause_component_not_empty"):
+            rc_json = result.get("root_cause_json") or {}
+            assert rc_json.get("component", "") != ""
+
 
 class TestOutOfMemoryFixture:
     @pytest.mark.asyncio
@@ -213,6 +267,23 @@ class TestOutOfMemoryFixture:
         )
         result: IncidentState = await pipeline.ainvoke(_make_state(fixture))
         assert result.get("ado_bug_id") == 9999
+
+    @pytest.mark.asyncio
+    async def test_oom_rag_results_and_quality(self) -> None:
+        fixture = _load_fixture("out_of_memory.json")
+        expected = fixture["expected"]
+        pipeline = build_pipeline(
+            llm=_mock_llm_rule_path(),
+            ado_client=_mock_ado(),
+            search_client=_mock_search(),
+            boards_client=_mock_boards(),
+        )
+        result: IncidentState = await pipeline.ainvoke(_make_state(fixture))
+        min_count = expected.get("rag_results_min_count", 0)
+        assert len(result.get("rag_results", [])) >= min_count
+        rc_json = result.get("root_cause_json") or {}
+        if expected.get("root_cause_component_not_empty"):
+            assert rc_json.get("component", "") != ""
 
 
 class TestUnknownExceptionFixture:
@@ -257,6 +328,23 @@ class TestUnknownExceptionFixture:
         assert result.get("root_cause_summary")
         assert len(result.get("recommendations", [])) >= 1
 
+    @pytest.mark.asyncio
+    async def test_unknown_rag_results_and_confidence(self) -> None:
+        fixture = _load_fixture("unknown_exception.json")
+        expected = fixture["expected"]
+        pipeline = build_pipeline(
+            llm=_mock_llm_llm_path(),
+            ado_client=_mock_ado(),
+            search_client=_mock_search(),
+            boards_client=_mock_boards(),
+        )
+        result: IncidentState = await pipeline.ainvoke(_make_state(fixture))
+        min_count = expected.get("rag_results_min_count", 0)
+        assert len(result.get("rag_results", [])) >= min_count
+        recs = result.get("recommendations", [])
+        min_conf = expected.get("recommendation_confidence_min", 0.0)
+        assert any(float(r.get("confidence", 0.0)) >= min_conf for r in recs)
+
 
 class TestPromptRegistry:
     def test_registry_loads_triage_prompt(self) -> None:
@@ -290,6 +378,21 @@ class TestPromptRegistry:
         registry = PromptRegistry()
         versions = registry.available_versions("triage")
         assert "1" in versions
+        assert "2" in versions
+
+    def test_registry_loads_triage_v2_prompt(self) -> None:
+        from packages.agent_runtime.prompt_registry import PromptRegistry
+        registry = PromptRegistry()
+        content = registry.load("triage", "2")
+        assert "## Goal" in content
+        assert "affected_service" in content
+
+    def test_registry_loads_root_cause_v2_prompt(self) -> None:
+        from packages.agent_runtime.prompt_registry import PromptRegistry
+        registry = PromptRegistry()
+        content = registry.load("root_cause", "2")
+        assert "## Goal" in content
+        assert "affected_namespace" in content
 
     def test_registry_clear_cache(self) -> None:
         from packages.agent_runtime.prompt_registry import PromptRegistry

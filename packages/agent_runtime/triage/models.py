@@ -9,6 +9,7 @@ class TriageOutput(BaseModel):
     group_id: str | None = None
     rationale: str = ""
     confidence: float = Field(default=0.5, ge=0.0, le=1.0)
+    affected_service: str | None = None
 
     @field_validator("priority")
     @classmethod

@@ -160,6 +160,24 @@ Types: `feat`, `fix`, `docs`, `chore`, `refactor`, `test`, `perf`, `ci`
 6. Squash-merge into `main` — keep the commit history clean.
 7. Delete your branch after merge.
 
+### GitHub Branch Protection (Recommended)
+
+When this repository is hosted on GitHub, configure branch protection for
+`main` to enforce CI quality gates:
+
+1. Require at least 1 approving review.
+2. Require status checks before merging.
+3. Require branches to be up to date before merging.
+4. Block direct pushes to `main`.
+
+Recommended required checks (from `.github/workflows/ci.yml`):
+
+- `Lint and format`
+- `Typecheck`
+- `Security scan`
+- `Tests`
+- `Frontend build`
+
 ### Copilot Customizations
 
 RemediAI includes Copilot acceleration assets to keep implementation consistent and fast:

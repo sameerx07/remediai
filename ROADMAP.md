@@ -23,7 +23,7 @@ organised below into milestones and parallel development tracks.
 - [x] Basic FastAPI app with health check endpoint
 - [x] React dashboard shell
 - [ ] Full-stack local Docker Compose (all services) → **Phase 20**
-- [x] CI pipeline configured (Azure DevOps Pipelines) → **Phase 21**
+- [x] CI pipelines configured (Azure DevOps Pipelines + GitHub Actions) → **Phase 21**
 
 ---
 
@@ -112,7 +112,7 @@ organised below into milestones and parallel development tracks.
 **Goal:** Platform is production-ready on AKS.
 
 - [x] Full-stack local Docker Compose (all services) → **Phase 20**
-- [x] CI pipeline: Azure DevOps Pipelines YAML → **Phase 21**
+- [x] CI pipelines: Azure DevOps Pipelines + GitHub Actions → **Phase 21**
 - [ ] Structured logging + OpenTelemetry distributed tracing → **Phase 22**
 - [ ] Azure infrastructure provisioned via Terraform + AKS + Helm → **Phase 23**
 - [ ] Key Vault + Workload Identity + KEDA autoscaling → **Phase 24**
@@ -177,7 +177,7 @@ code is written for that phase.
 | Phase | Title | Depends on | Spec |
 |---|---|---|---|
 | 20 | Local Full-Stack Docker Compose | Phase 16 | `docs/specs/phase-20-local-docker-compose.md` |
-| 21 | CI Pipeline (Azure DevOps Pipelines) | Phase 20 | `docs/specs/phase-21-ci-pipeline.md` |
+| 21 | CI Pipelines (Azure DevOps + GitHub Actions) | Phase 20 | `docs/specs/phase-21-ci-pipeline.md` |
 | 23 | Terraform IaC + AKS Deployment + Helm | Phase 21 | `docs/specs/phase-23-terraform-aks-helm.md` |
 | 24 | Key Vault + Workload Identity + KEDA | Phase 23 | `docs/specs/phase-24-keyvault-keda.md` |
 | 25 | Azure Monitor Alerts + Runbook | Phase 24 | `docs/specs/phase-25-alerting-runbook.md` |

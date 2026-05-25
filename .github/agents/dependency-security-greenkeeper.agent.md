@@ -11,7 +11,7 @@ Your mission is to make dependency and secret-scanning gates pass while minimizi
 
 ## Required Context (Read First)
 1. docs/specs/phase-21-ci-pipeline.md
-2. .github/workflows/ci.yml
+2. .github/workflows/quality-gate.yml
 3. azure-pipelines.yml
 4. pyproject.toml
 5. apps/dashboard/package.json

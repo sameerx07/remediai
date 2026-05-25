@@ -7,7 +7,7 @@ model (Docusaurus + `actions/deploy-pages`). This runbook covers the one-time
 setup, verification, custom domain configuration, and troubleshooting.
 
 It applies to any project using the pattern established in
-`docs/specs/phase-30-documentation-site.md` and `.github/workflows/docs.yml`.
+`docs/specs/phase-30-documentation-site.md` and `.github/workflows/docs-site-publish.yml`.
 
 ---
 
@@ -334,6 +334,6 @@ See `docs/specs/phase-30-documentation-site.md` → **Reuse Guide for Future Pro
 ## Related
 
 - Spec: `docs/specs/phase-30-documentation-site.md`
-- Workflow: `.github/workflows/docs.yml`
+- Workflow: `.github/workflows/docs-site-publish.yml`
 - Setup script: `scripts/setup_github_pages.sh`
 - Branch protection runbook: `docs/runbooks/github-branch-protection.md`

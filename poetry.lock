@@ -407,23 +407,6 @@ isodate = ">=0.6.0"
 typing-extensions = ">=4.6.0"
 
 [[package]]
-name = "azure-servicebus"
-version = "7.14.3"
-description = "Microsoft Azure Service Bus Client Library for Python"
-optional = false
-python-versions = ">=3.9"
-groups = ["main"]
-files = [
-    {file = "azure_servicebus-7.14.3-py3-none-any.whl", hash = "sha256:386f8d32dae8881661ec8d791c38978eca2bbf7ea9f489d6cff8ad9cc6990234"},
-    {file = "azure_servicebus-7.14.3.tar.gz", hash = "sha256:70a63384557aec0bee727740e7b25ded29e9e701b77611764577fd7402389402"},
-]
-
-[package.dependencies]
-azure-core = ">=1.28.0"
-isodate = ">=0.6.0"
-typing-extensions = ">=4.6.0"
-
-[[package]]
 name = "azure-storage-blob"
 version = "12.29.0"
 description = "Microsoft Azure Blob Storage Client Library for Python"
@@ -4483,4 +4466,4 @@ cffi = ["cffi (>=1.17,<2.0) ; platform_python_implementation != \"PyPy\" and pyt
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.12"
-content-hash = "297a02af2ccb21730f6686514b519a5f6bb25a5134afd34d14051e09a47f5b77"
+content-hash = "eb0fca31dab47f7d7dcaee2602c06595c78da6a3a68ae76feac6728a16a3dc1e"

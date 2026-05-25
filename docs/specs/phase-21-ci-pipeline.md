@@ -2,7 +2,7 @@
 
 ## Goal
 
-Define and implement CI pipeline configuration for both Azure DevOps Pipelines and GitHub Actions so validation happens exactly once per event: GitHub Actions runs PR validation, Azure DevOps runs main-branch CI, and local pre-commit hooks catch lint and format issues before code is pushed.
+Define and implement CI pipeline configuration for both Azure DevOps Pipelines and GitHub Actions so validation runs consistently on pull requests and `main` pushes, with local pre-commit hooks catching lint and format issues before code is pushed.
 
 ---
 
@@ -18,7 +18,7 @@ Phase 20 (Local Full-Stack Docker Compose) must be complete before this phase. T
 |---|---|
 | `azure-pipelines.yml` | Main Azure DevOps pipeline: main branch CI only |
 | `azure-pipelines-release.yml` | Azure DevOps release pipeline: build images, push to ACR, update Helm values |
-| `.github/workflows/ci.yml` | GitHub Actions CI workflow: PR validation only |
+| `.github/workflows/quality-gate.yml` | GitHub Actions quality gate workflow: PR + main branch validation |
 | `.github/workflows/release.yml` | GitHub Actions release workflow: build images and push to GitHub Container Registry |
 | `.azure/templates/python-ci.yml` | Reusable step template: install, lint, typecheck, test |
 | `.azure/templates/frontend-ci.yml` | Reusable step template: npm install, tsc, build |
@@ -31,9 +31,9 @@ Phase 20 (Local Full-Stack Docker Compose) must be complete before this phase. T
 
 ## Pipeline Stages
 
-### GitHub Actions PR Validation
+### GitHub Actions Quality Gate Validation
 
-Trigger: pull request to `main`.
+Trigger: pull request to `main` and push to `main`.
 
 Stages run sequentially:
 
@@ -52,6 +52,8 @@ Stages run sequentially:
 5. Frontend build
    - `cd apps/dashboard && npm install --legacy-peer-deps`
    - `npm run build`
+6. Docs container build
+  - `docker build -f apps/docs/Dockerfile -t remediai-docs:$GITHUB_SHA .`
 
 A failure in any stage blocks the PR.
 
@@ -121,12 +123,14 @@ stages:
       - template: .azure/templates/frontend-ci.yml
 ```
 
-### `.github/workflows/ci.yml`
+### `.github/workflows/quality-gate.yml`
 
 ```yaml
-name: CI
+name: Quality Gate and Container Validation
 
 on:
+  push:
+    branches: [main]
   pull_request:
     branches: [main]
 
@@ -183,6 +187,13 @@ jobs:
         with:
           node-version: '20'
       - run: cd apps/dashboard && npm install --legacy-peer-deps && npm run build
+
+  docs-container:
+    needs: frontend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -f apps/docs/Dockerfile -t remediai-docs:${{ github.sha }} .
 ```
 
 ### `.github/workflows/release.yml`
@@ -344,8 +355,8 @@ ci-local: lint typecheck check-prompts test ui-build
 ## Acceptance Criteria
 
 - `azure-pipelines.yml` triggers on main branch pushes only.
-- `.github/workflows/ci.yml` triggers on pull requests to `main` only.
-- All 5 PR stages run and complete successfully on a clean branch.
+- `.github/workflows/quality-gate.yml` triggers on pull requests and pushes to `main`.
+- All 6 PR stages run and complete successfully on a clean branch.
 - A deliberate ruff error causes Stage 1 to fail and blocks merge.
 - A deliberate test failure causes Stage 4 to fail and blocks merge.
 - Test results are published to Azure DevOps Test Plans on each run.

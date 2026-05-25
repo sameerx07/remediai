@@ -2,13 +2,13 @@
 
 This file defines reusable autonomous agent behavior that works across tools.
 
-## CI Greenkeeper (Autonomous)
+## Pipeline Reliability Engineer (Autonomous)
 
 ### Purpose
 Use this profile when GitHub Actions or Azure DevOps pipelines are failing and you want autonomous repair until green.
 
 ### Copilot Usage
-- Open agent picker and select `CI Greenkeeper` from `.github/agents/ci-greenkeeper.agent.md`.
+- Open agent picker and select `Pipeline Reliability Engineer` from `.github/agents/pipeline-reliability-engineer.agent.md`.
 - Provide input like:
   - `Fix failing run https://github.com/<org>/<repo>/actions/runs/<id> and continue until green.`
 
@@ -16,11 +16,11 @@ Use this profile when GitHub Actions or Azure DevOps pipelines are failing and y
 Use this exact prompt in Claude:
 
 ```text
-Act as RemediAI CI Greenkeeper.
+Act as RemediAI Pipeline Reliability Engineer.
 Read and follow:
 - docs/specs/phase-20-local-docker-compose.md
 - docs/specs/phase-21-ci-pipeline.md
-- .github/workflows/ci.yml
+- .github/workflows/quality-gate.yml
 - .github/workflows/release.yml
 - azure-pipelines.yml
 - azure-pipelines-release.yml
@@ -77,7 +77,7 @@ Use this profile when CI fails specifically in dependency/security stages such a
 Act as RemediAI Dependency Security Greenkeeper.
 Read and follow:
 - docs/specs/phase-21-ci-pipeline.md
-- .github/workflows/ci.yml
+- .github/workflows/quality-gate.yml
 - azure-pipelines.yml
 - pyproject.toml
 - apps/dashboard/package.json

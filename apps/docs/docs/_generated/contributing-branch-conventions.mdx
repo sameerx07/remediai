@@ -60,13 +60,14 @@ When this repository is hosted on GitHub, configure branch protection for
 3. Require branches to be up to date before merging.
 4. Block direct pushes to `main`.
 
-Recommended required checks (from `.github/workflows/ci.yml`):
+Recommended required checks (from `.github/workflows/quality-gate.yml`):
 
-- `Lint and format`
+- `Lint and format checks`
 - `Typecheck`
-- `Security scan`
+- `Security and dependency scan`
 - `Tests`
-- `Frontend build`
+- `Frontend production build`
+- `Docs container build`
 
 Detailed setup steps are documented in
 `docs/runbooks/github-branch-protection.md`.

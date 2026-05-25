@@ -38,7 +38,7 @@ Variables table at the end.
 | Deploy branch | `gh-pages` is **not** used — artifact is uploaded directly |
 | Custom domain | Supported via `CNAME` file in `apps/docs/static/` (optional) |
 | Deploy trigger | Push to `main` when `apps/docs/**` or `docs/**` changed, plus `workflow_dispatch` |
-| Workflow file | `.github/workflows/docs.yml` |
+| Workflow file | `.github/workflows/docs-site-publish.yml` |
 | Permissions required | `pages: write`, `id-token: write`, `contents: read` |
 | Concurrency | `group: pages`, `cancel-in-progress: true` |
 
@@ -149,11 +149,11 @@ See D10 for the exact enablement procedure.
 
 ### D8 — GitHub Actions Workflow
 
-File: `.github/workflows/docs.yml`
+File: `.github/workflows/docs-site-publish.yml`
 
 ```
 Trigger:
-  push → main when paths: apps/docs/**, docs/**, .github/workflows/docs.yml
+  push → main when paths: apps/docs/**, docs/**, .github/workflows/docs-site-publish.yml
   workflow_dispatch (manual)
 
 Permissions:
@@ -353,7 +353,7 @@ Before pushing, confirm all of the following locally:
 | No broken internal links | `cd apps/docs && npm run build` | Exit 0, zero errors |
 | Docs build output exists | `ls apps/docs/build/index.html` | File present |
 | `.nojekyll` present | `ls apps/docs/static/.nojekyll` | File present (empty) |
-| Workflow file valid YAML | `python3 -c "import yaml; yaml.safe_load(open('.github/workflows/docs.yml'))"` | No exception |
+| Workflow file valid YAML | `python3 -c "import yaml; yaml.safe_load(open('.github/workflows/docs-site-publish.yml'))"` | No exception |
 | `setup_github_pages.sh` executable | `ls -la scripts/setup_github_pages.sh` | `-rwxr-xr-x` |
 
 #### Step 1 — Enable GitHub Pages (one-time, runs once per repo)
@@ -378,7 +378,7 @@ gh api repos/akeesari/remediai/pages --jq '.status + " | " + .html_url'
 
 ```bash
 git add \
-  .github/workflows/docs.yml \
+  .github/workflows/docs-site-publish.yml \
   apps/docs/ \
   docs/runbooks/github-pages-setup.md \
   docs/specs/phase-30-documentation-site.md \
@@ -406,7 +406,7 @@ git commit -m "docs(site): add Docusaurus documentation site and GitHub Pages de
   - Blog post: Introducing RemediAI
   - Local search via @easyops-cn/docusaurus-search-local
   - Mermaid diagram support, dark mode, OG social card
-- .github/workflows/docs.yml — build + deploy workflow (Node 20, actions/deploy-pages@v4)
+- .github/workflows/docs-site-publish.yml — build + deploy workflow (Node 20, actions/deploy-pages@v4)
 - scripts/setup_github_pages.sh — one-time GitHub Pages enablement script
 - docs/runbooks/github-pages-setup.md — setup and troubleshooting runbook
 - docs/specs/phase-30-documentation-site.md — full spec with reuse guide
@@ -764,7 +764,7 @@ changes to the workflow, CSS, or content patterns are needed.
 5. Update the landing page sections in `src/pages/index.tsx` (features, workflow steps, tech stack, security pillars).
 6. Replace `static/img/logo.svg` and `static/img/social-card.svg` with new branding.
 7. Update `blog/authors.yml` with the new project's author profiles.
-8. Copy `.github/workflows/docs.yml` and update `apps/docs/` paths if the docs live elsewhere.
+8. Copy `.github/workflows/docs-site-publish.yml` and update `apps/docs/` paths if the docs live elsewhere.
 9. Run `scripts/setup_github_pages.sh` (after updating the org/repo values) to enable GitHub Pages.
 10. Push to `main` — the site deploys automatically.
 

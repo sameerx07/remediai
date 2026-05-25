@@ -6,7 +6,7 @@ Use this runbook to configure repository-level protections so that only validate
 
 ## Scope
 
-This applies to GitHub-hosted repositories using the workflow in .github/workflows/ci.yml.
+This applies to GitHub-hosted repositories using the workflow in .github/workflows/quality-gate.yml.
 
 ## Prerequisites
 
@@ -31,16 +31,17 @@ This applies to GitHub-hosted repositories using the workflow in .github/workflo
 
 Select these jobs from CI workflow runs:
 
-- Lint and format
+- Lint and format checks
 - Typecheck
-- Security scan
+- Security and dependency scan
 - Tests
-- Frontend build
+- Frontend production build
+- Docs container build
 
 Optional checks for main push quality:
 
-- Local compose smoke
-- Docker build
+- Local Docker Compose smoke
+- Docker image build
 
 ## Validate Configuration
 

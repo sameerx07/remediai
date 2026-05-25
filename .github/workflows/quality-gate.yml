@@ -1,17 +1,20 @@
-name: CI
+name: Quality Gate and Container Validation
 
 on:
+  push:
+    branches:
+      - main
   pull_request:
     branches:
       - main
 
 concurrency:
-  group: ci-${{ github.ref }}
+  group: quality-gate-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   lint:
-    name: Lint and format
+    name: Lint and format checks
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -58,7 +61,7 @@ jobs:
         run: poetry run mypy apps/ packages/ --strict
 
   security:
-    name: Security scan
+    name: Security and dependency scan
     needs: typecheck
     runs-on: ubuntu-latest
     steps:
@@ -140,7 +143,7 @@ jobs:
           path: results/test-results.xml
 
   frontend:
-    name: Frontend build
+    name: Frontend production build
     needs: test
     runs-on: ubuntu-latest
     steps:
@@ -160,9 +163,20 @@ jobs:
           npm install --legacy-peer-deps
           npm run build
 
-  local-smoke:
-    name: Local compose smoke
+  docs-container:
+    name: Docs container build
     needs: frontend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build docs image
+        run: docker build -f apps/docs/Dockerfile -t remediai-docs:${{ github.sha }} .
+
+  local-smoke:
+    name: Local Docker Compose smoke
+    needs: docs-container
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
@@ -185,7 +199,7 @@ jobs:
         run: docker compose -f docker-compose.local.yml down -v
 
   docker-build:
-    name: Docker build
+    name: Docker image build
     needs: local-smoke
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest

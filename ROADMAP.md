@@ -2,7 +2,7 @@
 
 ## Current Status
 
-**Active development.** Phases 1–21 are complete and committed. The end-to-end
+**Active development.** Phases 1–21, 30, 32, and 33 are complete and committed. The end-to-end
 flow now includes approval-gated draft PR creation and validation
 (ingestion → triage → root cause → code context → RAG → fix planner → bug
 creation → approval gate → PR agent → validation agent). Work remaining is
@@ -140,7 +140,16 @@ cloud-agnostic deployments and explicit target selection across Docker and
 Kubernetes.
 
 - [x] Provider abstraction layer + deployment profiles (`azure-foundry`, `portable`) → **Phase 32**
-- [ ] Target registry + runtime discovery/selection for Docker and Kubernetes → **Phase 33**
+- [x] Target registry + runtime discovery/selection for Docker and Kubernetes → **Phase 33**
+
+---
+
+### Milestone 11 — Documentation Experience (Phases 30–31)
+
+**Goal:** Maintain a continuously published docs site with drift detection and ecosystem packaging readiness.
+
+- [x] Public docs site with GitHub Pages deployment and sync automation → **Phase 30**
+- [ ] Artifact Hub publishing metadata and packaging docs workflow → **Phase 31**
 
 ---
 
@@ -241,7 +250,8 @@ management for broader distribution scenarios.
 | Observability + alerting | Phase 25 |
 | Load + security validation | Phase 26 |
 | Provider abstraction + install profiles | Phase 32 |
-| Docker/Kubernetes target registry | Phase 33 |
+| Docker/Kubernetes target registry | Phase 33 ✅ |
+| Public docs site with sync automation | Phase 30 ✅ |
 
 ---
 
@@ -268,7 +278,9 @@ management for broader distribution scenarios.
 | 17 | AI Search Index Population + RAG Quality Hardening | `3a2e33c` |
 | 18 | Validation Agent — PR Diff Review | `63c0862` |
 | 19 | PR Agent + Human Approval Gate | `63c0862` |
+| 30 | Public Documentation Site + Sync Automation | `059e517` |
 | 32 | Provider Abstraction + Deployment Profiles | `677d3af` |
+| 33 | Target Registry + Discovery/Selection | `37d3b9c` |
 
 ---
 

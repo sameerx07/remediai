@@ -11,8 +11,13 @@ Always read these files first to understand current state:
 
 1. **Never** run `git add`, `git commit`, or `git push` without explicit user approval.
    Accepted signals: "commit", "yes", "go ahead", "approve". Silence is not approval.
-2. After completing a phase: run `ruff` + `mypy --strict` + `pytest`, show a **Phase Summary**, then **stop and wait**.
-3. One commit per phase. No squashing phases without permission.
+2. After completing a phase: run `ruff` + `mypy --strict` + `pytest`.
+3. For every project code change, validate a local Docker build before phase sign-off:
+  - `cp .env.example .env` (if `.env` is missing)
+  - `docker compose -f docker-compose.local.yml --env-file .env config`
+  - `docker compose -f docker-compose.local.yml --env-file .env build`
+4. Show a **Phase Summary**, then **stop and wait**.
+5. One commit per phase. No squashing phases without permission.
 
 **Required Phase Summary format:**
 

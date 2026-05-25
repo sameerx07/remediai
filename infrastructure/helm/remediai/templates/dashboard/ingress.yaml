@@ -1,0 +1,30 @@
+{{- if .Values.dashboard.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "remediai.fullname" . }}-dashboard
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "remediai.labels" . | nindent 4 }}
+    app.kubernetes.io/component: dashboard
+  annotations:
+    kubernetes.io/ingress.class: azure/application-gateway
+    appgw.ingress.kubernetes.io/ssl-redirect: "true"
+    appgw.ingress.kubernetes.io/waf-policy-for-path: "owasp-3.2"
+spec:
+  tls:
+    - hosts:
+        - {{ .Values.dashboard.ingress.host | quote }}
+      secretName: {{ .Values.dashboard.ingress.tlsSecretName }}
+  rules:
+    - host: {{ .Values.dashboard.ingress.host | quote }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "remediai.fullname" . }}-dashboard
+                port:
+                  name: http
+{{- end }}

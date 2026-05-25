@@ -1,0 +1,40 @@
+global:
+  registry: remediai.azurecr.io
+  imageTag: latest
+  workloadIdentityClientId: ""
+
+api:
+  image: remediai/api
+  replicas: 2
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  port: 8000
+
+workerAgents:
+  image: remediai/worker
+  replicas: 1
+
+workerIngestion:
+  image: remediai/worker
+  schedule: "*/5 * * * *"
+
+dashboard:
+  image: remediai/dashboard
+  replicas: 1
+  port: 80
+  ingress:
+    enabled: true
+    host: remediai.example.com
+    tlsSecretName: remediai-tls
+
+config:
+  postgresFqdn: ""
+  serviceBusNamespaceFqdn: ""
+  keyVaultUri: ""
+  aiSearchEndpoint: ""
+  logLevel: "INFO"

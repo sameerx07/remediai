@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "remediai.fullname" . }}-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "remediai.labels" . | nindent 4 }}
+data:
+  POSTGRES_FQDN: {{ .Values.config.postgresFqdn | quote }}
+  SERVICE_BUS_NAMESPACE_FQDN: {{ .Values.config.serviceBusNamespaceFqdn | quote }}
+  KEY_VAULT_URI: {{ .Values.config.keyVaultUri | quote }}
+  AI_SEARCH_ENDPOINT: {{ .Values.config.aiSearchEndpoint | quote }}
+  LOG_LEVEL: {{ .Values.config.logLevel | quote }}
+  API_PORT: {{ .Values.api.port | quote }}

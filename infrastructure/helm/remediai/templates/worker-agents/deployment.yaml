@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "remediai.fullname" . }}-worker-agents
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "remediai.labels" . | nindent 4 }}
+    app.kubernetes.io/component: worker-agents
+spec:
+  replicas: {{ .Values.workerAgents.replicas }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "remediai.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: worker-agents
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "remediai.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: worker-agents
+        azure.workload.identity/use: "true"
+    spec:
+      serviceAccountName: {{ include "remediai.fullname" . }}
+      terminationGracePeriodSeconds: 120
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      containers:
+        - name: worker-agents
+          image: {{ include "remediai.image" (dict "Values" .Values "image" .Values.workerAgents.image) }}
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - configMapRef:
+                name: {{ include "remediai.fullname" . }}-config
+          env:
+            - name: WORKER_MODE
+              value: "agents"
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]

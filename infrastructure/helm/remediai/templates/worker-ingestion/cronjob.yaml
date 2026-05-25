@@ -1,0 +1,51 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "remediai.fullname" . }}-worker-ingestion
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "remediai.labels" . | nindent 4 }}
+    app.kubernetes.io/component: worker-ingestion
+spec:
+  schedule: {{ .Values.workerIngestion.schedule | quote }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 5
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: {{ include "remediai.name" . }}
+            app.kubernetes.io/instance: {{ .Release.Name }}
+            app.kubernetes.io/component: worker-ingestion
+            azure.workload.identity/use: "true"
+        spec:
+          serviceAccountName: {{ include "remediai.fullname" . }}
+          restartPolicy: OnFailure
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            fsGroup: 1000
+          containers:
+            - name: worker-ingestion
+              image: {{ include "remediai.image" (dict "Values" .Values "image" .Values.workerIngestion.image) }}
+              imagePullPolicy: IfNotPresent
+              envFrom:
+                - configMapRef:
+                    name: {{ include "remediai.fullname" . }}-config
+              env:
+                - name: WORKER_MODE
+                  value: "ingestion"
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 256Mi
+                limits:
+                  cpu: 500m
+                  memory: 512Mi
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop: ["ALL"]

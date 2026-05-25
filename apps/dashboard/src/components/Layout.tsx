@@ -4,6 +4,7 @@ import { clsx } from 'clsx'
 const NAV = [
   { to: '/incidents', label: 'Incidents' },
   { to: '/metrics', label: 'Metrics' },
+  { to: '/logs', label: 'Logs' },
 ]
 
 export function Layout() {

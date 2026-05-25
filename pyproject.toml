@@ -61,6 +61,7 @@ asyncio_mode = "auto"
 testpaths = ["tests/unit", "tests/integration", "tests/agent-evals"]
 markers = [
     "e2e: end-to-end tests requiring a live PostgreSQL instance",
+    "local_bridge: live stack tests requiring make local-up to be running",
 ]
 
 [tool.mypy]

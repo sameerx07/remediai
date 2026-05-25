@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Layout } from './components/Layout'
 import { IncidentList } from './pages/IncidentList'
 import { IncidentDetail } from './pages/IncidentDetail'
+import { LocalLogsPage } from './pages/LocalLogsPage'
 import { MetricsPage } from './pages/MetricsPage'
 
 const queryClient = new QueryClient({
@@ -21,6 +22,7 @@ export function App() {
             <Route path="/incidents" element={<IncidentList />} />
             <Route path="/incidents/:id" element={<IncidentDetail />} />
             <Route path="/metrics" element={<MetricsPage />} />
+            <Route path="/logs" element={<LocalLogsPage />} />
           </Route>
         </Routes>
       </BrowserRouter>

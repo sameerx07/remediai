@@ -75,6 +75,19 @@ local-logs:
 local-migrate:
 	docker compose -f docker-compose.local.yml exec api alembic upgrade head
 
+local-bridge-e2e:
+	@echo "Running local log bridge end-to-end tests against http://localhost:$${LOCAL_API_PORT:-8000}"
+	@echo "Prereqs: make local-up && make local-migrate"
+	pytest tests/e2e/test_local_log_bridge.py -v -m local_bridge \
+		--tb=short \
+		-x
+
+local-bridge-restart:
+	docker compose -f docker-compose.local.yml --env-file .env.local restart log-bridge
+
+local-bridge-logs:
+	docker compose -f docker-compose.local.yml logs -f log-bridge
+
 local-smoke:
 	@set -a; [ -f .env.local ] && . ./.env.local; set +a; \
 	api_port=$${LOCAL_API_PORT:-8000}; \

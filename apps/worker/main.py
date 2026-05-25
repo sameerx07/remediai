@@ -12,6 +12,7 @@ import logging
 import structlog
 
 from apps.api.core.config import get_settings
+from apps.worker.agents.local_poller import LocalIncidentPoller
 from apps.worker.ingestion.scheduler import IngestionScheduler
 
 
@@ -20,7 +21,6 @@ def _configure_logging(log_level: str) -> None:
         processors=[
             structlog.contextvars.merge_contextvars,
             structlog.stdlib.add_log_level,
-            structlog.stdlib.add_logger_name,
             structlog.processors.TimeStamper(fmt="iso"),
             structlog.processors.JSONRenderer(),
         ],
@@ -43,8 +43,13 @@ async def main() -> None:
         poll_interval=settings.ingestion_poll_interval_seconds,
     )
 
-    scheduler = IngestionScheduler(settings=settings)
-    await scheduler.run_forever()
+    if settings.local_mode:
+        logger.info("worker_local_mode", note="using LocalIncidentPoller instead of Azure Monitor")
+        poller = LocalIncidentPoller(settings=settings)
+        await poller.run_forever()
+    else:
+        scheduler = IngestionScheduler(settings=settings)
+        await scheduler.run_forever()
 
 
 if __name__ == "__main__":

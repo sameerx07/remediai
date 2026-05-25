@@ -60,6 +60,11 @@ class Settings(BaseSettings):
     ingestion_poll_interval_seconds: int = 60
     ingestion_lookback_minutes: int = 10
 
+    # Local dev mode
+    local_mode: bool = False
+    local_log_bridge_containers: str = "api,worker,dashboard"
+    local_incident_poll_interval_seconds: int = 10
+
     @property
     def database_url(self) -> str:
         return (

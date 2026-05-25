@@ -40,6 +40,7 @@ services:
       - "${LOCAL_API_PORT:-8000}:8000"
     environment:
       APP_ENV: local
+      LOCAL_MODE: ${LOCAL_MODE:-true}
       POSTGRES_HOST: postgres
       POSTGRES_PORT: 5432
       POSTGRES_DB: remediai
@@ -72,6 +73,7 @@ services:
       dockerfile: apps/worker/Dockerfile
     environment:
       APP_ENV: local
+      LOCAL_MODE: ${LOCAL_MODE:-true}
       POSTGRES_HOST: postgres
       POSTGRES_PORT: 5432
       POSTGRES_DB: remediai
@@ -104,6 +106,24 @@ services:
     depends_on:
       api:
         condition: service_healthy
+
+  log-bridge:
+    build:
+      context: .
+      dockerfile: apps/log_bridge/Dockerfile
+    environment:
+      API_URL: http://api:8000
+      REDIS_URL: redis://redis:6379/0
+      COMPOSE_PROJECT_NAME: ${COMPOSE_PROJECT_NAME:-remediai}
+      BRIDGE_CONTAINERS: ${BRIDGE_CONTAINERS:-api,worker,dashboard}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      api:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
 
 volumes:
   postgres_data:

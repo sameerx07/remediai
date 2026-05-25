@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 36" fill="none">
+  <rect x="0" y="8" width="20" height="20" rx="5" fill="#4da8f0"/>
+  <circle cx="10" cy="18" r="4" fill="#1a1f2e"/>
+  <circle cx="10" cy="18" r="2" fill="#b08ae0"/>
+  <path d="M7 11 L10 14 L13 11" stroke="#4da8f0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M7 25 L10 22 L13 25" stroke="#4da8f0" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="28" y="24" font-family="Inter, system-ui, sans-serif" font-weight="800" font-size="18" fill="#ffffff" letter-spacing="-0.5">Remedi<tspan fill="#b08ae0">AI</tspan></text>
+</svg>

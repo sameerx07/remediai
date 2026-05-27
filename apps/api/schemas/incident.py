@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from math import ceil
-from typing import Any, Generic, TypeVar
+from typing import Any, TypeVar
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -10,7 +10,7 @@ from pydantic import BaseModel
 T = TypeVar("T")
 
 
-class PaginatedResponse(BaseModel, Generic[T]):
+class PaginatedResponse[T](BaseModel):
     items: list[T]
     total: int
     page: int

@@ -177,3 +177,23 @@ class TestHttp5xx:
         line = '10.0.0.1:12345 - "GET /notfound HTTP/1.1" 404 Not Found'
         result = parser.feed(line)
         assert result is None
+
+
+class TestDotNet:
+    def test_detects_dotnet_exception(self) -> None:
+        parser = ExceptionParser()
+        lines = [
+            "2026-05-26 11:13:14.4031|ERROR|Middleware|An unhandled exception has occurred. System.InvalidOperationException: TradeSignal test exception",
+            "   at API.Controllers.HealthController.ThrowException() in /src/API/Controllers/HealthController.cs:line 36",
+            "   at lambda_method38(Closure, Object, Object[])",
+            "2026-05-26 11:13:16.6537|INFO|Listener|Broadcasting TrendingUpdated",
+        ]
+        result = None
+        for line in lines:
+            r = parser.feed(line)
+            if r:
+                result = r
+        assert result is not None
+        assert result.exception_type == "System.InvalidOperationException"
+        assert result.exception_message == "TradeSignal test exception"
+        assert "ThrowException" in result.stack_trace

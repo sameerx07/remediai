@@ -35,7 +35,7 @@ class ADOReposWriterProtocol(Protocol):
     async def get_latest_commit_sha(self) -> str: ...
 
     async def push_patch(
-        self, branch: str, file_path: str, content: str, commit_message: str
+        self, branch: str, file_path: str, content: str, commit_message: str, old_object_id: str
     ) -> None: ...
 
     async def create_pull_request(
@@ -158,6 +158,7 @@ def make_pr_agent_node(
                     file_path=file_path,
                     content=patched_content,
                     commit_message=f"[RemediAI] {recommendation.get('title', 'Apply fix')}",
+                    old_object_id=head_sha,
                 )
 
             # Create draft PR (never auto-complete)

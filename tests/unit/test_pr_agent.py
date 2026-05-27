@@ -35,7 +35,12 @@ class _FakeWriter:
         return "a" * 40
 
     async def push_patch(
-        self, branch: str, file_path: str, content: str, commit_message: str
+        self,
+        branch: str,
+        file_path: str,
+        content: str,
+        commit_message: str,
+        old_object_id: str | None = None,
     ) -> None:
         self.push_calls.append((branch, file_path, content, commit_message))
 

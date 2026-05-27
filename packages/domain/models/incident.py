@@ -1,24 +1,25 @@
 import hashlib
 from datetime import UTC, datetime
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field, model_validator
 
 
-class IncidentPriority(str, Enum):
+class IncidentPriority(StrEnum):
     CRITICAL = "critical"
     HIGH = "high"
     MEDIUM = "medium"
     LOW = "low"
 
 
-class IncidentStatus(str, Enum):
+class IncidentStatus(StrEnum):
     NEW = "new"
     TRIAGING = "triaging"
     ANALYZED = "analyzed"
     BUG_CREATED = "bug_created"
+    PR_CREATED = "pr_created"
     RESOLVED = "resolved"
     ANALYSIS_FAILED = "analysis_failed"
 

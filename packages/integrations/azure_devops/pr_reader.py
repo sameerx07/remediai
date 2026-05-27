@@ -97,9 +97,15 @@ class ADOPrReader:
 
     @classmethod
     def from_settings(cls, settings: Any) -> ADOPrReader:
+        pat_field = getattr(settings, "azure_devops_pat", "")
+        pat = (
+            pat_field.get_secret_value()
+            if hasattr(pat_field, "get_secret_value")
+            else str(pat_field)
+        )
         return cls(
             org_url=getattr(settings, "azure_devops_org_url", ""),
             project=getattr(settings, "azure_devops_project", ""),
             repository=getattr(settings, "azure_devops_repository", ""),
-            pat=getattr(settings, "azure_devops_pat", ""),
+            pat=pat,
         )

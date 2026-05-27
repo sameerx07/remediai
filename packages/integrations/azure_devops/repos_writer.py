@@ -35,7 +35,7 @@ class ADOReposWriter:
         _base = f"{org_url.rstrip('/')}/{project}/_apis/git/repositories/{repository}"
         self._refs_url = f"{_base}/refs"
         self._pushes_url = f"{_base}/pushes"
-        self._pr_url = f"{org_url.rstrip('/')}/{project}/_apis/git/pullrequests"
+        self._pr_url = f"{_base}/pullrequests"
         self._http = httpx.AsyncClient(
             auth=httpx.BasicAuth("", pat),
             headers={"Content-Type": "application/json"},
@@ -82,11 +82,12 @@ class ADOReposWriter:
         file_path: str,
         content: str,
         commit_message: str,
+        old_object_id: str,
     ) -> None:
         """Push a file change to *branch* via the ADO Push API."""
         encoded = base64.b64encode(content.encode()).decode()
         payload = {
-            "refUpdates": [{"name": f"refs/heads/{branch}", "oldObjectId": "0" * 40}],
+            "refUpdates": [{"name": f"refs/heads/{branch}", "oldObjectId": old_object_id}],
             "commits": [
                 {
                     "comment": commit_message,
@@ -157,10 +158,16 @@ class ADOReposWriter:
 
     @classmethod
     def from_settings(cls, settings: Any) -> ADOReposWriter:
+        pat_field = getattr(settings, "azure_devops_pat", "")
+        pat = (
+            pat_field.get_secret_value()
+            if hasattr(pat_field, "get_secret_value")
+            else str(pat_field)
+        )
         return cls(
             org_url=getattr(settings, "azure_devops_org_url", ""),
             project=getattr(settings, "azure_devops_project", ""),
             repository=getattr(settings, "azure_devops_repository", ""),
-            pat=getattr(settings, "azure_devops_pat", ""),
+            pat=pat,
             default_branch=getattr(settings, "azure_devops_branch", "main"),
         )

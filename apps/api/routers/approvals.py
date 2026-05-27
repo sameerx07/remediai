@@ -78,7 +78,7 @@ def _append_human_approval_trace(
         latency_ms=0,
         error=None,
     )
-    trace_entries.append(trace_entry.model_dump())
+    trace_entries.append(trace_entry.model_dump(mode="json"))
     analysis.agent_trace = trace_entries
 
 

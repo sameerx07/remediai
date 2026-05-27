@@ -75,8 +75,14 @@ class AzureDevOpsBoardsClient:
 
     @classmethod
     def from_settings(cls, settings: Any) -> AzureDevOpsBoardsClient:
+        pat_field = settings.azure_devops_pat
+        pat = (
+            pat_field.get_secret_value()
+            if hasattr(pat_field, "get_secret_value")
+            else str(pat_field)
+        )
         return cls(
             org_url=settings.azure_devops_org_url,
             project=settings.azure_devops_project,
-            pat=settings.azure_devops_pat,
+            pat=pat,
         )

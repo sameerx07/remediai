@@ -58,6 +58,7 @@ async def test_push_patch_calls_push_api() -> None:
             file_path="src/Demo.cs",
             content=expected_content,
             commit_message="apply patch",
+            old_object_id="a" * 40,
         )
     finally:
         await writer.aclose()
@@ -67,7 +68,7 @@ async def test_push_patch_calls_push_api() -> None:
 async def test_create_pull_request_draft() -> None:
     async def handler(request: httpx.Request) -> httpx.Response:
         assert request.method == "POST"
-        assert request.url.path.endswith("/proj/_apis/git/pullrequests")
+        assert request.url.path.endswith("/_apis/git/repositories/repo/pullrequests")
         body = request.read().decode("utf-8")
         assert '"isDraft": true' in body
         return httpx.Response(200, json={"pullRequestId": 42, "url": "https://example/pr/42"})

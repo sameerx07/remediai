@@ -47,12 +47,18 @@ class LocalIncidentPoller:
         self._session_factory = session_factory
 
     async def run_once(self) -> int:
-        """Process one batch of new incidents. Returns the number processed."""
+        """Process one batch of new or approved incidents. Returns the number processed."""
         # Phase 1: fetch IDs only — short-lived session, no locks held during processing
         async with self._session_factory() as session:
             stmt = (
                 select(IncidentOrm.id)
-                .where(IncidentOrm.status == IncidentStatus.NEW.value)
+                .where(
+                    (IncidentOrm.status == IncidentStatus.NEW.value)
+                    | (
+                        (IncidentOrm.status == IncidentStatus.ANALYZED.value)
+                        & (IncidentOrm.approval_status == "approved")
+                    )
+                )
                 .order_by(IncidentOrm.created_at.asc())
                 .limit(_BATCH_SIZE)
             )
@@ -69,8 +75,16 @@ class LocalIncidentPoller:
         for inc_id in incident_ids:
             async with self._session_factory() as session:
                 orm = await session.get(IncidentOrm, inc_id)
-                if orm is None or orm.status != IncidentStatus.NEW.value:
+                if orm is None or orm.status not in (
+                    IncidentStatus.NEW.value,
+                    IncidentStatus.ANALYZED.value,
+                ):
                     continue  # already picked up by a concurrent run
+                if (
+                    orm.status == IncidentStatus.ANALYZED.value
+                    and orm.approval_status != "approved"
+                ):
+                    continue
                 incident = _orm_to_domain(orm)
                 try:
                     runner = AgentPipelineRunner(session=session, settings=self._settings)

@@ -8,7 +8,7 @@ class Recommendation(BaseModel):
     title: str
     description: str
     affected_files: list[str] = Field(default_factory=list)
-    suggested_change: str
+    suggested_change: str = ""
     confidence: float = Field(default=0.5)
     source_refs: list[str] = Field(default_factory=list)
 

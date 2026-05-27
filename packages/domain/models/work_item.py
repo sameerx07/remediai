@@ -1,11 +1,11 @@
 from datetime import UTC, datetime
-from enum import Enum
+from enum import StrEnum
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field
 
 
-class WorkItemType(str, Enum):
+class WorkItemType(StrEnum):
     BUG = "bug"
     TASK = "task"
 

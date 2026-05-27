@@ -177,3 +177,91 @@ class TestHttp5xx:
         line = '10.0.0.1:12345 - "GET /notfound HTTP/1.1" 404 Not Found'
         result = parser.feed(line)
         assert result is None
+
+
+class TestDotNet:
+    def test_detects_dotnet_exception(self) -> None:
+        parser = ExceptionParser()
+        lines = [
+            "2026-05-26 11:13:14.4031|ERROR|Middleware|An unhandled exception has occurred. System.InvalidOperationException: SampleApp unhandled exception",
+            "   at API.Controllers.HealthController.ThrowException() in /src/API/Controllers/HealthController.cs:line 36",
+            "   at lambda_method38(Closure, Object, Object[])",
+            "2026-05-26 11:13:16.6537|INFO|Listener|Broadcasting TrendingUpdated",
+        ]
+        result = None
+        for line in lines:
+            r = parser.feed(line)
+            if r:
+                result = r
+        assert result is not None
+        assert result.exception_type == "System.InvalidOperationException"
+        assert result.exception_message == "SampleApp unhandled exception"
+        assert "ThrowException" in result.stack_trace
+
+
+class TestJsonLogs:
+    """Verify that structured JSON log lines are unwrapped before parsing."""
+
+    def test_serilog_message_field(self) -> None:
+        """Serilog JSON format: RenderedMessage contains the exception string."""
+        import json
+
+        parser = ExceptionParser()
+        payload = json.dumps(
+            {
+                "@timestamp": "2026-05-27T08:00:00Z",
+                "@l": "Error",
+                "RenderedMessage": "System.NullReferenceException: Object not set to an instance of an object",
+                "SourceContext": "API.Services.OrderService",
+            }
+        )
+        result = parser.feed(payload)
+        assert result is not None
+        assert result.exception_type == "System.NullReferenceException"
+        assert "Object not set" in result.exception_message
+
+    def test_serilog_exception_field(self) -> None:
+        """Serilog JSON format: Exception field contains the full stack trace."""
+        import json
+
+        parser = ExceptionParser()
+        payload = json.dumps(
+            {
+                "@l": "Error",
+                "message": "Unhandled error",
+                "Exception": (
+                    "System.InvalidOperationException: Sequence contains no elements\n"
+                    "   at API.Controllers.ItemController.Get() in /src/API/Controllers/ItemController.cs:line 22"
+                ),
+            }
+        )
+        result = parser.feed(payload)
+        assert result is not None
+        assert result.exception_type == "System.InvalidOperationException"
+        assert "Sequence contains no elements" in result.exception_message
+
+    def test_python_structlog_json(self) -> None:
+        """Python structlog JSON output: event field holds the exception text."""
+        import json
+
+        parser = ExceptionParser()
+        lines = [
+            json.dumps({"level": "error", "event": "Traceback (most recent call last):"}),
+            json.dumps({"level": "error", "event": '  File "src/worker.py", line 10, in run'}),
+            json.dumps({"level": "error", "event": "RuntimeError: queue full"}),
+        ]
+        result = None
+        for line in lines:
+            r = parser.feed(line)
+            if r:
+                result = r
+        assert result is not None
+        assert result.exception_type == "RuntimeError"
+        assert result.exception_message == "queue full"
+
+    def test_plain_text_unchanged(self) -> None:
+        """Non-JSON lines should still be parsed as before (no regression)."""
+        parser = ExceptionParser()
+        result = parser.feed("ValueError: plain text error with no json wrapper")
+        assert result is not None
+        assert result.exception_type == "ValueError"

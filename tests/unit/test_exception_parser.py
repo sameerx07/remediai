@@ -183,7 +183,7 @@ class TestDotNet:
     def test_detects_dotnet_exception(self) -> None:
         parser = ExceptionParser()
         lines = [
-            "2026-05-26 11:13:14.4031|ERROR|Middleware|An unhandled exception has occurred. System.InvalidOperationException: TradeSignal test exception",
+            "2026-05-26 11:13:14.4031|ERROR|Middleware|An unhandled exception has occurred. System.InvalidOperationException: SampleApp unhandled exception",
             "   at API.Controllers.HealthController.ThrowException() in /src/API/Controllers/HealthController.cs:line 36",
             "   at lambda_method38(Closure, Object, Object[])",
             "2026-05-26 11:13:16.6537|INFO|Listener|Broadcasting TrendingUpdated",
@@ -195,5 +195,5 @@ class TestDotNet:
                 result = r
         assert result is not None
         assert result.exception_type == "System.InvalidOperationException"
-        assert result.exception_message == "TradeSignal test exception"
+        assert result.exception_message == "SampleApp unhandled exception"
         assert "ThrowException" in result.stack_trace

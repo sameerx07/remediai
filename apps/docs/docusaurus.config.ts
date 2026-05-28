@@ -53,17 +53,7 @@ const config: Config = {
           sidebarPath: './sidebars.ts',
           editUrl: 'https://github.com/akeesari/remediai/tree/main/apps/docs/',
         },
-        blog: {
-          showReadingTime: true,
-          feedOptions: {
-            type: ['rss', 'atom'],
-            xslt: true,
-          },
-          editUrl: 'https://github.com/akeesari/remediai/tree/main/apps/docs/',
-          onInlineTags: 'warn',
-          onInlineAuthors: 'warn',
-          onUntruncatedBlogPosts: 'warn',
-        },
+        blog: false,
         theme: {
           customCss: './src/css/custom.css',
         },
@@ -125,8 +115,8 @@ const config: Config = {
           position: 'left',
           label: 'Docs',
         },
-        { to: '/blog', label: 'Blog', position: 'left' },
-        { to: '/docs/roadmap', label: 'Roadmap', position: 'left' },
+
+
         {
           href: 'https://github.com/akeesari/remediai',
           position: 'right',
@@ -165,7 +155,6 @@ const config: Config = {
             { label: 'Roadmap', to: '/docs/roadmap' },
             { label: 'Contributing', to: '/docs/contributing/dev-environment' },
             { label: 'Security', to: '/docs/security/principles' },
-            { label: 'Blog', to: '/blog' },
             {
               label: 'GitHub',
               href: 'https://github.com/akeesari/remediai',

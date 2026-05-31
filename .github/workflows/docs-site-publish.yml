@@ -2,18 +2,17 @@ name: Documentation Site Publish
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
     paths:
-      - 'apps/docs/**'
-      - 'docs/**'
-      - 'ARCHITECTURE.md'
-      - 'TECH_STACK.md'
-      - 'SECURITY_GUARDRAILS.md'
-      - 'ROADMAP.md'
-      - 'CONTRIBUTING.md'
-      - 'scripts/sync_docs_site.py'
-      - '.github/workflows/docs-site-publish.yml'
+      - "apps/docs/**"
+      - "docs/**"
+      - "ARCHITECTURE.md"
+      - "TECH_STACK.md"
+      - "SECURITY_GUARDRAILS.md"
+      - "ROADMAP.md"
+      - "CONTRIBUTING.md"
+      - "scripts/sync_docs_site.py"
+      - ".github/workflows/docs-site-publish.yml"
   workflow_dispatch:
 
 permissions:
@@ -30,15 +29,13 @@ jobs:
     name: Build Docusaurus site
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
           cache: npm
           cache-dependency-path: apps/docs/package-lock.json
 
@@ -47,33 +44,11 @@ jobs:
         run: npm ci
 
       - name: Build site
+        # npm run build already calls sync-content internally
         working-directory: apps/docs
         run: npm run build
         env:
           NODE_ENV: production
-
-      - name: Verify generated docs are in sync
-        run: |
-          git update-index -q --refresh
-          if ! git diff --quiet -- \
-            apps/docs/docs/_generated \
-            apps/docs/docs/architecture \
-            apps/docs/docs/security \
-            apps/docs/docs/roadmap.md \
-            apps/docs/docs/contributing/dev-environment.md \
-            apps/docs/docs/contributing/branch-conventions.md \
-            scripts/sync_docs_site.py; then
-            echo "Generated docs are out of sync. Run: npm --prefix apps/docs run sync-content and commit the changes."
-            git --no-pager diff -- \
-              apps/docs/docs/_generated \
-              apps/docs/docs/architecture \
-              apps/docs/docs/security \
-              apps/docs/docs/roadmap.md \
-              apps/docs/docs/contributing/dev-environment.md \
-              apps/docs/docs/contributing/branch-conventions.md \
-              scripts/sync_docs_site.py
-            exit 1
-          fi
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

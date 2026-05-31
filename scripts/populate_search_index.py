@@ -132,9 +132,9 @@ async def run_source(settings: object, embed: bool) -> None:
 
 
 async def run_prior_fixes(settings: object, embed: bool) -> None:
-    from apps.api.core.database import get_engine
     from sqlalchemy.ext.asyncio import AsyncSession
 
+    from apps.api.core.database import get_engine
     from packages.search.indexers.prior_fix_indexer import index_prior_fixes
 
     engine = get_engine(settings)

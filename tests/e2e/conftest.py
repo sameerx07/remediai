@@ -18,7 +18,6 @@ from unittest.mock import AsyncMock, MagicMock
 
 import asyncpg
 import pytest
-from alembic.config import Config as AlembicConfig
 from httpx import ASGITransport, AsyncClient
 from langchain_core.messages import AIMessage
 from sqlalchemy.engine import make_url
@@ -30,6 +29,7 @@ from sqlalchemy.ext.asyncio import (
 )
 
 from alembic import command as alembic_command
+from alembic.config import Config as AlembicConfig
 from apps.api.main import app
 from packages.agent_runtime.pipeline import build_pipeline
 from packages.data_access.models.analysis_orm import AnalysisOrm

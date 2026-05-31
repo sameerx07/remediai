@@ -189,8 +189,14 @@ class ADOReposWriter:
         )
         return cls(
             org_url=getattr(settings, "azure_devops_org_url", ""),
-            project=project if project is not None else getattr(settings, "azure_devops_project", ""),
-            repository=repository if repository is not None else getattr(settings, "azure_devops_repository", ""),
+            project=project
+            if project is not None
+            else getattr(settings, "azure_devops_project", ""),
+            repository=repository
+            if repository is not None
+            else getattr(settings, "azure_devops_repository", ""),
             pat=pat,
-            default_branch=default_branch if default_branch is not None else getattr(settings, "azure_devops_branch", "main"),
+            default_branch=default_branch
+            if default_branch is not None
+            else getattr(settings, "azure_devops_branch", "main"),
         )

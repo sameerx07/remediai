@@ -81,7 +81,43 @@ class ExceptionParser:
 
     def feed(self, raw_line: str) -> DetectedExcepion | None:
         # Pre-process: unwrap structured JSON logs into plain text
-        raw_line = _extract_from_json(raw_line)
+        extracted = _extract_from_json(raw_line)
+
+        # Multi-line content (e.g. Serilog Exception field with embedded stack trace):
+        # process each line in sequence, then flush any open .NET traceback.
+        if "\n" in extracted and extracted != raw_line:
+            result: DetectedExcepion | None = None
+            for line in extracted.splitlines():
+                r = self._process_line(line)
+                if r is not None:
+                    result = r
+            # No more lines will arrive from this JSON payload — flush any open traceback.
+            flush = self._flush_dotnet()
+            return result or flush
+
+        # Single-line extracted content or plain log line.
+        result = self._process_line(extracted)
+        # If a .NET exception was extracted from JSON (single line, no stack frames
+        # will follow), flush immediately rather than waiting for the next call.
+        if result is None and self._in_dotnet_tb and extracted != raw_line:
+            result = self._flush_dotnet()
+        return result
+
+    def _flush_dotnet(self) -> DetectedExcepion | None:
+        """Return and clear any in-progress .NET traceback, or None if none open."""
+        if not self._in_dotnet_tb or not self._tb_lines:
+            return None
+        exc = DetectedExcepion(
+            exception_type=self._dotnet_exc_type,
+            exception_message=self._dotnet_exc_msg,
+            stack_trace="\n".join(self._tb_lines),
+            raw_lines=list(self._tb_lines),
+        )
+        self._reset()
+        return exc
+
+    def _process_line(self, raw_line: str) -> DetectedExcepion | None:
+        """Process a single already-extracted log line."""
         clean = _strip_prefixes(raw_line)
 
         # 1. Handle active .NET traceback
@@ -102,9 +138,8 @@ class ExceptionParser:
                     raw_lines=list(self._tb_lines),
                 )
                 self._reset()
-                # Do not discard the current line! We process it as a fresh line.
-                # Since the current line is a new log line, let's recursively process it.
-                res = self.feed(raw_line)
+                # Process the current line as a fresh line (may start a new traceback).
+                res = self._process_line(raw_line)
                 return exc or res
 
         # 2. Handle active Python traceback

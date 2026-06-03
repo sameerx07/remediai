@@ -34,6 +34,9 @@ class IncidentOrm(Base):
 
     # Human approval gate (Phase 19)
     approval_status: Mapped[str | None] = mapped_column(String(20), nullable=True)
+
+    # Post-deploy monitoring result (Phase 37)
+    monitoring_result: Mapped[dict[str, Any] | None] = mapped_column(JSONB, nullable=True)
     approved_by: Mapped[str | None] = mapped_column(String(255), nullable=True)
     approved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     approved_recommendation_rank: Mapped[int | None] = mapped_column(Integer, nullable=True)

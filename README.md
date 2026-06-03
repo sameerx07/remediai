@@ -4,9 +4,45 @@
 [![Status: Pre-release](https://img.shields.io/badge/status-pre--release-orange.svg)]()
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
-RemediAI is an AI-powered exception analysis and remediation platform for enterprise .NET applications on Azure.
+RemediAI is an AI-powered exception analysis and remediation platform for enterprise .NET applications on Azure that detects exceptions from Azure Monitor / Application Insights, analyzes root causes with AI agents, recommends fixes, and generates Azure DevOps work items and pull requests for human review.
 
-It detects application exceptions from Azure Monitor / Application Insights, analyzes root cause using AI agents, creates remediation recommendations, and generates Azure DevOps work items and pull requests for human review.
+---
+
+## Start Here
+
+This README is the first file every new contributor should read. It provides project overview, setup instructions, architecture summary, and development guidelines in one place.
+
+### Setup Instructions (Local)
+
+1. Install prerequisites described in [CONTRIBUTING.md](CONTRIBUTING.md).
+2. Create local environment variables:
+  ```bash
+  cp .env.example .env
+  ```
+3. Start local services and applications:
+  ```bash
+  make local-up
+  ```
+4. Run database migrations:
+  ```bash
+  make local-migrate
+  ```
+5. Validate local health checks:
+  ```bash
+  make local-smoke
+  ```
+
+### Architecture Summary
+
+- High-level platform architecture is shown below in this README.
+- Detailed system design and data flow: [ARCHITECTURE.md](ARCHITECTURE.md)
+- Agent pipeline and contracts: [AGENT_DESIGN.md](AGENT_DESIGN.md)
+
+### Development Guidelines
+
+- Follow the contributor workflow and standards in [CONTRIBUTING.md](CONTRIBUTING.md).
+- Keep implementation aligned with [SPEC.md](SPEC.md) and [ROADMAP.md](ROADMAP.md).
+- Follow security requirements in [SECURITY_GUARDRAILS.md](SECURITY_GUARDRAILS.md).
 
 ---
 

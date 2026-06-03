@@ -1,7 +1,12 @@
-"""Runtime agent policy constants.
+"""Runtime agent policy constants (Phase 37 — Option C enforcement).
 
-Agents check these before executing restricted actions so policy is enforced
-in one place rather than scattered across individual agent implementations.
+Agents import from here rather than hardcoding limits inline.
+Changing a value here propagates to every agent that uses it.
+
+Enforced by:
+  - patch_builder.py        uses MAX_PATCH_SIZE_LINES
+  - pr_agent/agent.py       checks AGENTS_ALLOWED_TO_PUSH_CODE
+  - bug_creator/agent.py    checks AGENTS_ALLOWED_TO_CREATE_BUGS
 """
 
 from __future__ import annotations

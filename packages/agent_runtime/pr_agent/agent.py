@@ -10,6 +10,7 @@ from packages.agent_runtime.pr_agent.models import PRAgentOutput
 from packages.agent_runtime.pr_agent.patch_builder import PatchTooLargeError, build_patch
 from packages.domain.models.agent_state import IncidentState
 from packages.domain.models.audit import AgentTraceEntry
+from packages.governance.policies.agent_policy import AGENTS_ALLOWED_TO_PUSH_CODE
 
 logger = structlog.get_logger()
 
@@ -71,6 +72,25 @@ def make_pr_agent_node(
                 output_summary="skipped — not approved",
                 latency_ms=latency_ms,
                 error=None,
+            )
+            return {
+                "agent_trace": existing_trace + [trace_entry.model_dump()],
+                "errors": existing_errors,
+            }
+
+        # Policy guard — only permitted agents may push code
+        if AGENT_NAME not in AGENTS_ALLOWED_TO_PUSH_CODE:
+            error_msg = f"{AGENT_NAME} is not in AGENTS_ALLOWED_TO_PUSH_CODE policy"
+            log.error("pr_agent_policy_violation", error=error_msg)
+            existing_errors.append(f"{AGENT_NAME}: {error_msg}")
+            latency_ms = int(time.monotonic() * 1000) - start_ms
+            trace_entry = AgentTraceEntry(
+                agent_name=AGENT_NAME,
+                prompt_version=None,
+                input_summary=f"rank={approved_rank}",
+                output_summary="blocked — policy violation",
+                latency_ms=latency_ms,
+                error=error_msg,
             )
             return {
                 "agent_trace": existing_trace + [trace_entry.model_dump()],

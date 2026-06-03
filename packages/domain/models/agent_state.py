@@ -54,6 +54,9 @@ class IncidentState(TypedDict, total=False):
     pr_url: str | None
     validation_report: dict[str, Any] | None
 
+    # Phase 37 — post-deploy monitoring result
+    monitoring_result: dict[str, Any] | None
+
     # Audit
     agent_trace: list[dict[str, Any]]
     errors: list[str]

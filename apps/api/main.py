@@ -14,6 +14,7 @@ from apps.api.routers.incidents import router as incidents_router
 from apps.api.routers.integrations import router as integrations_router
 from apps.api.routers.local_logs import router as local_logs_router
 from apps.api.routers.metrics import router as metrics_router
+from apps.api.routers.monitoring import router as monitoring_router
 from apps.api.routers.targets import router as targets_router
 
 settings = get_settings()
@@ -59,6 +60,7 @@ _auth = [Depends(require_auth)]
 app.include_router(incidents_router, dependencies=_auth)
 app.include_router(approvals_router, dependencies=_auth)
 app.include_router(exceptions_router, dependencies=_auth)
+app.include_router(monitoring_router, dependencies=_auth)
 app.include_router(metrics_router, dependencies=_auth)
 app.include_router(integrations_router, dependencies=_auth)
 app.include_router(targets_router, dependencies=_auth)

@@ -124,6 +124,20 @@ organised below into milestones and parallel development tracks.
 
 ---
 
+### Milestone 7b — Monitoring + Governance (Phases 37, Option C)
+
+**Goal:** Close the feedback loop on deployed fixes; enforce agent policies centrally.
+
+- [x] Governance policy constants extracted to `packages/governance/policies/agent_policy.py` — Option C ✅
+- [x] `patch_builder.py` uses `MAX_PATCH_SIZE_LINES` from policy (no more hardcoded 500) — Option C ✅
+- [x] PR Agent enforces `AGENTS_ALLOWED_TO_PUSH_CODE` at runtime — Option C ✅
+- [x] Post-deploy monitoring endpoint `POST /api/v1/incidents/{id}/monitor` — **Phase 37** ✅
+- [x] Monitoring agent: Azure Monitor query, recurrence check, health status, LLM summary — **Phase 37** ✅
+- [x] `monitoring_result` persisted to `incidents` table; incident status updated to `resolved`/`reopened` — **Phase 37** ✅
+- [ ] Deployment Agent — triggers monitoring automatically (Gap 5, deferred — manual trigger used for now)
+
+---
+
 ### Milestone 9 — Extended Language Support (Phases 36, 27–29)
 
 **Goal:** Expand beyond .NET. These are post-v1.0 and out of MVP scope.

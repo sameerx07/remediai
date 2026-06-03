@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import difflib
 
-_MAX_DIFF_LINES = 500
+from packages.governance.policies.agent_policy import MAX_PATCH_SIZE_LINES as _MAX_DIFF_LINES
 
 
 class PatchTooLargeError(ValueError):

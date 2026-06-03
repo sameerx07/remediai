@@ -1,13 +1,13 @@
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
-import structlog.contextvars
-from fastapi import Depends, FastAPI, Request, Response
+from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from apps.api.core.auth import require_auth
+from apps.api.auth.dependencies import require_auth
 from apps.api.core.config import get_settings
 from apps.api.core.logging import configure_logging, get_logger
+from apps.api.middlewares.correlation_id import CorrelationIdMiddleware
 from apps.api.routers.approvals import router as approvals_router
 from apps.api.routers.exceptions import router as exceptions_router
 from apps.api.routers.incidents import router as incidents_router
@@ -20,7 +20,6 @@ settings = get_settings()
 configure_logging(settings.app_env, settings.log_level)
 logger = get_logger(__name__)
 
-_CORRELATION_ID_HEADER = "X-Correlation-ID"
 _prod = settings.app_env == "production"
 
 
@@ -42,6 +41,8 @@ app = FastAPI(
 )
 
 
+app.add_middleware(CorrelationIdMiddleware)
+
 _cors_origins = [o.strip() for o in settings.cors_origins.split(",") if o.strip()]
 if _cors_origins:
     app.add_middleware(
@@ -51,17 +52,6 @@ if _cors_origins:
         allow_methods=["*"],
         allow_headers=["*"],
     )
-
-
-@app.middleware("http")
-async def correlation_id_middleware(request: Request, call_next: object) -> Response:
-    correlation_id = request.headers.get(_CORRELATION_ID_HEADER, "")
-    structlog.contextvars.bind_contextvars(correlation_id=correlation_id)
-    response: Response = await call_next(request)  # type: ignore[operator]
-    if correlation_id:
-        response.headers[_CORRELATION_ID_HEADER] = correlation_id
-    structlog.contextvars.clear_contextvars()
-    return response
 
 
 _auth = [Depends(require_auth)]

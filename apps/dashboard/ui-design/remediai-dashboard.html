@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Remedy AI — Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* ── LIGHT THEME (default) ─────────────────────── */
+    :root {
+      --bg-page:      #F4F6FB;
+      --bg-sidebar:   #ffffff;
+      --bg-card:      #ffffff;
+      --bg-header:    #ffffff;
+      --bg-input:     #F8FAFC;
+      --border:       #ECEEF4;
+      --border-input: #E2E8F0;
+      --text-primary:   #1E293B;
+      --text-secondary: #374151;
+      --text-muted:     #6B7280;
+      --text-faint:     #94A3B8;
+      --nav-inactive:   #374151;
+      --nav-active-bg:  #EFF6FF;
+      --nav-active:     #2563EB;
+      --nav-hover-bg:   #EFF6FF;
+      --divider:        #F3F4F8;
+      --shadow:         0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+      --upgrade-gradient: linear-gradient(145deg,#2563EB 0%,#3B82F6 60%,#60A5FA 100%);
+      --chart-grid:     #F1F5F9;
+      --toggle-bg:      #E2E8F0;
+      --toggle-knob:    #ffffff;
+      --toggle-track-on: #2563EB;
+    }
+
+    /* ── DARK THEME (VS Code style) ───────────────── */
+    [data-theme="dark"] {
+      --bg-page:      #1E1E1E;
+      --bg-sidebar:   #252526;
+      --bg-card:      #2D2D2D;
+      --bg-header:    #252526;
+      --bg-input:     #3C3C3C;
+      --border:       #3E3E42;
+      --border-input: #4E4E52;
+      --text-primary:   #D4D4D4;
+      --text-secondary: #CCCCCC;
+      --text-muted:     #9D9D9D;
+      --text-faint:     #6A6A6A;
+      --nav-inactive:   #CCCCCC;
+      --nav-active-bg:  #172554;
+      --nav-active:     #93C5FD;
+      --nav-hover-bg:   #2A2D2E;
+      --divider:        #3E3E42;
+      --shadow:         0 1px 3px rgba(0,0,0,.4), 0 1px 2px rgba(0,0,0,.3);
+      --upgrade-gradient: linear-gradient(145deg,#172554 0%,#1D4ED8 60%,#2563EB 100%);
+      --chart-grid:     #3A3A3A;
+      --toggle-bg:      #3E3E42;
+      --toggle-knob:    #D4D4D4;
+      --toggle-track-on: #93C5FD;
+    }
+
+    * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; box-sizing: border-box; transition: background-color .2s, color .15s, border-color .15s; }
+    body { background: var(--bg-page); margin: 0; display: flex; min-height: 100vh; }
+
+    /* ── SIDEBAR ── */
+    .sidebar { width: 200px; min-height: 100vh; background: var(--bg-sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; overflow: hidden; transition: width .25s cubic-bezier(.4,0,.2,1); flex-shrink: 0; }
+    .sidebar.collapsed { width: 52px; }
+
+    /* Collapse toggle button */
+    .sidebar-toggle { width: 24px; height: 24px; border-radius: 6px; background: transparent; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-faint); flex-shrink: 0; transition: all .15s; }
+    .sidebar-toggle:hover { background: var(--nav-hover-bg); color: var(--nav-active); }
+
+    /* Nav items */
+    .nav-item { display: flex; align-items: center; gap: 9px; padding: 8px 12px; border-radius: 8px; color: var(--nav-inactive); font-size: 13px; font-weight: 500; cursor: pointer; transition: all .15s; margin: 1px 0; white-space: nowrap; overflow: hidden; }
+    .nav-item:hover { background: var(--nav-hover-bg); color: var(--nav-active); }
+    .nav-item.active { background: var(--nav-active-bg); color: var(--nav-active); font-weight: 600; }
+    .nav-item svg[data-lucide] { width: 15px !important; height: 15px !important; flex-shrink: 0; }
+
+    /* Collapsed nav: center icons, hide labels */
+    .sidebar.collapsed .nav-item { justify-content: center; padding: 8px; gap: 0; }
+    .sidebar.collapsed .nav-label { display: none; }
+    .sidebar.collapsed .logo-text { display: none; }
+    .sidebar.collapsed .upgrade-card { display: none; }
+    .sidebar.collapsed .user-text { display: none; }
+    .sidebar.collapsed .user-more { display: none; }
+    .sidebar.collapsed .theme-label-row { display: none; }
+
+    /* Tooltip on collapsed icons */
+    .nav-item { position: relative; }
+    .sidebar.collapsed .nav-item::after { content: attr(data-label); position: absolute; left: calc(100% + 10px); top: 50%; transform: translateY(-50%); background: var(--text-primary); color: var(--bg-sidebar); font-size: 11.5px; font-weight: 600; padding: 4px 10px; border-radius: 6px; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity .15s; z-index: 100; }
+    .sidebar.collapsed .nav-item:hover::after { opacity: 1; }
+
+    .card { background: var(--bg-card); border-radius: 14px; box-shadow: var(--shadow); border: 1px solid var(--border); }
+
+    .badge-up-green  { color: #16A34A; background: #DCFCE7; font-size: 10.5px; font-weight: 700; padding: 2px 6px; border-radius: 20px; display: inline-flex; align-items: center; gap: 2px; }
+    .badge-up-orange { color: #2563EB; background: #DBEAFE; font-size: 10.5px; font-weight: 700; padding: 2px 6px; border-radius: 20px; display: inline-flex; align-items: center; gap: 2px; }
+    [data-theme="dark"] .badge-up-green  { color: #4ADE80; background: #14532D; }
+    [data-theme="dark"] .badge-up-orange { color: #60A5FA; background: #451A03; }
+
+    .sparkline { display: block; width: 100%; height: 40px; overflow: visible; }
+
+    .tag-green  { color: #16A34A; background: #DCFCE7; font-size: 10.5px; font-weight: 600; padding: 3px 9px; border-radius: 20px; white-space: nowrap; }
+    .tag-yellow { color: #1D4ED8; background: #DBEAFE; font-size: 10.5px; font-weight: 600; padding: 3px 9px; border-radius: 20px; white-space: nowrap; }
+    .tag-blue   { color: #2563EB; background: #DBEAFE; font-size: 10.5px; font-weight: 600; padding: 3px 9px; border-radius: 20px; white-space: nowrap; }
+    [data-theme="dark"] .tag-green  { color: #4ADE80; background: #14532D; }
+    [data-theme="dark"] .tag-yellow { color: #60A5FA; background: #451A03; }
+    [data-theme="dark"] .tag-blue   { color: #93C5FD; background: #172554; }
+
+    .av { width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #fff; }
+    .divider { height: 1px; background: var(--divider); margin: 8px 0; }
+    .act-icon { width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+
+    main { flex: 1; display: flex; flex-direction: column; overflow: auto; }
+
+    svg[data-lucide] { display: inline-block; flex-shrink: 0; }
+    i[data-lucide]   { display: inline-flex; align-items: center; justify-content: center; }
+
+    /* Theme toggle switch */
+    .toggle-switch { width: 36px; height: 20px; border-radius: 10px; background: var(--toggle-bg); position: relative; cursor: pointer; flex-shrink: 0; transition: background .2s; }
+    .toggle-switch.on { background: var(--toggle-track-on); }
+    .toggle-switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 14px; height: 14px; border-radius: 50%; background: var(--toggle-knob); transition: transform .2s; }
+    .toggle-switch.on::after { transform: translateX(16px); }
+
+    /* Dark-mode icon backgrounds — keep color but adjust opacity */
+    [data-theme="dark"] .icon-bg-purple { background: #1E3A8A !important; }
+    [data-theme="dark"] .icon-bg-green  { background: #14532D !important; }
+    [data-theme="dark"] .icon-bg-blue   { background: #172554 !important; }
+    [data-theme="dark"] .icon-bg-orange { background: #451A03 !important; }
+    [data-theme="dark"] .icon-bg-yellow { background: #3B2A00 !important; }
+
+    /* Input/search dark style */
+    [data-theme="dark"] input::placeholder { color: #6A6A6A; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  </style>
+</head>
+<body>
+
+<!-- ══════════ SIDEBAR ══════════ -->
+<aside class="sidebar">
+  <div style="padding:14px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
+    <div style="display:flex;align-items:center;gap:8px;overflow:hidden;">
+      <div style="width:28px;height:28px;background:#2563EB;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <i data-lucide="activity" style="color:#fff;width:14px;height:14px;"></i>
+      </div>
+      <span class="logo-text" style="font-size:15px;font-weight:700;color:var(--text-primary);white-space:nowrap;">Remedy AI</span>
+    </div>
+    <div class="sidebar-toggle" onclick="toggleSidebar()" title="Toggle sidebar">
+      <i data-lucide="chevrons-left" id="sidebar-chevron" style="width:13px;height:13px;color:var(--text-faint);"></i>
+    </div>
+  </div>
+
+  <nav style="flex:1;padding:12px 8px;display:flex;flex-direction:column;gap:2px;">
+    <div class="nav-item active"     data-label="Overview">      <i data-lucide="layout-grid"></i>  <span class="nav-label">Overview</span></div>
+    <div class="nav-item"             data-label="Conversations"> <i data-lucide="message-square"></i><span class="nav-label">Conversations</span></div>
+    <div class="nav-item"             data-label="Patients">      <i data-lucide="users"></i>         <span class="nav-label">Patients</span></div>
+    <div class="nav-item"             data-label="Analytics">     <i data-lucide="bar-chart-2"></i>   <span class="nav-label">Analytics</span></div>
+    <div class="nav-item"             data-label="Knowledge Base"><i data-lucide="book-open"></i>     <span class="nav-label">Knowledge Base</span></div>
+    <div class="nav-item"             data-label="Automation">    <i data-lucide="zap"></i>           <span class="nav-label">Automation</span></div>
+    <div class="nav-item"             data-label="Integrations">  <i data-lucide="link-2"></i>        <span class="nav-label">Integrations</span></div>
+    <div class="nav-item"             data-label="Settings">      <i data-lucide="settings"></i>     <span class="nav-label">Settings</span></div>
+  </nav>
+
+  <!-- Upgrade to Pro -->
+  <div class="upgrade-card" style="margin:0 10px 10px;border-radius:12px;padding:14px;background:var(--upgrade-gradient);">
+    <div style="font-size:12.5px;font-weight:700;color:#fff;margin-bottom:4px;">Upgrade to Pro</div>
+    <div style="font-size:11px;color:rgba(255,255,255,.8);line-height:1.5;margin-bottom:10px;">Get unlimited access to AI analytics and priority support.</div>
+    <button style="width:100%;background:#fff;color:#2563EB;font-size:11.5px;font-weight:700;padding:6px 0;border-radius:8px;border:none;cursor:pointer;">Upgrade Now</button>
+  </div>
+
+  <!-- Theme toggle — hidden when collapsed, icon-only toggle instead shown via user row -->
+  <div class="theme-label-row" style="padding:10px 16px;border-top:1px solid var(--border);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;overflow:hidden;">
+    <div style="display:flex;align-items:center;gap:6px;">
+      <i data-lucide="sun" id="icon-sun" style="color:var(--text-muted);width:13px;height:13px;"></i>
+      <span style="font-size:12px;color:var(--text-muted);font-weight:500;" id="theme-label">Light mode</span>
+    </div>
+    <div class="toggle-switch" id="themeToggle" onclick="toggleTheme()"></div>
+  </div>
+
+  <!-- Collapsed-only: icon-only theme toggle -->
+  <div id="collapsed-theme-btn" style="display:none;padding:8px;justify-content:center;border-top:1px solid var(--border);" onclick="toggleTheme()" title="Toggle theme">
+    <i data-lucide="sun" id="icon-sun-mini" style="color:var(--text-muted);width:15px;height:15px;cursor:pointer;"></i>
+  </div>
+
+  <!-- User -->
+  <div style="padding:10px 12px 14px;display:flex;align-items:center;gap:8px;overflow:hidden;">
+    <div class="av" style="background:#2563EB;font-size:10px;">SL</div>
+    <div class="user-text" style="flex:1;min-width:0;overflow:hidden;">
+      <div style="font-size:12px;font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Dr. Sarah Lee</div>
+      <div style="font-size:10.5px;color:var(--text-faint);">sarah@clinic.com</div>
+    </div>
+    <i data-lucide="more-vertical" class="user-more" style="color:var(--text-faint);width:14px;height:14px;cursor:pointer;flex-shrink:0;"></i>
+  </div>
+</aside>
+
+<!-- ══════════ MAIN ══════════ -->
+<main>
+  <header style="background:var(--bg-header);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20;">
+    <div style="display:flex;align-items:center;gap:14px;">
+      <!-- Hamburger toggle -->
+      <button onclick="toggleSidebar()" title="Toggle sidebar"
+        style="width:34px;height:34px;border-radius:8px;border:1px solid var(--border);background:var(--bg-input);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .15s;"
+        onmouseover="this.style.borderColor='#2563EB';this.style.color='#2563EB'"
+        onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">
+        <i data-lucide="menu" id="topbar-menu-icon" style="color:var(--text-muted);width:16px;height:16px;pointer-events:none;"></i>
+      </button>
+      <div>
+        <div style="font-size:17px;font-weight:700;color:var(--text-primary);line-height:1.2;">Good morning, Dr. Sarah 🌟</div>
+        <div style="font-size:12px;color:var(--text-secondary);margin-top:2px;">Here's what's happening with Remedy AI today</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="display:flex;align-items:center;gap:8px;background:var(--bg-input);border:1px solid var(--border-input);border-radius:10px;padding:7px 12px;">
+        <i data-lucide="search" style="color:var(--text-faint);width:13px;height:13px;flex-shrink:0;"></i>
+        <input style="background:transparent;border:none;outline:none;font-size:12.5px;color:var(--text-primary);width:160px;" placeholder="Search platforms, contacts..." />
+      </div>
+      <div style="position:relative;padding:6px;cursor:pointer;">
+        <i data-lucide="bell" style="color:var(--text-muted);width:18px;height:18px;"></i>
+        <span style="position:absolute;top:4px;right:4px;width:7px;height:7px;background:#EF4444;border-radius:50%;border:1.5px solid var(--bg-header);"></span>
+      </div>
+      <div class="av" style="background:#2563EB;font-size:10px;">SL</div>
+      <button style="background:#2563EB;color:#fff;font-size:12.5px;font-weight:600;padding:7px 16px;border-radius:9px;border:none;cursor:pointer;display:flex;align-items:center;gap:5px;">
+        <i data-lucide="plus" style="color:#fff;width:13px;height:13px;"></i>
+        New
+      </button>
+    </div>
+  </header>
+
+  <div style="padding:20px 24px;display:flex;flex-direction:column;gap:18px;">
+
+    <!-- STAT CARDS -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;">
+
+      <div class="card" style="padding:18px 20px 0;overflow:hidden;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <span style="font-size:12px;font-weight:500;color:var(--text-muted);">Total Conversations</span>
+          <div class="icon-bg-purple" style="width:30px;height:30px;background:#EFF6FF;border-radius:8px;display:flex;align-items:center;justify-content:center;">
+            <i data-lucide="message-square" style="color:#2563EB;width:14px;height:14px;"></i>
+          </div>
+        </div>
+        <div style="font-size:28px;font-weight:800;color:var(--text-primary);line-height:1;margin-bottom:8px;">1,248</div>
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;">
+          <span class="badge-up-green">↑ 8.8%</span>
+          <span style="font-size:10.5px;color:var(--text-muted);">since last 7 days</span>
+        </div>
+        <svg class="sparkline" viewBox="0 0 200 42" preserveAspectRatio="none" style="margin:0 -20px;width:calc(100% + 40px);">
+          <defs><linearGradient id="g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3B82F6" stop-opacity="0.18"/><stop offset="100%" stop-color="#3B82F6" stop-opacity="0.01"/></linearGradient></defs>
+          <path d="M0,38 C20,36 35,32 55,26 C75,20 90,24 110,18 C130,12 150,8 170,6 C185,4 195,3 200,2 L200,42 L0,42 Z" fill="url(#g1)"/>
+          <path d="M0,38 C20,36 35,32 55,26 C75,20 90,24 110,18 C130,12 150,8 170,6 C185,4 195,3 200,2" fill="none" stroke="#3B82F6" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </div>
+
+      <div class="card" style="padding:18px 20px 0;overflow:hidden;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <span style="font-size:12px;font-weight:500;color:var(--text-muted);">AI Resolutions</span>
+          <div class="icon-bg-green" style="width:30px;height:30px;background:#F0FDF4;border-radius:8px;display:flex;align-items:center;justify-content:center;">
+            <i data-lucide="check-circle-2" style="color:#16A34A;width:14px;height:14px;"></i>
+          </div>
+        </div>
+        <div style="font-size:28px;font-weight:800;color:var(--text-primary);line-height:1;margin-bottom:8px;">94.2%</div>
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;">
+          <span class="badge-up-green">↑ 5.3%</span>
+          <span style="font-size:10.5px;color:var(--text-muted);">since last 7 days</span>
+        </div>
+        <svg class="sparkline" viewBox="0 0 200 42" preserveAspectRatio="none" style="margin:0 -20px;width:calc(100% + 40px);">
+          <defs><linearGradient id="g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#16A34A" stop-opacity="0.18"/><stop offset="100%" stop-color="#16A34A" stop-opacity="0.01"/></linearGradient></defs>
+          <path d="M0,36 C15,34 30,30 50,28 C70,26 85,22 105,16 C125,10 145,7 165,5 C180,3 192,2 200,2 L200,42 L0,42 Z" fill="url(#g2)"/>
+          <path d="M0,36 C15,34 30,30 50,28 C70,26 85,22 105,16 C125,10 145,7 165,5 C180,3 192,2 200,2" fill="none" stroke="#16A34A" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </div>
+
+      <div class="card" style="padding:18px 20px 0;overflow:hidden;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <span style="font-size:12px;font-weight:500;color:var(--text-muted);">Time Saved</span>
+          <div class="icon-bg-blue" style="width:30px;height:30px;background:#EFF6FF;border-radius:8px;display:flex;align-items:center;justify-content:center;">
+            <i data-lucide="clock" style="color:#2563EB;width:14px;height:14px;"></i>
+          </div>
+        </div>
+        <div style="font-size:28px;font-weight:800;color:var(--text-primary);line-height:1;margin-bottom:8px;">32.4 <span style="font-size:17px;font-weight:600;color:var(--text-muted);">hrs</span></div>
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;">
+          <span class="badge-up-green">↑ 6.1%</span>
+          <span style="font-size:10.5px;color:var(--text-muted);">from last 7 days</span>
+        </div>
+        <svg class="sparkline" viewBox="0 0 200 42" preserveAspectRatio="none" style="margin:0 -20px;width:calc(100% + 40px);">
+          <defs><linearGradient id="g3" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2563EB" stop-opacity="0.15"/><stop offset="100%" stop-color="#2563EB" stop-opacity="0.01"/></linearGradient></defs>
+          <path d="M0,37 C20,35 38,34 58,28 C78,22 95,20 115,14 C135,8 155,6 175,4 C188,3 196,2 200,2 L200,42 L0,42 Z" fill="url(#g3)"/>
+          <path d="M0,37 C20,35 38,34 58,28 C78,22 95,20 115,14 C135,8 155,6 175,4 C188,3 196,2 200,2" fill="none" stroke="#2563EB" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </div>
+
+      <div class="card" style="padding:18px 20px 0;overflow:hidden;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <span style="font-size:12px;font-weight:500;color:var(--text-muted);">Patient Satisfaction</span>
+          <div class="icon-bg-orange" style="width:30px;height:30px;background:#FFF7ED;border-radius:8px;display:flex;align-items:center;justify-content:center;">
+            <i data-lucide="star" style="color:#EA580C;width:14px;height:14px;"></i>
+          </div>
+        </div>
+        <div style="font-size:28px;font-weight:800;color:var(--text-primary);line-height:1;margin-bottom:8px;">4.8<span style="font-size:17px;font-weight:600;color:var(--text-muted);">/5</span></div>
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;">
+          <span class="badge-up-orange">↑ 4.1%</span>
+          <span style="font-size:10.5px;color:var(--text-muted);">from last 7 days</span>
+        </div>
+        <svg class="sparkline" viewBox="0 0 200 42" preserveAspectRatio="none" style="margin:0 -20px;width:calc(100% + 40px);">
+          <defs><linearGradient id="g4" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#EA580C" stop-opacity="0.15"/><stop offset="100%" stop-color="#EA580C" stop-opacity="0.01"/></linearGradient></defs>
+          <path d="M0,38 C18,37 32,35 52,30 C72,25 90,22 110,16 C130,10 150,7 170,5 C183,3 193,2 200,2 L200,42 L0,42 Z" fill="url(#g4)"/>
+          <path d="M0,38 C18,37 32,35 52,30 C72,25 90,22 110,16 C130,10 150,7 170,5 C183,3 193,2 200,2" fill="none" stroke="#EA580C" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- CHART + INSIGHTS -->
+    <div style="display:grid;grid-template-columns:2fr 1fr;gap:14px;">
+
+      <div class="card" style="padding:20px 22px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <span style="font-size:14px;font-weight:700;color:var(--text-primary);">Conversations Overview</span>
+          <div style="display:flex;align-items:center;gap:14px;">
+            <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-muted);font-weight:500;">
+              <svg width="18" height="4" viewBox="0 0 18 4"><line x1="0" y1="2" x2="18" y2="2" stroke="#2563EB" stroke-width="2.5" stroke-linecap="round"/></svg>This Week
+            </span>
+            <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-faint);font-weight:500;">
+              <svg width="18" height="4" viewBox="0 0 18 4"><line x1="0" y1="2" x2="4" y2="2" stroke="#94A3B8" stroke-width="2" stroke-dasharray="4 3"/><line x1="7" y1="2" x2="11" y2="2" stroke="#94A3B8" stroke-width="2" stroke-dasharray="4 3"/><line x1="14" y1="2" x2="18" y2="2" stroke="#94A3B8" stroke-width="2" stroke-dasharray="4 3"/></svg>Last Week
+            </span>
+            <div style="border:1px solid var(--border-input);border-radius:7px;padding:4px 10px;font-size:11px;color:var(--text-muted);display:flex;align-items:center;gap:4px;cursor:pointer;background:var(--bg-input);">
+              7 Days <i data-lucide="chevron-down" style="width:10px;height:10px;color:var(--text-faint);"></i>
+            </div>
+          </div>
+        </div>
+        <canvas id="convChart" style="max-height:200px;"></canvas>
+      </div>
+
+      <div class="card" style="padding:20px;">
+        <div style="font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:16px;">AI Insights</div>
+
+        <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:14px;">
+          <div class="act-icon icon-bg-yellow" style="background:#DBEAFE;width:32px;height:32px;flex-shrink:0;">
+            <i data-lucide="alert-circle" style="color:#2563EB;width:14px;height:14px;"></i>
+          </div>
+          <div>
+            <div style="font-size:12.5px;font-weight:600;color:var(--text-primary);margin-bottom:3px;">Common Issue</div>
+            <div style="font-size:11.5px;color:var(--text-muted);line-height:1.5;">Appointment scheduling is the top inquiry (39% this week)</div>
+          </div>
+        </div>
+        <div class="divider"></div>
+
+        <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:14px;">
+          <div class="act-icon icon-bg-green" style="background:#DCFCE7;width:32px;height:32px;flex-shrink:0;">
+            <i data-lucide="trending-up" style="color:#16A34A;width:14px;height:14px;"></i>
+          </div>
+          <div>
+            <div style="font-size:12.5px;font-weight:600;color:var(--text-primary);margin-bottom:3px;">Resolution Rate</div>
+            <div style="font-size:11.5px;color:var(--text-muted);line-height:1.5;">AI resolutions increased by 5.3% compared to last week</div>
+          </div>
+        </div>
+        <div class="divider"></div>
+
+        <div style="display:flex;gap:10px;align-items:flex-start;">
+          <div class="act-icon icon-bg-yellow" style="background:#DBEAFE;width:32px;height:32px;flex-shrink:0;">
+            <i data-lucide="clock" style="color:#2563EB;width:14px;height:14px;"></i>
+          </div>
+          <div>
+            <div style="font-size:12.5px;font-weight:600;color:var(--text-primary);margin-bottom:3px;">Time Saved</div>
+            <div style="font-size:11.5px;color:var(--text-muted);line-height:1.5;">You saved 32.4 hours this week vs 30.5 hrs last week</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTTOM ROW -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
+
+      <div class="card" style="padding:18px 20px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+          <span style="font-size:13px;font-weight:700;color:var(--text-primary);">Top Inquiry Categories</span>
+          <a href="#" style="font-size:11.5px;font-weight:600;color:#2563EB;text-decoration:none;">View All</a>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;">
+          <div style="position:relative;flex-shrink:0;">
+            <canvas id="donutChart" width="110" height="110"></canvas>
+            <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;">
+              <div style="font-size:18px;font-weight:800;color:var(--text-primary);line-height:1;">1,248</div>
+              <div style="font-size:9.5px;color:var(--text-faint);margin-top:1px;">Total</div>
+            </div>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;gap:7px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;"><div style="display:flex;align-items:center;gap:7px;"><span style="width:8px;height:8px;border-radius:50%;background:#2563EB;flex-shrink:0;"></span><span style="font-size:11.5px;color:var(--text-muted);">Appointments</span></div><span style="font-size:11.5px;font-weight:700;color:var(--text-primary);">39%</span></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;"><div style="display:flex;align-items:center;gap:7px;"><span style="width:8px;height:8px;border-radius:50%;background:#60A5FA;flex-shrink:0;"></span><span style="font-size:11.5px;color:var(--text-muted);">Medical Refills</span></div><span style="font-size:11.5px;font-weight:700;color:var(--text-primary);">22%</span></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;"><div style="display:flex;align-items:center;gap:7px;"><span style="width:8px;height:8px;border-radius:50%;background:#60A5FA;flex-shrink:0;"></span><span style="font-size:11.5px;color:var(--text-muted);">Billing & Insurance</span></div><span style="font-size:11.5px;font-weight:700;color:var(--text-primary);">15%</span></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;"><div style="display:flex;align-items:center;gap:7px;"><span style="width:8px;height:8px;border-radius:50%;background:#FBBF24;flex-shrink:0;"></span><span style="font-size:11.5px;color:var(--text-muted);">Scheduling</span></div><span style="font-size:11.5px;font-weight:700;color:var(--text-primary);">12%</span></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;"><div style="display:flex;align-items:center;gap:7px;"><span style="width:8px;height:8px;border-radius:50%;background:#E2E8F0;flex-shrink:0;"></span><span style="font-size:11.5px;color:var(--text-muted);">Other</span></div><span style="font-size:11.5px;font-weight:700;color:var(--text-primary);">12%</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="padding:18px 20px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+          <span style="font-size:13px;font-weight:700;color:var(--text-primary);">Recent Conversations</span>
+          <a href="#" style="font-size:11.5px;font-weight:600;color:#2563EB;text-decoration:none;">View All</a>
+        </div>
+        <div>
+          <div style="display:flex;align-items:center;gap:10px;padding:7px 0;"><div class="av" style="background:#2563EB;font-size:10px;">JD</div><div style="flex:1;min-width:0;"><div style="font-size:12.5px;font-weight:600;color:var(--text-primary);">John Doe</div><div style="font-size:11px;color:var(--text-faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Lab results inquiry</div></div><span class="tag-green">Resolved</span></div>
+          <div class="divider"></div>
+          <div style="display:flex;align-items:center;gap:10px;padding:7px 0;"><div class="av" style="background:#2563EB;font-size:10px;">SM</div><div style="flex:1;min-width:0;"><div style="font-size:12.5px;font-weight:600;color:var(--text-primary);">Sarah Miller</div><div style="font-size:11px;color:var(--text-faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Appointment rescheduling</div></div><span class="tag-yellow">Pending</span></div>
+          <div class="divider"></div>
+          <div style="display:flex;align-items:center;gap:10px;padding:7px 0;"><div class="av" style="background:#EA580C;font-size:10px;">MC</div><div style="flex:1;min-width:0;"><div style="font-size:12.5px;font-weight:600;color:var(--text-primary);">Michael Carter</div><div style="font-size:11px;color:var(--text-faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Prescription renewal</div></div><span class="tag-green">Resolved</span></div>
+          <div class="divider"></div>
+          <div style="display:flex;align-items:center;gap:10px;padding:7px 0;"><div class="av" style="background:#16A34A;font-size:10px;">BW</div><div style="flex:1;min-width:0;"><div style="font-size:12.5px;font-weight:600;color:var(--text-primary);">Brooklyn Wells</div><div style="font-size:11px;color:var(--text-faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Insurance verification</div></div><span class="tag-blue">Active</span></div>
+        </div>
+      </div>
+
+      <div class="card" style="padding:18px 20px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+          <span style="font-size:13px;font-weight:700;color:var(--text-primary);">Recent Activity</span>
+          <a href="#" style="font-size:11.5px;font-weight:600;color:#2563EB;text-decoration:none;">View All</a>
+        </div>
+        <div>
+          <div style="display:flex;gap:10px;align-items:center;padding:7px 0;"><div class="act-icon icon-bg-purple" style="background:#EFF6FF;width:30px;height:30px;"><i data-lucide="cpu" style="color:#2563EB;width:13px;height:13px;"></i></div><div style="flex:1;"><div style="font-size:12px;font-weight:600;color:var(--text-primary);">AI system updated</div><div style="font-size:11px;color:var(--text-faint);">New model deployed</div></div><span style="font-size:10.5px;color:var(--text-faint);white-space:nowrap;">2m ago</span></div>
+          <div class="divider"></div>
+          <div style="display:flex;gap:10px;align-items:center;padding:7px 0;"><div class="act-icon icon-bg-green" style="background:#DCFCE7;width:30px;height:30px;"><i data-lucide="user-plus" style="color:#16A34A;width:13px;height:13px;"></i></div><div style="flex:1;"><div style="font-size:12px;font-weight:600;color:var(--text-primary);">New patient connected</div><div style="font-size:11px;color:var(--text-faint);">Treatment guidelines synced</div></div><span style="font-size:10.5px;color:var(--text-faint);white-space:nowrap;">15m ago</span></div>
+          <div class="divider"></div>
+          <div style="display:flex;gap:10px;align-items:center;padding:7px 0;"><div class="act-icon icon-bg-blue" style="background:#EFF6FF;width:30px;height:30px;"><i data-lucide="book-open" style="color:#2563EB;width:13px;height:13px;"></i></div><div style="flex:1;"><div style="font-size:12px;font-weight:600;color:var(--text-primary);">Knowledge base updated</div><div style="font-size:11px;color:var(--text-faint);">42 new articles added</div></div><span style="font-size:10.5px;color:var(--text-faint);white-space:nowrap;">1h ago</span></div>
+          <div class="divider"></div>
+          <div style="display:flex;gap:10px;align-items:center;padding:7px 0;"><div class="act-icon icon-bg-orange" style="background:#FFF7ED;width:30px;height:30px;"><i data-lucide="users" style="color:#EA580C;width:13px;height:13px;"></i></div><div style="flex:1;"><div style="font-size:12px;font-weight:600;color:var(--text-primary);">New team member added</div><div style="font-size:11px;color:var(--text-faint);">Dr. James Wilson joined</div></div><span style="font-size:10.5px;color:var(--text-faint);white-space:nowrap;">3h ago</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<script>
+// ── Sidebar toggle ──────────────────────────────────────
+let sidebarCollapsed = false;
+
+function toggleSidebar() {
+  sidebarCollapsed = !sidebarCollapsed;
+  document.querySelector('.sidebar').classList.toggle('collapsed', sidebarCollapsed);
+
+  // Update sidebar header chevron
+  const chevron = document.getElementById('sidebar-chevron');
+  if (chevron) chevron.setAttribute('data-lucide', sidebarCollapsed ? 'chevrons-right' : 'chevrons-left');
+
+  // Show/hide collapsed theme button
+  const collapsedBtn = document.getElementById('collapsed-theme-btn');
+  if (collapsedBtn) collapsedBtn.style.display = sidebarCollapsed ? 'flex' : 'none';
+
+  // Sync topbar icon
+  const topIcon = document.getElementById('topbar-menu-icon');
+  if (topIcon) topIcon.setAttribute('data-lucide', sidebarCollapsed ? 'menu' : 'menu');
+
+  lucide.createIcons({ attrs: { 'stroke-width': 1.8, width: 14, height: 14 } });
+
+  // Rebuild charts after CSS transition completes
+  setTimeout(rebuildCharts, 280);
+}
+
+// ── Theme toggle ────────────────────────────────────────
+let darkMode = false;
+let convChart, donutChart;
+
+function toggleTheme() {
+  darkMode = !darkMode;
+  document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
+  document.getElementById('themeToggle').classList.toggle('on', darkMode);
+  document.getElementById('theme-label').textContent = darkMode ? 'Dark mode' : 'Light mode';
+
+  // Swap icon
+  const sunIcon = document.getElementById('icon-sun');
+  sunIcon.setAttribute('data-lucide', darkMode ? 'moon' : 'sun');
+  lucide.createIcons({ attrs: { 'stroke-width': 1.8, width: 14, height: 14 } });
+
+  rebuildCharts();
+}
+
+// ── Chart helpers ───────────────────────────────────────
+function chartColors() {
+  return darkMode
+    ? { grid: '#3A3A3A', tick: '#6A6A6A', line2: '#555560' }
+    : { grid: '#F1F5F9', tick: '#94A3B8', line2: '#CBD5E1' };
+}
+
+function buildLineChart() {
+  const c = chartColors();
+  const ctx = document.getElementById('convChart').getContext('2d');
+  return new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+      datasets: [
+        {
+          label: 'This Week',
+          data: [80,120,105,150,170,140,190],
+          borderColor: '#2563EB',
+          backgroundColor: darkMode ? 'rgba(37,99,235,0.12)' : 'rgba(37,99,235,0.10)',
+          tension: 0.45, fill: true,
+          pointRadius: 4, pointBackgroundColor: '#2563EB',
+          pointBorderColor: darkMode ? '#2D2D2D' : '#fff', pointBorderWidth: 2,
+          borderWidth: 2.5,
+        },
+        {
+          label: 'Last Week',
+          data: [60,95,85,125,145,115,160],
+          borderColor: c.line2,
+          backgroundColor: 'transparent',
+          tension: 0.45, fill: false,
+          pointRadius: 3, pointBackgroundColor: c.line2,
+          borderWidth: 2, borderDash: [5,4],
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: true,
+      plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 11 }, color: c.tick }, border: { display: false } },
+        y: { min: 50, max: 200, grid: { color: c.grid }, ticks: { font: { size: 11 }, color: c.tick, stepSize: 50 }, border: { display: false } }
+      },
+      interaction: { mode: 'nearest', axis: 'x', intersect: false }
+    }
+  });
+}
+
+function buildDonutChart() {
+  const borderCol = darkMode ? '#2D2D2D' : '#F4F6FB';
+  const ctx = document.getElementById('donutChart').getContext('2d');
+  return new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Appointments','Medical Refills','Billing','Scheduling','Other'],
+      datasets: [{ data: [39,22,15,12,12], backgroundColor: ['#2563EB','#60A5FA','#60A5FA','#FBBF24','#E2E8F0'], borderWidth: 3, borderColor: borderCol, hoverOffset: 5 }]
+    },
+    options: { cutout: '70%', plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ` ${c.label}: ${c.parsed}%` } } }, responsive: false }
+  });
+}
+
+function rebuildCharts() {
+  if (convChart)  { convChart.destroy(); }
+  if (donutChart) { donutChart.destroy(); }
+  convChart  = buildLineChart();
+  donutChart = buildDonutChart();
+}
+
+// ── Init ────────────────────────────────────────────────
+lucide.createIcons({ attrs: { 'stroke-width': 1.8, width: 14, height: 14 } });
+convChart  = buildLineChart();
+donutChart = buildDonutChart();
+</script>
+</body>
+</html>

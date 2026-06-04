@@ -1,0 +1,12 @@
+{
+  "incident_id": "eval-nodejs-001",
+  "exception_language": "nodejs",
+  "exception_type": "UnhandledPromiseRejection",
+  "exception_message": "Cannot read properties of undefined (reading 'userId')",
+  "stack_trace": "    at getUserProfile (/app/src/services/UserService.js:42:18)\n    at async OrderController.checkout (/app/src/controllers/OrderController.js:88:22)",
+  "expected": {
+    "priority": "high",
+    "triage_labels_contains": ["unhandled-promise"],
+    "triage_rule_matched": true
+  }
+}

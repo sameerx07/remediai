@@ -127,3 +127,94 @@ class TestApplyRules:
         result = apply_rules("System.Threading.Tasks.OperationCanceledException")
         assert result.matched is True
         assert "timeout" in result.labels
+
+
+class TestApplyRulesNodejs:
+    def test_unhandled_promise_is_high(self) -> None:
+        result = apply_rules("UnhandledPromiseRejection", language="nodejs")
+        assert result.matched is True
+        assert result.priority == "high"
+        assert "unhandled-promise" in result.labels
+
+    def test_cannot_read_properties_is_high(self) -> None:
+        result = apply_rules("TypeError: Cannot read properties of undefined", language="nodejs")
+        assert result.matched is True
+        assert result.priority == "high"
+        assert "null-reference" in result.labels
+
+    def test_econnrefused_is_high(self) -> None:
+        result = apply_rules("ECONNREFUSED", language="nodejs")
+        assert result.matched is True
+        assert result.priority == "high"
+        assert "network" in result.labels
+
+    def test_range_error_is_critical(self) -> None:
+        result = apply_rules("RangeError: Maximum call stack size exceeded", language="nodejs")
+        assert result.matched is True
+        assert result.priority == "critical"
+        assert "resource-exhaustion" in result.labels
+
+    def test_jwt_error_is_critical(self) -> None:
+        result = apply_rules("JsonWebTokenError", language="nodejs")
+        assert result.matched is True
+        assert result.priority == "critical"
+        assert "authentication" in result.labels
+
+    def test_unknown_nodejs_exception_returns_unmatched(self) -> None:
+        result = apply_rules("MyCustomError", language="nodejs")
+        assert result.matched is False
+
+    def test_dotnet_exception_does_not_match_nodejs_table(self) -> None:
+        # NullReferenceException is dotnet-only; nodejs table should not match it
+        result = apply_rules("NullReferenceException", language="nodejs")
+        assert result.matched is False
+
+
+class TestApplyRulesPython:
+    def test_memory_error_is_critical(self) -> None:
+        result = apply_rules("MemoryError", language="python")
+        assert result.matched is True
+        assert result.priority == "critical"
+        assert "resource-exhaustion" in result.labels
+
+    def test_attribute_error_is_high(self) -> None:
+        result = apply_rules("AttributeError", language="python")
+        assert result.matched is True
+        assert result.priority == "high"
+        assert "null-reference" in result.labels
+
+    def test_key_error_is_medium(self) -> None:
+        result = apply_rules("KeyError", language="python")
+        assert result.matched is True
+        assert result.priority == "medium"
+        assert "missing-key" in result.labels
+
+    def test_timeout_error_is_high(self) -> None:
+        result = apply_rules("TimeoutError", language="python")
+        assert result.matched is True
+        assert result.priority == "high"
+        assert "timeout" in result.labels
+
+    def test_sqlalchemy_exc_is_high(self) -> None:
+        result = apply_rules("sqlalchemy.exc.OperationalError", language="python")
+        assert result.matched is True
+        assert result.priority == "high"
+        assert "database" in result.labels
+
+    def test_not_implemented_error_is_low(self) -> None:
+        result = apply_rules("NotImplementedError", language="python")
+        assert result.matched is True
+        assert result.priority == "low"
+
+
+class TestLanguageFallback:
+    def test_unknown_language_falls_back_to_dotnet(self) -> None:
+        result = apply_rules("System.NullReferenceException", language="unknown")
+        assert result.matched is True
+        assert result.priority == "high"
+
+    def test_missing_language_falls_back_to_dotnet(self) -> None:
+        # Calling without language arg should still work (default "unknown")
+        result = apply_rules("System.OutOfMemoryException")
+        assert result.matched is True
+        assert result.priority == "critical"

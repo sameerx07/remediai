@@ -80,8 +80,23 @@ _RULES: list[TriageRule] = [...]
 _RULES_BY_LANGUAGE: dict[str, list[TriageRule]] = {
     "dotnet": [...],   # existing rules, unchanged
     "python": [...],   # Phase 27 will fill; empty for now → LLM fallback
-    "nodejs": [...],   # Phase 28 will fill; empty for now → LLM fallback
     "java":   [...],   # Future; empty for now → LLM fallback
+    "nodejs": [
+        # TypeError: null / undefined access
+        TriageRule("TypeError: Cannot read properties of undefined", priority="high", labels=["null-reference", "nodejs"]),
+        TriageRule("TypeError: Cannot read properties of null",      priority="high", labels=["null-reference", "nodejs"]),
+        # Stack overflow
+        TriageRule("RangeError: Maximum call stack size exceeded",   priority="high", labels=["stack-overflow", "nodejs"]),
+        # Resource exhaustion
+        TriageRule("ENOMEM",                                          priority="critical", labels=["resource-exhaustion", "nodejs"]),
+        # Async / promise
+        TriageRule("UnhandledPromiseRejection",                       priority="high", labels=["unhandled-promise", "nodejs"]),
+        # Network
+        TriageRule("ECONNREFUSED",                                    priority="medium", labels=["connection-failure", "nodejs"]),
+        TriageRule("ETIMEDOUT",                                       priority="medium", labels=["timeout", "nodejs"]),
+        # Auth
+        TriageRule("JsonWebTokenError",                               priority="medium", labels=["authentication", "nodejs"]),
+    ],
 }
 
 def apply_rules(
@@ -198,20 +213,27 @@ exception_language: str | None  # set by ingestion; dotnet | python | nodejs | j
 
 ```
 New:
-  packages/agent_runtime/language_detector.py   — detect_language()
-  packages/agent_runtime/language_internals.py  — FRAMEWORK_PREFIXES, is_user_code()
+  packages/agent_runtime/language_detector.py         — detect_language()
+  packages/agent_runtime/language_internals.py        — FRAMEWORK_PREFIXES, is_user_code()
   tests/unit/test_language_detector.py
   tests/unit/test_language_internals.py
+  tests/unit/test_nodejs_parser.py                    — V8/TS stack trace parsing
+  tests/agent-evals/nodejs_unhandled_rejection.json   — Node.js eval fixture
+  docs/prompts/triage_v3.md                           — triage prompt aware of exception_language
+  docs/prompts/root_cause_v3.md                       — root cause prompt adapted for Node.js frames
 
 Modified:
-  packages/domain/models/agent_state.py         — add exception_language field
-  packages/agent_runtime/triage/rules.py        — language dispatch
-  packages/agent_runtime/root_cause/stack_parser.py — add nodejs + java parsers; use language_internals
-  packages/agent_runtime/code_context/frame_filter.py — use language_internals
+  packages/domain/models/agent_state.py                    — add exception_language field
+  packages/agent_runtime/triage/rules.py                   — language dispatch + Node.js rules
+  packages/agent_runtime/triage/agent.py                   — load triage_v3; pass exception_language to prompt
+  packages/agent_runtime/root_cause/agent.py               — load root_cause_v3; use correct parser
+  packages/agent_runtime/root_cause/stack_parser.py        — add nodejs + java parsers; use language_internals
+  packages/agent_runtime/code_context/frame_filter.py      — use language_internals
   packages/agent_runtime/validation_agent/static_checks.py — language-aware build file check
-  packages/search/indexers/source_indexer.py    — configurable extension
-  packages/config/settings.py                  — add source_file_extension
-  apps/worker/ingestion/connector.py            — set exception_language on new incidents
+  packages/search/indexers/source_indexer.py               — configurable extension
+  packages/config/settings.py                              — add source_file_extension
+  apps/worker/ingestion/connector.py                       — set exception_language on new incidents
+  tests/unit/test_triage_rules.py                          — Node.js rule coverage added
 ```
 
 ---
@@ -228,13 +250,15 @@ Modified:
 - Triage agent uses `exception_language` to select the rule table.
 - Validation agent uses language-aware build file patterns.
 - New incidents created by the ingestion connector have `exception_language` set.
+- Node.js `UnhandledPromiseRejection` fixture produces `priority=high` and labels `["unhandled-promise", "nodejs"]`.
+- `test_nodejs_parser.py` covers: standard Error, TypeScript with source maps, anonymous arrow functions, native code frames.
+- Framework frames (`node_modules/`) are filtered as non-user-code by `language_internals`.
 
 ---
 
 ## Out of Scope
 
 - Python ingestion connector (Phase 27).
-- Node.js ingestion connector (Phase 28).
 - Java ingestion connector (future).
-- Language-specific LLM prompts (Phase 27+).
+- Python-specific LLM prompts (Phase 27).
 - GitHub source control (Phase 38).

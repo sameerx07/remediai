@@ -1,0 +1,12 @@
+{
+  "incident_id": "eval-python-002",
+  "exception_language": "python",
+  "exception_type": "AttributeError",
+  "exception_message": "'NoneType' object has no attribute 'email'",
+  "stack_trace": "Traceback (most recent call last):\n  File \"/app/api/views.py\", line 34, in get_user\n    return user.email\nAttributeError: 'NoneType' object has no attribute 'email'",
+  "expected": {
+    "priority": "high",
+    "triage_labels_contains": ["null-reference"],
+    "triage_rule_matched": true
+  }
+}

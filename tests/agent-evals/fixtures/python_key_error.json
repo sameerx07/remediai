@@ -1,0 +1,12 @@
+{
+  "incident_id": "eval-python-001",
+  "exception_language": "python",
+  "exception_type": "KeyError",
+  "exception_message": "'user_id'",
+  "stack_trace": "Traceback (most recent call last):\n  File \"/app/services/order_service.py\", line 88, in checkout\n    user = session['user_id']\nKeyError: 'user_id'",
+  "expected": {
+    "priority": "medium",
+    "triage_labels_contains": ["missing-key"],
+    "triage_rule_matched": true
+  }
+}

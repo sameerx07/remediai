@@ -6,6 +6,7 @@ import structlog
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from packages.agent_runtime.language_detector import detect_language
 from packages.data_access.models.incident_orm import IncidentOrm
 from packages.domain.models.incident import Incident
 from packages.integrations.azure_monitor.client import AzureMonitorClient
@@ -36,6 +37,9 @@ class IngestionConnector:
                 logger.debug("ingestion_duplicate_skipped", fingerprint=incident.fingerprint)
                 continue
 
+            incident.exception_language = detect_language(
+                incident.exception_type, incident.stack_trace or ""
+            )
             self._session.add(_to_orm(incident))
             new_incidents.append(incident)
             logger.info(
@@ -69,6 +73,7 @@ def _to_orm(incident: Incident) -> IncidentOrm:
         fingerprint=incident.fingerprint,
         priority=incident.priority.value,
         status=incident.status.value,
+        exception_language=incident.exception_language,
         raw_payload=incident.raw_payload,
         created_at=incident.created_at or now,
         updated_at=incident.updated_at or now,

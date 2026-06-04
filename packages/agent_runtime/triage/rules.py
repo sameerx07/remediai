@@ -163,6 +163,11 @@ _NODEJS_RULES: list[TriageRule] = [
         priority="critical",
     ),
     TriageRule(
+        patterns=["UnhandledPromiseRejection"],
+        labels=["unhandled-promise"],
+        priority="high",
+    ),
+    TriageRule(
         patterns=["ETIMEDOUT", "ECONNABORTED", "AbortError"],
         labels=["timeout"],
         priority="high",

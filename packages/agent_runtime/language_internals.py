@@ -48,8 +48,15 @@ FRAMEWORK_PREFIXES: dict[str, tuple[str, ...]] = {
 
 
 def is_framework_internal(method_or_path: str, language: str) -> bool:
-    """Return True when *method_or_path* looks like framework/library code for *language*."""
+    """Return True when *method_or_path* looks like framework/library code for *language*.
+
+    Python and Node.js are path-based: framework paths appear as substrings of
+    absolute file paths (e.g. /usr/lib/.../site-packages/…).
+    .NET and Java are method-name-based: framework identifiers are name prefixes.
+    """
     prefixes = FRAMEWORK_PREFIXES.get(language, ())
+    if language in ("python", "nodejs"):
+        return any(p in method_or_path for p in prefixes)
     return any(method_or_path.startswith(p) for p in prefixes)
 
 

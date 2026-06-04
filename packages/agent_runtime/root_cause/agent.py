@@ -18,7 +18,7 @@ from packages.integrations.pii_scrubber import scrub
 logger = structlog.get_logger()
 
 AGENT_NAME = "root_cause"
-PROMPT_VERSION = "root_cause_v2"
+PROMPT_VERSION = "root_cause_v3"
 
 # Dependency files to try fetching from the repo root (Gap 3)
 _DEPENDENCY_FILES: list[str] = [

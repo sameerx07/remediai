@@ -18,7 +18,7 @@ from packages.integrations.pii_scrubber import scrub
 logger = structlog.get_logger()
 
 AGENT_NAME = "triage"
-PROMPT_VERSION = "triage_v2"
+PROMPT_VERSION = "triage_v3"
 
 
 def make_triage_node(
@@ -91,6 +91,7 @@ async def _call_llm(llm: BaseChatModel, state: IncidentState) -> TriageOutput:
             "exception_type": state.get("exception_type", ""),
             "exception_message": scrub(state.get("exception_message", "") or ""),
             "stack_trace": scrub((state.get("stack_trace", "") or "")[:2000]),
+            "exception_language": state.get("exception_language") or "unknown",
             "recent_incident_signatures": [],
         },
         ensure_ascii=False,

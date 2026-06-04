@@ -34,6 +34,7 @@ class Incident(BaseModel):
     fingerprint: str = ""
     priority: IncidentPriority = IncidentPriority.MEDIUM
     status: IncidentStatus = IncidentStatus.NEW
+    exception_language: str | None = None
     raw_payload: dict[str, Any] = Field(default_factory=dict)
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))

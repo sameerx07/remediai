@@ -17,7 +17,8 @@ unblocks the ingestion service and all downstream agents.
 | `packages/integrations/azure_monitor/client.py` | `AzureMonitorClient` — async KQL query execution |
 | `packages/integrations/azure_monitor/kql_queries.py` | Parameterised KQL query templates |
 | `packages/integrations/azure_monitor/parser.py` | Parse `LogsTable` rows → `Incident` domain models |
-| `packages/integrations/pii_scrubber.py` | Regex-based PII masking (email, IP, UUID, SAS token) |
+| `packages/governance/guardrails/pii_scrubber.py` | Canonical regex-based PII masking (email, IP, UUID, SAS token) |
+| `packages/integrations/pii_scrubber.py` | Backward-compatibility shim re-exporting governance scrubber |
 | `apps/worker/ingestion/connector.py` | `IngestionConnector` — orchestrates fetch → deduplicate → persist |
 | `tests/unit/test_azure_monitor_parser.py` | Parser unit tests (no Azure credentials needed) |
 | `tests/unit/test_pii_scrubber.py` | PII scrubber unit tests |
@@ -27,7 +28,7 @@ unblocks the ingestion service and all downstream agents.
 
 | Path | Change |
 |------|--------|
-| `apps/api/core/config.py` | Add `azure_monitor_app_insights_resource_id` setting |
+| `packages/config/settings.py` | Add/use `azure_monitor_workspace_id` setting |
 | `packages/integrations/__init__.py` | Re-export `AzureMonitorClient` |
 | `ROADMAP.md` | Check off Azure Monitor KQL connector milestone item |
 
@@ -36,7 +37,7 @@ unblocks the ingestion service and all downstream agents.
 ## Dependencies
 
 All already declared in `pyproject.toml`:
-- `azure-monitor-query = "^1.3"` — `AsyncLogsQueryClient`
+- `azure-monitor-query = "^1.3"` — `LogsQueryClient` (async client from `azure.monitor.query.aio`)
 - `azure-identity = "^1.17"` — `DefaultAzureCredential`
 - `structlog = "^24.2"` — structured logging
 - `sqlalchemy = "^2.0"` — async session for deduplication check
@@ -48,7 +49,7 @@ All already declared in `pyproject.toml`:
 ### KQL Query Strategy
 
 Queries the Log Analytics workspace backing the Application Insights resource using
-`AsyncLogsQueryClient.query_workspace()`. The `exceptions` table is standard in all
+`LogsQueryClient.query_workspace()` (async client from `azure.monitor.query.aio`). The `exceptions` table is standard in all
 workspace-based Application Insights resources.
 
 The parameterised query uses `ago(Nm)` for the lookback window, configurable via
@@ -77,7 +78,9 @@ safety net against concurrent inserts.
 
 ### PII Scrubbing
 
-Applied at parse time before any field is stored. The scrubber (`pii_scrubber.py`)
+Applied at parse time before any field is stored. The canonical scrubber
+(`packages/governance/guardrails/pii_scrubber.py`, re-exported via
+`packages/integrations/pii_scrubber.py`)
 replaces:
 
 | Pattern | Replacement |
@@ -103,7 +106,7 @@ persisted (per `SECURITY_GUARDRAILS.md`).
 
 - `HttpResponseError` from the Azure SDK is logged with `structlog` and re-raised so
   the calling ingestion scheduler can apply retry logic.
-- `LogsQueryStatus.PARTIAL` results are accepted with a warning log; partial data is
+- `LogsQueryPartialResult` responses are accepted with a warning log; partial data is
   better than no data.
 - Rows missing mandatory fields (`type`, `outerMessage`) are skipped with a warning.
 
@@ -118,11 +121,3 @@ persisted (per `SECURITY_GUARDRAILS.md`).
 - [ ] `mypy packages/integrations/ apps/worker/ingestion/ --strict` — 0 errors
 - [ ] Email, IP, UUID, SAS token patterns are all masked in scrubber tests
 - [ ] Parser handles missing optional KQL columns without raising
-
----
-
-## Commit Message
-
-```
-feat(integrations): add Azure Monitor KQL connector, PII scrubber, and ingestion connector
-```

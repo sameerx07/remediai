@@ -4,7 +4,6 @@ from packages.data_access.models import (
     AuditLogOrm,
     IncidentOrm,
     MonitorTargetOrm,
-    WorkItemOrm,
 )
 
 
@@ -16,10 +15,6 @@ def test_analysis_orm_table_name() -> None:
     assert AnalysisOrm.__tablename__ == "incident_analyses"
 
 
-def test_work_item_orm_table_name() -> None:
-    assert WorkItemOrm.__tablename__ == "work_items"
-
-
 def test_audit_log_orm_table_name() -> None:
     assert AuditLogOrm.__tablename__ == "audit_log"
 
@@ -29,7 +24,7 @@ def test_monitor_target_orm_table_name() -> None:
 
 
 def test_all_orm_models_inherit_base() -> None:
-    for model in (IncidentOrm, AnalysisOrm, WorkItemOrm, AuditLogOrm, MonitorTargetOrm):
+    for model in (IncidentOrm, AnalysisOrm, AuditLogOrm, MonitorTargetOrm):
         assert issubclass(model, Base)
 
 
@@ -64,6 +59,12 @@ def test_incident_orm_fingerprint_index_is_unique() -> None:
             break
 
 
+def test_incident_orm_has_pr_fields() -> None:
+    col_names = {c.name for c in IncidentOrm.__table__.columns}
+    assert "pr_url" in col_names
+    assert "pr_branch" in col_names
+
+
 def test_analysis_orm_has_incident_fk() -> None:
     fk_targets = {
         fk.column.table.name for col in AnalysisOrm.__table__.columns for fk in col.foreign_keys
@@ -76,23 +77,11 @@ def test_analysis_orm_has_index_on_incident_id() -> None:
     assert "ix_incident_analyses_incident_id" in index_names
 
 
-def test_work_item_orm_has_incident_fk() -> None:
-    fk_targets = {
-        fk.column.table.name for col in WorkItemOrm.__table__.columns for fk in col.foreign_keys
-    }
-    assert "incidents" in fk_targets
-
-
-def test_work_item_orm_has_index_on_incident_id() -> None:
-    index_names = {i.name for i in WorkItemOrm.__table__.indexes}
-    assert "ix_work_items_incident_id" in index_names
-
-
 def test_audit_log_orm_has_nullable_incident_fk() -> None:
     incident_id_col = AnalysisOrm.__table__.c["incident_id"]
-    assert not incident_id_col.nullable  # analysis always has an incident
+    assert not incident_id_col.nullable
     audit_id_col = AuditLogOrm.__table__.c["incident_id"]
-    assert audit_id_col.nullable  # audit log can be orphaned
+    assert audit_id_col.nullable
 
 
 def test_audit_log_orm_has_timestamp_index() -> None:

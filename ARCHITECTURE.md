@@ -30,7 +30,7 @@ flowchart TD
     E["Agent Worker<br/>Python + LangGraph"]:::ai
     F["Azure OpenAI GPT-4o"]:::ai
     G["Azure DevOps Repos"]:::azure
-    H["Azure DevOps Boards"]:::azure
+    H["Human Approval + PR Flow"]:::azure
     I["Azure AI Search<br/>RAG Index"]:::ai
     J["PostgreSQL<br/>Incidents / Audit"]:::data
     K["Blob Storage<br/>Evidence"]:::data
@@ -145,8 +145,8 @@ flowchart LR
 3. Agent Worker → polls PostgreSQL WHERE status='new'
 4. Agent Worker → UPDATE status='triaging' → LangGraph pipeline begins
 5. Each agent step → writes to PostgreSQL (incident_analyses, audit_log)
-6. Bug Creation agent → Azure DevOps Boards REST API → work_items table
-7. Agent Worker → UPDATE status='analyzed' (or 'analysis_failed')
+6. Agent Worker → UPDATE status='analyzed' (or 'analysis_failed')
+7. Human approval → PR Agent → validation_agent → persist pr_url/pr_branch on incidents
 8. Backend API → reads PostgreSQL → serves dashboard and consumers
 9. React Dashboard → polls Backend API → renders incident list + detail
 ```
@@ -185,15 +185,12 @@ CREATE TABLE incident_analyses (
     created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- Work Items
-CREATE TABLE work_items (
-    id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    incident_id     UUID NOT NULL REFERENCES incidents(id),
-    ado_item_id     INTEGER NOT NULL,
-    ado_item_url    TEXT NOT NULL,
-    item_type       TEXT NOT NULL DEFAULT 'bug',
-    created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
-);
+    approval_status TEXT,
+    approved_by     TEXT,
+    approved_at     TIMESTAMPTZ,
+    approved_recommendation_rank INTEGER,
+    pr_url          TEXT,
+    pr_branch       TEXT,
 
 -- Audit Log
 CREATE TABLE audit_log (

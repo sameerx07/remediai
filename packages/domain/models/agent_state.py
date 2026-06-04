@@ -42,10 +42,6 @@ class IncidentState(TypedDict, total=False):
     # Fix planner outputs
     recommendations: list[dict[str, Any]]
 
-    # Bug creation outputs
-    ado_bug_id: int | None
-    ado_bug_url: str | None
-
     # Phase 35 — code fix generation (set by code_fix agent before pr_agent)
     code_fix_result: dict[str, Any] | None
 

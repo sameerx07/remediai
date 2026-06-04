@@ -1,8 +1,8 @@
 """Agent eval harness — runs the full pipeline against sample incident fixtures.
 
 Each fixture in tests/agent-evals/fixtures/*.json defines an input state and
-``expected`` assertions.  The LLM, ADO Repos, AI Search, and ADO Boards clients
-are mocked so the harness runs in CI without any Azure credentials.
+``expected`` assertions.  The LLM, ADO Repos, and AI Search clients are mocked
+so the harness runs in CI without any Azure credentials.
 """
 
 from __future__ import annotations
@@ -103,14 +103,6 @@ def _mock_search() -> MagicMock:
     return search
 
 
-def _mock_boards(bug_id: int = 9001) -> MagicMock:
-    boards = MagicMock()
-    boards.create_bug = AsyncMock(
-        return_value={"id": bug_id, "_links": {"html": {"href": f"https://dev.azure.com/{bug_id}"}}}
-    )
-    return boards
-
-
 def _mock_llm_rule_path() -> MagicMock:
     """For rule-matched incidents: root_cause + fix_planner each get one call."""
     llm = MagicMock()
@@ -140,7 +132,6 @@ class TestNullReferenceFixture:
             llm=_mock_llm_rule_path(),
             ado_client=_mock_ado(),
             search_client=_mock_search(),
-            boards_client=_mock_boards(),
         )
         result: IncidentState = await pipeline.ainvoke(_make_state(fixture))
 
@@ -156,7 +147,6 @@ class TestNullReferenceFixture:
             llm=_mock_llm_rule_path(),
             ado_client=_mock_ado(),
             search_client=_mock_search(),
-            boards_client=_mock_boards(),
         )
         result: IncidentState = await pipeline.ainvoke(_make_state(fixture))
 
@@ -170,7 +160,6 @@ class TestNullReferenceFixture:
             llm=_mock_llm_rule_path(),
             ado_client=_mock_ado(),
             search_client=_mock_search(),
-            boards_client=_mock_boards(),
         )
         result: IncidentState = await pipeline.ainvoke(_make_state(fixture))
         assert result.get("errors", []) == []
@@ -183,7 +172,6 @@ class TestNullReferenceFixture:
             llm=llm,
             ado_client=_mock_ado(),
             search_client=_mock_search(),
-            boards_client=_mock_boards(),
         )
         await pipeline.ainvoke(_make_state(fixture))
         assert llm.ainvoke.await_count == 2  # root_cause + fix_planner; triage used rule
@@ -196,7 +184,6 @@ class TestNullReferenceFixture:
             llm=_mock_llm_rule_path(),
             ado_client=_mock_ado(),
             search_client=_mock_search(),
-            boards_client=_mock_boards(),
         )
         result: IncidentState = await pipeline.ainvoke(_make_state(fixture))
         min_count = expected.get("rag_results_min_count", 0)
@@ -210,7 +197,6 @@ class TestNullReferenceFixture:
             llm=_mock_llm_rule_path(),
             ado_client=_mock_ado(),
             search_client=_mock_search(),
-            boards_client=_mock_boards(),
         )
         result: IncidentState = await pipeline.ainvoke(_make_state(fixture))
         recs = result.get("recommendations", [])
@@ -225,7 +211,6 @@ class TestNullReferenceFixture:
             llm=_mock_llm_rule_path(),
             ado_client=_mock_ado(),
             search_client=_mock_search(),
-            boards_client=_mock_boards(),
         )
         result: IncidentState = await pipeline.ainvoke(_make_state(fixture))
         if expected.get("root_cause_component_not_empty"):
@@ -242,7 +227,6 @@ class TestOutOfMemoryFixture:
             llm=_mock_llm_rule_path(),
             ado_client=_mock_ado(),
             search_client=_mock_search(),
-            boards_client=_mock_boards(),
         )
         result: IncidentState = await pipeline.ainvoke(_make_state(fixture))
         assert result["priority"] == expected["priority"]
@@ -256,7 +240,6 @@ class TestOutOfMemoryFixture:
             llm=_mock_llm_rule_path(),
             ado_client=_mock_ado(),
             search_client=_mock_search(),
-            boards_client=_mock_boards(),
         )
         result: IncidentState = await pipeline.ainvoke(_make_state(fixture))
         assert result.get("root_cause_summary")
@@ -264,16 +247,16 @@ class TestOutOfMemoryFixture:
         assert len(result["recommendations"]) >= 1
 
     @pytest.mark.asyncio
-    async def test_oom_bug_created(self) -> None:
+    async def test_oom_does_not_emit_legacy_bug_fields(self) -> None:
         fixture = _load_fixture("out_of_memory.json")
         pipeline = build_pipeline(
             llm=_mock_llm_rule_path(),
             ado_client=_mock_ado(),
             search_client=_mock_search(),
-            boards_client=_mock_boards(bug_id=9999),
         )
         result: IncidentState = await pipeline.ainvoke(_make_state(fixture))
-        assert result.get("ado_bug_id") == 9999
+        assert result.get("ado_bug_id") is None
+        assert result.get("ado_bug_url") is None
 
     @pytest.mark.asyncio
     async def test_oom_rag_results_and_quality(self) -> None:
@@ -283,7 +266,6 @@ class TestOutOfMemoryFixture:
             llm=_mock_llm_rule_path(),
             ado_client=_mock_ado(),
             search_client=_mock_search(),
-            boards_client=_mock_boards(),
         )
         result: IncidentState = await pipeline.ainvoke(_make_state(fixture))
         min_count = expected.get("rag_results_min_count", 0)
@@ -303,7 +285,6 @@ class TestUnknownExceptionFixture:
             llm=llm,
             ado_client=_mock_ado(),
             search_client=_mock_search(),
-            boards_client=_mock_boards(),
         )
         await pipeline.ainvoke(_make_state(fixture))
         assert llm.ainvoke.await_count == expected["llm_call_count"]
@@ -316,7 +297,6 @@ class TestUnknownExceptionFixture:
             llm=_mock_llm_llm_path(),
             ado_client=_mock_ado(),
             search_client=_mock_search(),
-            boards_client=_mock_boards(),
         )
         result: IncidentState = await pipeline.ainvoke(_make_state(fixture))
         agent_names = [e["agent_name"] for e in result.get("agent_trace", [])]
@@ -329,7 +309,6 @@ class TestUnknownExceptionFixture:
             llm=_mock_llm_llm_path(),
             ado_client=_mock_ado(),
             search_client=_mock_search(),
-            boards_client=_mock_boards(),
         )
         result: IncidentState = await pipeline.ainvoke(_make_state(fixture))
         assert result.get("root_cause_summary")
@@ -343,7 +322,6 @@ class TestUnknownExceptionFixture:
             llm=_mock_llm_llm_path(),
             ado_client=_mock_ado(),
             search_client=_mock_search(),
-            boards_client=_mock_boards(),
         )
         result: IncidentState = await pipeline.ainvoke(_make_state(fixture))
         min_count = expected.get("rag_results_min_count", 0)

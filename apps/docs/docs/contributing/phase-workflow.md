@@ -95,7 +95,7 @@ The following concerns are **always** enforced from the first phase that introdu
 | 24 | Key Vault + Workload Identity + KEDA | Pending |
 | 25 | Azure Monitor Alerts + Runbook | Pending |
 | 26 | Load + Security Testing | Pending |
-| 27–29 | Python/Node.js support, Jira | Post-v1.0 |
+| 27+ | Python/Node.js support | Post-v1.0 |
 | 30 | Documentation site (this site) | ✅ Complete |
 
 See the [project roadmap on GitHub](https://github.com/akeesari/remediai/blob/main/ROADMAP.md) for the full dependency graph.

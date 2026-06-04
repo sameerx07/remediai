@@ -20,18 +20,14 @@ flowchart LR
     CCA["Code Context<br/>Agent"]:::mvp
     RAGA["RAG Retrieval<br/>Agent"]:::mvp
     FPA["Fix Planner<br/>Agent"]:::mvp
-    BCA["Bug Creation<br/>Agent"]:::mvp
-    E(["Bug Created"]):::terminal
-    PRA["PR Agent"]:::phase2
+  CFX["Code Fix<br/>Agent"]:::phase2
+  PRA["PR Agent"]:::phase2
     VA["Validation<br/>Agent"]:::phase2
-    RA["Reporting<br/>Agent"]:::phase2
-    E2(["PR Created"]):::terminal
+  E(["PR Created"]):::terminal
 
-    S --> TA --> RCA --> CCA --> RAGA --> FPA --> BCA --> E
-    BCA -.->|"Phase 2<br/>human approval"| PRA
-    PRA -.->|"Phase 2"| VA
-    VA -.->|"Phase 2"| RA
-    RA -.-> E2
+  S --> TA --> RCA --> CCA --> RAGA --> FPA
+  FPA -.->|"approved"| CFX --> PRA --> VA --> E
+  FPA -.->|"not approved"| E
 ```
 
 > **Color key:** Green = MVP agents &nbsp;·&nbsp; Purple = Phase 2 agents (dashed) &nbsp;·&nbsp; Red = Start / End nodes
@@ -69,9 +65,9 @@ class IncidentState(TypedDict):
     # Fix planner outputs
     recommendations: list[Recommendation]
 
-    # Bug creation outputs
-    ado_bug_id: int | None
-    ado_bug_url: str | None
+    # Approval gate + PR outputs
+    approval_status: str | None
+    approved_recommendation_rank: int | None
 
     # Phase 2
     pr_branch: str | None
@@ -230,28 +226,23 @@ class IncidentState(TypedDict):
 
 ---
 
-### 6. Bug Creation Agent
+### 6. Human Approval Gate (Phase 2)
 
-**Purpose:** Create an Azure DevOps Bug work item from the incident analysis.
+**Purpose:** Record an explicit human approval decision for a recommendation before PR creation can run.
 
 **Input fields used:**
-- All incident fields, `root_cause_summary`, `recommendations`, `ado_bug_id` (checked to prevent duplicates)
+- `recommendations`
+- `approval_status`
+- `approved_recommendation_rank`
 
 **Output fields set:**
-- `ado_bug_id`
-- `ado_bug_url`
+- `approval_status`
+- `approved_recommendation_rank`
 
 **Logic:**
-1. Check if `ado_bug_id` is already set — skip if so.
-2. Build Bug work item payload:
-   - Title: `[RemediAI] {exception_type}: {exception_message[:80]}`
-   - Description: root cause summary + top recommendation
-   - Repro steps: stack trace (truncated)
-   - System info: service name, environment, correlation ID
-3. Call Azure DevOps Boards REST API to create the work item.
-4. Persist work item record to PostgreSQL.
-
-**No LLM call required for this agent.**
+1. Persist the selected approval decision on the incident row.
+2. Require `approval_status == "approved"` and a selected recommendation rank before PR creation can proceed.
+3. Do not call an LLM for approval capture.
 
 ---
 

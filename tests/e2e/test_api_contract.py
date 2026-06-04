@@ -115,7 +115,8 @@ class TestIncidentDetailEndpoint:
         assert data["root_cause"] == "Null reference in UserService."
         assert isinstance(data["recommendations"], list)
         assert isinstance(data["agent_trace"], list)
-        assert isinstance(data["work_items"], list)
+        assert "pr_url" in data
+        assert "pr_branch" in data
 
     @pytest.mark.asyncio
     async def test_get_incident_404_on_missing(self, api_client: AsyncClient) -> None:

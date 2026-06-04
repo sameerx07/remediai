@@ -1,176 +1,160 @@
-# Phase 5 — Ingestion Service
+# Phase 5 - Ingestion Service
 
-## Objective
+## Goal
 
-Wire the Azure Monitor connector (Phase 4) into a production-ready ingestion loop: a
-scheduled poller that fetches new exceptions and persists them as `Incident` records in
-PostgreSQL. The Agent Worker polls PostgreSQL directly for new incidents; no message
-broker is required.
+Define and enforce the canonical ingestion flow that creates new incidents and feeds the agent pipeline.
 
-> **Note (post-Phase 31):** The original design published `IncidentEvent` messages to
-> Azure Service Bus after persistence. That dependency was removed to enable cloud-agnostic
-> Helm chart distribution (Artifact Hub). PostgreSQL `status='new'` rows serve as the
-> work queue; the Service Bus publisher and the `IncidentEvent` model are no longer part
-> of this phase.
+This phase establishes:
+- scheduled Azure Monitor ingestion into PostgreSQL
+- deduplication and persistence behavior for incoming incidents
+- local-mode polling behavior for pipeline execution
+- generic API exception intake endpoints for webhook and manual uploads
 
----
+## Deliverables
 
-## Files to Create
+### 1) Worker ingestion structure contract
 
-| Path | Purpose |
-|------|---------|
-| `apps/worker/ingestion/scheduler.py` | `IngestionScheduler` — orchestrates poll → persist |
-| `apps/worker/main.py` | Async worker entry-point; runs the scheduler or poller loop |
-| `tests/integration/test_ingestion_scheduler.py` | Scheduler tests with mocked connector |
+The ingestion and worker runtime structure is:
 
-## Files to Modify
-
-| Path | Change |
-|------|--------|
-| `apps/api/core/config.py` | Add `local_mode`, `ingestion_poll_interval_seconds`, `ingestion_lookback_minutes` settings |
-| `ROADMAP.md` | Check off ingestion service milestone item |
-
----
-
-## Dependencies
-
-All already declared in `pyproject.toml`:
-- `azure-identity = "^1.17"` — `DefaultAzureCredential`
-- `pydantic = "^2.7"` — domain models + JSON serialisation
-- `sqlalchemy = "^2.0"` — async ORM for PostgreSQL
-
----
-
-## Implementation Notes
-
-### IngestionScheduler
-
-Single-run method + infinite poll loop:
-
-```python
-class IngestionScheduler:
-    async def run_once(self) -> list[Incident]
-    async def run_forever(self) -> None  # asyncio.sleep between runs
+```text
+apps/worker/
+├── main.py
+├── ingestion/
+│   ├── connector.py
+│   └── scheduler.py
+└── agents/
+    ├── runner.py
+    └── local_poller.py
 ```
 
-`run_once` flow:
-1. Open an async DB session.
-2. Create `AzureMonitorClient(workspace_id)`.
-3. Create `IngestionConnector(session, monitor_client)`.
-4. Call `connector.run(lookback_minutes)` → list of new `Incident` objects.
-5. Commit the DB session.
-6. Return the list of new incidents.
+### 2) Ingestion connector contract
 
-The Agent Worker (`LocalIncidentPoller`) polls PostgreSQL for rows where `status='new'`
-and processes them through the LangGraph pipeline. No inter-service messaging is needed.
+File: apps/worker/ingestion/connector.py
 
-`run_forever` wraps `run_once` in a `try/except` so transient errors (network, Azure
-API) do not crash the worker. Errors are logged; the loop sleeps
-`ingestion_poll_interval_seconds` between runs regardless of success or failure.
+Class: IngestionConnector
+- Depends on AsyncSession and AzureMonitorClient.
+- Provides run(lookback_minutes: int = 10) -> list[Incident].
 
-### Worker Entry-point (`apps/worker/main.py`)
+Behavior contract:
+- Fetch incidents from Azure Monitor client.
+- Deduplicate by incidents.fingerprint against PostgreSQL.
+- Detect exception language before persistence.
+- Persist only new incidents as IncidentOrm rows.
+- Flush session when new incidents exist.
+- Return only newly created Incident objects.
 
-```python
-async def main() -> None:
-    configure_logging()
-    scheduler = IngestionScheduler(settings=get_settings(), session_factory=...)
-    await scheduler.run_forever()
-```
+Data mapping contract:
+- Incident domain model values map to IncidentOrm fields.
+- Priority and status are persisted as enum string values.
+- exception_language is persisted on incident rows.
 
-Uses `asyncio.run(main())` so it can be launched as:
-```
-poetry run python -m apps.worker.main
-```
+### 3) Ingestion scheduler contract
 
-### Error Handling
+File: apps/worker/ingestion/scheduler.py
 
-- Transient Azure errors (network, throttling): caught in `run_forever`, logged, loop continues.
-- Fatal config errors (missing workspace ID): raise at startup before entering the loop.
-- DB errors: session is rolled back; loop continues.
+Class: IngestionScheduler
+- run_once() -> list[Incident]
+- run_forever() -> None
 
----
+run_once contract:
+- Open DB session.
+- Open AzureMonitorClient with configured workspace.
+- Run ingestion connector with ingestion_lookback_minutes.
+- Commit on success.
+- Roll back and re-raise on failure.
+- Return newly created incidents.
 
-## Gap 4 Enhancement — Webhook + Manual Upload Endpoints
+run_forever contract:
+- Execute run_once in an infinite loop.
+- Catch and log cycle failures.
+- Sleep using ingestion_poll_interval_seconds between cycles.
 
-### Problem
+### 4) Worker entrypoint and local-mode contract
 
-The ingestion service only pulls exceptions from Azure Monitor on a schedule. Any application
-that is not instrumented with Application Insights (Python apps, local services, non-Azure
-workloads) cannot feed exceptions into RemediAI.
+File: apps/worker/main.py
 
-### Solution
+Runtime contract:
+- Configure worker logging on startup.
+- Route execution based on local_mode setting:
+  - local_mode=false: run IngestionScheduler.run_forever()
+  - local_mode=true: run LocalIncidentPoller.run_forever()
 
-Add two new API endpoints that accept exceptions from any source:
+File: apps/worker/agents/local_poller.py
 
-| Endpoint | Purpose |
-|---|---|
-| `POST /api/v1/exceptions/ingest` | Webhook intake — applications POST exceptions directly (CI hooks, error handlers, agents) |
-| `POST /api/v1/exceptions/upload` | Manual upload — developers paste a stack trace from any environment |
+Class: LocalIncidentPoller
+- run_once() -> int
+- run_forever() -> None
 
-Both endpoints:
-- Accept `exception_type`, `exception_message`, `stack_trace`, `source`, `application_name`
-- Fingerprint and deduplicate against existing incidents (same logic as Azure Monitor ingestion)
-- Persist as a new `Incident` with `status=new`
-- Return `{status: "created"|"duplicate", incident_id}`
-- Require auth (same middleware as all other API routes)
-- Write an audit event on every create
+Behavior contract:
+- Poll incidents where status=new OR (status=analyzed AND approval_status=approved).
+- Process incidents in bounded batches.
+- Execute pipeline through AgentPipelineRunner.
+- Commit each successful incident run.
+- Roll back and continue when an incident run fails.
 
-### New Files
+### 5) Generic exception intake API contract
 
-| Path | Purpose |
-|---|---|
-| `apps/api/routers/exceptions.py` | New router — `POST /api/v1/exceptions/ingest` and `/upload` |
-| `apps/api/schemas/exception_intake.py` | `ExceptionIngestPayload`, `ExceptionUploadPayload`, `ExceptionIntakeResponse` |
+Files:
+- apps/api/routers/exceptions.py
+- apps/api/schemas/exception_intake.py
 
-### Modified Files
+Endpoints:
+- POST /api/v1/exceptions/ingest
+- POST /api/v1/exceptions/upload
 
-| Path | Change |
-|---|---|
-| `apps/api/main.py` | Register new exceptions router (always registered — not local-mode only) |
+Payload contract:
+- exception_type
+- exception_message
+- stack_trace
+- source
+- application_name
+- environment
+- language
 
-### Payload Schemas
+Response contract:
+- status: created | duplicate
+- incident_id: string | null
 
-**`POST /api/v1/exceptions/ingest`** — designed for programmatic callers:
-```json
-{
-  "exception_type": "NullReferenceException",
-  "exception_message": "Object reference not set.",
-  "stack_trace": "   at MyApp.Service.Run() in src/Service.cs:line 42",
-  "source": "payment-api",
-  "application_name": "payment-api",
-  "environment": "production",
-  "language": "dotnet"
-}
-```
+Persistence contract:
+- Construct Incident domain model from payload.
+- Deduplicate using fingerprint against incidents table.
+- Persist IncidentOrm row when not duplicate.
+- Commit transaction for created incidents.
 
-**`POST /api/v1/exceptions/upload`** — identical schema, separate endpoint for UI/manual use.
+Security contract:
+- Both endpoints require API authentication dependency.
+- Endpoints are always registered in the FastAPI app.
 
-### Response
-```json
-{ "status": "created", "incident_id": "uuid" }
-{ "status": "duplicate", "incident_id": null }
-```
+### 6) Configuration contract
 
-### Security Touchpoints
-- Auth required on both endpoints (same `require_auth()` as all other routes).
-- `exception_message` and `stack_trace` are PII-scrubbed before the LLM call (existing pipeline behaviour — no additional scrubbing needed at intake).
-- No shell execution or file system access.
+Settings consumed by this phase:
+- azure_monitor_workspace_id
+- ingestion_poll_interval_seconds
+- ingestion_lookback_minutes
+- local_mode
+- local_incident_poll_interval_seconds
 
----
+## Security Touchpoints
+
+- Ingestion flow does not store secrets in code.
+- Intake endpoints enforce authentication before incident creation.
+- Deduplication prevents repeated incident amplification from duplicate payloads.
+- Worker loops are failure-tolerant and continue without unsafe crash loops.
+- Incident persistence follows existing governance path through auditable status transitions.
 
 ## Acceptance Criteria
 
-- [ ] `pytest tests/integration/test_ingestion_scheduler.py -v` — all pass
-- [ ] `ruff check apps/worker/` — no errors
-- [ ] `mypy apps/worker/ --strict` — 0 errors
-- [ ] Scheduler commits session only after connector succeeds
-- [ ] Scheduler rolls back session on connector error
-- [ ] No `azure-servicebus` import anywhere in `apps/` or `packages/`
+- python -c "from apps.worker.ingestion.scheduler import IngestionScheduler; print('OK')" prints OK.
+- python -c "from apps.worker.agents.local_poller import LocalIncidentPoller; print('OK')" prints OK.
+- python -c "from apps.api.routers.exceptions import router; print('OK')" prints OK.
+- pytest tests/integration/test_ingestion_scheduler.py -v executes successfully.
+- pytest tests/unit/test_exception_intake_router.py -v executes successfully.
+- ruff check apps/worker/ apps/api/routers/exceptions.py apps/api/schemas/exception_intake.py exits 0.
+- mypy apps/worker/ apps/api/routers/exceptions.py apps/api/schemas/exception_intake.py --strict exits 0.
 
----
+## Out of Scope
 
-## Commit Message
-
-```
-feat(worker): add IngestionScheduler and worker entry-point
-```
+- External message broker publishing and queue fan-out design.
+- Non-PostgreSQL queue orchestration for pipeline triggering.
+- Advanced ingestion backpressure strategies beyond poll interval and dedupe.
+- Provider-specific ingestion connectors outside Azure Monitor for this phase.

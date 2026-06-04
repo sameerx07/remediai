@@ -1,262 +1,259 @@
-# Phase 2 — Domain Models
+# Phase 2 - Domain Models
 
-## Objective
+## Goal
 
-Define all core Pydantic v2 domain models in `packages/domain/`. These models are the
-single source of truth for data shapes across the API, worker, agent pipeline, and database
-layers. Every subsequent phase imports from here — nothing defines its own data structures.
+Define and enforce the canonical domain model layer for RemediAI using Pydantic v2 models and TypedDict state contracts under packages/domain.
 
-After this phase, all models import cleanly, `mypy --strict` passes, and unit tests
-validate construction, defaults, enums, fingerprint generation, and serialisation.
+This phase establishes a single shared source of truth for:
+- incident representation
+- analysis outputs
+- audit and trace records
+- pipeline state shape
+- ingestion event payload shape
+- domain-level exceptions and public exports
 
-## Milestone
+## Deliverables
 
-`ROADMAP.md` — Milestone 1: Foundation
-Check off: `Domain models defined (Pydantic)`
+### 1) Domain package structure
 
----
+The domain package structure is:
 
-## Files to Create
-
-```
-packages/domain/models/__init__.py
-packages/domain/models/incident.py       — Incident, IncidentStatus, IncidentPriority
-packages/domain/models/analysis.py       — CodeSnippet, RAGResult, RootCauseJson,
-                                            Recommendation, IncidentAnalysis
-packages/domain/models/work_item.py      — WorkItem, WorkItemType
-packages/domain/models/audit.py          — AuditLog, AgentTraceEntry
-packages/domain/models/agent_state.py    — IncidentState (TypedDict)
-packages/domain/exceptions.py            — DomainError, IncidentNotFoundError,
-                                            DuplicateIncidentError
-```
-
-Update:
-```
-packages/domain/__init__.py              — re-export all public symbols
+```text
+packages/domain/
+├── __init__.py
+├── exceptions.py
+└── models/
+    ├── __init__.py
+    ├── incident.py
+    ├── analysis.py
+    ├── audit.py
+    ├── agent_state.py
+    └── events.py
 ```
 
-Tests:
-```
-tests/unit/test_domain_incident.py
-tests/unit/test_domain_analysis.py
-tests/unit/test_domain_agent_state.py
-```
+### 2) Incident model contract
 
----
+File: packages/domain/models/incident.py
 
-## Model Specifications
+Enums:
+- IncidentPriority with values: critical, high, medium, low
+- IncidentStatus with values:
+  - new
+  - triaging
+  - analyzed
+  - bug_created
+  - pr_created
+  - resolved
+  - analysis_failed
 
-### `IncidentPriority` / `IncidentStatus`  (`incident.py`)
+Model: Incident
+- id: UUID (default uuid4)
+- correlation_id: UUID (default uuid4)
+- source: str
+- exception_type: str
+- exception_message: str
+- stack_trace: str | None
+- fingerprint: str
+- priority: IncidentPriority (default medium)
+- status: IncidentStatus (default new)
+- exception_language: str | None
+- raw_payload: dict[str, Any] (default empty dict)
+- created_at: datetime UTC now
+- updated_at: datetime UTC now
 
-```python
-class IncidentPriority(str, Enum):
-    CRITICAL = "critical"
-    HIGH = "high"
-    MEDIUM = "medium"
-    LOW = "low"
+Fingerprint derivation contract:
+- If fingerprint is missing or empty, compute SHA-256 hex digest from:
+  - exception_type + ":" + first 200 chars of exception_message
+- Implement with a Pydantic model validator in before mode.
 
-class IncidentStatus(str, Enum):
-    NEW = "new"
-    TRIAGING = "triaging"
-    ANALYZED = "analyzed"
-    BUG_CREATED = "bug_created"
-    RESOLVED = "resolved"
-    ANALYSIS_FAILED = "analysis_failed"
-```
+### 3) Analysis model contracts
 
-### `Incident`  (`incident.py`)
+File: packages/domain/models/analysis.py
 
-| Field | Type | Default |
-|---|---|---|
-| `id` | `UUID` | `uuid4()` |
-| `correlation_id` | `UUID` | `uuid4()` |
-| `source` | `str` | required |
-| `exception_type` | `str` | required |
-| `exception_message` | `str` | required |
-| `stack_trace` | `str \| None` | `None` |
-| `fingerprint` | `str` | computed — see below |
-| `priority` | `IncidentPriority` | `MEDIUM` |
-| `status` | `IncidentStatus` | `NEW` |
-| `raw_payload` | `dict[str, Any]` | `{}` |
-| `created_at` | `datetime` | `datetime.now(UTC)` |
-| `updated_at` | `datetime` | `datetime.now(UTC)` |
+Model: CodeSnippet
+- file_path: str
+- start_line: int
+- end_line: int
+- content: str
+- repo: str
+- commit_sha: str
 
-`fingerprint` is a SHA-256 hex digest of
-`f"{exception_type}:{exception_message[:200]}"`.
-Computed via `@model_validator(mode="before")` — if not supplied, derive it.
+Model: RAGResult
+- source: str
+- title: str
+- excerpt: str
+- relevance_score: float
+- url: str | None (default None)
 
-### `CodeSnippet`  (`analysis.py`)
+Model: RootCauseJson
+- component: str
+- likely_cause: str
+- contributing_factors: list[str]
+- confidence: float
 
-| Field | Type |
-|---|---|
-| `file_path` | `str` |
-| `start_line` | `int` |
-| `end_line` | `int` |
-| `content` | `str` |
-| `repo` | `str` |
-| `commit_sha` | `str` |
+Model: Recommendation
+- rank: int
+- title: str
+- description: str
+- affected_files: list[str]
+- suggested_change: str
+- confidence: float
+- source_refs: list[str] (default empty list)
 
-### `RAGResult`  (`analysis.py`)
+Model: IncidentAnalysis
+- id: UUID (default uuid4)
+- incident_id: UUID
+- root_cause: str | None (default None)
+- root_cause_json: RootCauseJson | None (default None)
+- recommendations: list[Recommendation] (default empty list)
+- code_snippets: list[CodeSnippet] (default empty list)
+- rag_results: list[RAGResult] (default empty list)
+- agent_trace: list[AgentTraceEntry] (default empty list)
+- created_at: datetime UTC now
 
-| Field | Type | Default |
-|---|---|---|
-| `source` | `str` | required |
-| `title` | `str` | required |
-| `excerpt` | `str` | required |
-| `relevance_score` | `float` | required |
-| `url` | `str \| None` | `None` |
+Cross-model contract:
+- IncidentAnalysis references AgentTraceEntry from audit model.
+- analysis model rebuilds Pydantic model after AgentTraceEntry import.
 
-### `RootCauseJson`  (`analysis.py`)
+### 4) Audit model contracts
 
-| Field | Type |
-|---|---|
-| `component` | `str` |
-| `likely_cause` | `str` |
-| `contributing_factors` | `list[str]` |
-| `confidence` | `float` |
+File: packages/domain/models/audit.py
 
-### `Recommendation`  (`analysis.py`)
+Model: AgentTraceEntry
+- agent_name: str
+- prompt_version: str | None (default None)
+- input_summary: str
+- output_summary: str
+- llm_model: str | None (default None)
+- tokens_used: int | None (default None)
+- latency_ms: int
+- timestamp: datetime UTC now
+- error: str | None (default None)
 
-| Field | Type | Default |
-|---|---|---|
-| `rank` | `int` | required |
-| `title` | `str` | required |
-| `description` | `str` | required |
-| `affected_files` | `list[str]` | required |
-| `suggested_change` | `str` | required |
-| `confidence` | `float` | required |
-| `source_refs` | `list[str]` | `[]` |
+Model: AuditLog
+- id: UUID (default uuid4)
+- incident_id: UUID | None (default None)
+- agent_name: str
+- action: str
+- input_summary: str | None (default None)
+- output_summary: str | None (default None)
+- actor_identity: str | None (default None)
+- metadata: dict[str, Any] (default empty dict)
+- created_at: datetime UTC now
 
-### `IncidentAnalysis`  (`analysis.py`)
+### 5) Pipeline state contract
 
-| Field | Type | Default |
-|---|---|---|
-| `id` | `UUID` | `uuid4()` |
-| `incident_id` | `UUID` | required |
-| `root_cause` | `str \| None` | `None` |
-| `root_cause_json` | `RootCauseJson \| None` | `None` |
-| `recommendations` | `list[Recommendation]` | `[]` |
-| `code_snippets` | `list[CodeSnippet]` | `[]` |
-| `rag_results` | `list[RAGResult]` | `[]` |
-| `agent_trace` | `list[AgentTraceEntry]` | `[]` |
-| `created_at` | `datetime` | `datetime.now(UTC)` |
+File: packages/domain/models/agent_state.py
 
-### `WorkItemType` / `WorkItem`  (`work_item.py`)
+Define IncidentState as TypedDict(total=False).
 
-```python
-class WorkItemType(str, Enum):
-    BUG = "bug"
-    TASK = "task"
-```
+IncidentState keys include:
+- incident_id
+- correlation_id
+- exception_type
+- exception_message
+- stack_trace
+- raw_payload
+- exception_language
+- ado_repository
+- priority
+- triage_labels
+- group_id
+- approval_status
+- approved_recommendation_rank
+- root_cause_summary
+- root_cause_json
+- recent_commits
+- dependency_context
+- code_snippets
+- rag_results
+- recommendations
+- code_fix_result
+- pr_branch
+- pr_url
+- validation_report
+- monitoring_result
+- agent_trace
+- errors
 
-| Field | Type | Default |
-|---|---|---|
-| `id` | `UUID` | `uuid4()` |
-| `incident_id` | `UUID` | required |
-| `ado_item_id` | `int` | required |
-| `ado_item_url` | `str` | required |
-| `item_type` | `WorkItemType` | `BUG` |
-| `created_at` | `datetime` | `datetime.now(UTC)` |
+State serialization contract:
+- Nested values intended for graph persistence use dict/list primitives to remain JSON-serializable.
 
-### `AgentTraceEntry`  (`audit.py`)
+### 6) Incident event contract
 
-| Field | Type | Default |
-|---|---|---|
-| `agent_name` | `str` | required |
-| `prompt_version` | `str \| None` | `None` |
-| `input_summary` | `str` | required |
-| `output_summary` | `str` | required |
-| `llm_model` | `str \| None` | `None` |
-| `tokens_used` | `int \| None` | `None` |
-| `latency_ms` | `int` | required |
-| `timestamp` | `datetime` | `datetime.now(UTC)` |
-| `error` | `str \| None` | `None` |
+File: packages/domain/models/events.py
 
-### `AuditLog`  (`audit.py`)
+Model: IncidentEvent
+- incident_id: UUID
+- correlation_id: UUID
+- source: str
+- exception_type: str
+- exception_message: str
+- fingerprint: str
+- priority: str
+- status: str
+- published_at: datetime UTC now
+- event_id: UUID (default uuid4)
 
-| Field | Type | Default |
-|---|---|---|
-| `id` | `UUID` | `uuid4()` |
-| `incident_id` | `UUID \| None` | `None` |
-| `agent_name` | `str` | required |
-| `action` | `str` | required |
-| `input_summary` | `str \| None` | `None` |
-| `output_summary` | `str \| None` | `None` |
-| `actor_identity` | `str \| None` | `None` |
-| `metadata` | `dict[str, Any]` | `{}` |
-| `created_at` | `datetime` | `datetime.now(UTC)` |
+### 7) Domain exceptions contract
 
-### `IncidentState`  (`agent_state.py`)
+File: packages/domain/exceptions.py
 
-`TypedDict` used as the LangGraph graph state. All fields optional where the
-agent pipeline fills them in progressively.
+Exception hierarchy:
+- DomainError
+- IncidentNotFoundError(DomainError)
+- DuplicateIncidentError(DomainError)
 
-```python
-class IncidentState(TypedDict):
-    # Core incident (required at pipeline entry)
-    incident_id: str
-    correlation_id: str
-    exception_type: str
-    exception_message: str
-    stack_trace: str
-    raw_payload: dict[str, Any]
-    # Triage outputs
-    priority: str | None
-    triage_labels: list[str]
-    group_id: str | None
-    # Root cause outputs
-    root_cause_summary: str | None
-    root_cause_json: dict[str, Any] | None
-    # Code context outputs
-    code_snippets: list[dict[str, Any]]
-    # RAG outputs
-    rag_results: list[dict[str, Any]]
-    # Fix planner outputs
-    recommendations: list[dict[str, Any]]
-    # Bug creation outputs
-    ado_bug_id: int | None
-    ado_bug_url: str | None
-    # Phase 2
-    pr_branch: str | None
-    pr_url: str | None
-    validation_report: dict[str, Any] | None
-    # Audit
-    agent_trace: list[dict[str, Any]]
-    errors: list[str]
-```
+### 8) Export surface contract
 
-Use `dict[str, Any]` for nested model fields (not the Pydantic models directly)
-to keep the state JSON-serialisable for LangGraph checkpointing.
+File: packages/domain/models/__init__.py exports:
+- AgentTraceEntry
+- AuditLog
+- CodeSnippet
+- Incident
+- IncidentAnalysis
+- IncidentEvent
+- IncidentPriority
+- IncidentState
+- IncidentStatus
+- RAGResult
+- Recommendation
+- RootCauseJson
 
-### `packages/domain/exceptions.py`
+File: packages/domain/__init__.py exports:
+- DomainError
+- IncidentNotFoundError
+- DuplicateIncidentError
+- AgentTraceEntry
+- AuditLog
+- CodeSnippet
+- Incident
+- IncidentAnalysis
+- IncidentPriority
+- IncidentState
+- IncidentStatus
+- RAGResult
+- Recommendation
+- RootCauseJson
 
-```python
-class DomainError(Exception): ...
-class IncidentNotFoundError(DomainError): ...
-class DuplicateIncidentError(DomainError): ...
-```
+## Security Touchpoints
 
----
+- Domain models do not embed secrets or credential material.
+- Audit and trace structures preserve action provenance fields for governance workflows.
+- Pipeline state schema supports auditability via agent_trace and errors fields.
+- Domain contracts are pure data contracts and do not perform network or filesystem side effects.
 
 ## Acceptance Criteria
 
-- [ ] `python -c "from packages.domain import Incident, IncidentAnalysis, WorkItem, AuditLog, IncidentState; print('OK')"` prints `OK`
-- [ ] `pytest tests/unit/test_domain_incident.py tests/unit/test_domain_analysis.py tests/unit/test_domain_agent_state.py -v` — all tests pass
-- [ ] `ruff check packages/domain/` — 0 violations
-- [ ] `mypy packages/domain/ --strict` — 0 errors
+- python -c "from packages.domain import Incident, IncidentAnalysis, IncidentPriority, IncidentState, AuditLog; print('OK')" prints OK.
+- python -c "from packages.domain.models.events import IncidentEvent; print('OK')" prints OK.
+- pytest tests/unit/test_domain_incident.py tests/unit/test_domain_analysis.py tests/unit/test_domain_agent_state.py -v executes successfully.
+- ruff check packages/domain/ exits 0.
+- mypy packages/domain/ --strict exits 0.
 
----
+## Out of Scope
 
-## Commit Message
-
-```
-feat(domain): add core Pydantic domain models and LangGraph agent state
-
-- Incident with auto-fingerprint (SHA-256), priority/status enums
-- IncidentAnalysis, CodeSnippet, RAGResult, RootCauseJson, Recommendation
-- WorkItem with WorkItemType enum
-- AgentTraceEntry and AuditLog for immutable audit trail
-- IncidentState TypedDict for LangGraph pipeline state
-- DomainError hierarchy (IncidentNotFoundError, DuplicateIncidentError)
-- Unit tests covering construction, defaults, enums, fingerprint, serialisation
-```
+- ORM schema design and persistence mapping details.
+- API response schema definitions outside packages/domain.
+- Agent orchestration logic and routing rules.
+- Database migration scripts and storage indexing strategy.

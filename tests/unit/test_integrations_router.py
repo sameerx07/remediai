@@ -29,7 +29,6 @@ class TestIntegrationsHealth:
         assert "llm_provider_id" in body
         assert "retrieval_provider_id" in body
         assert "scm" in body
-        assert "ticketing" in body
         assert "warnings" in body
         assert "provider_id" in body["scm"]
         assert "configured" in body["scm"]

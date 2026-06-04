@@ -6,7 +6,6 @@ import structlog
 from langchain_core.language_models.chat_models import BaseChatModel
 from langgraph.graph import END, StateGraph
 
-from packages.agent_runtime.bug_creator.agent import ADOBoardsClientProtocol, make_bug_creator_node
 from packages.agent_runtime.code_context.agent import ADOClientProtocol, make_code_context_node
 from packages.agent_runtime.code_fix.agent import make_code_fix_node
 from packages.agent_runtime.fix_planner.agent import make_fix_planner_node
@@ -33,7 +32,6 @@ def build_pipeline(
     settings: Any = None,
     ado_client: ADOClientProtocol | None = None,
     search_client: SearchClientProtocol | None = None,
-    boards_client: ADOBoardsClientProtocol | None = None,
     ado_writer: ADOReposWriterProtocol | None = None,
     pr_reader: ADOPrReaderProtocol | None = None,
 ) -> Any:
@@ -70,10 +68,6 @@ def build_pipeline(
     graph.add_node("rag", make_rag_node(search_client=search_client, settings=settings))
     graph.add_node("fix_planner", make_fix_planner_node(llm=llm))
     graph.add_node(
-        "bug_creator",
-        make_bug_creator_node(boards_client=boards_client, settings=settings),
-    )
-    graph.add_node(
         "code_fix_agent",
         make_code_fix_node(llm=llm, ado_client=ado_client, settings=settings),
     )
@@ -91,9 +85,8 @@ def build_pipeline(
     graph.add_edge("root_cause", "code_context")
     graph.add_edge("code_context", "rag")
     graph.add_edge("rag", "fix_planner")
-    graph.add_edge("fix_planner", "bug_creator")
     graph.add_conditional_edges(
-        "bug_creator", _pr_routing, {"code_fix_agent": "code_fix_agent", END: END}
+        "fix_planner", _pr_routing, {"code_fix_agent": "code_fix_agent", END: END}
     )
     graph.add_edge("code_fix_agent", "pr_agent")
     graph.add_edge("pr_agent", "validation_agent")

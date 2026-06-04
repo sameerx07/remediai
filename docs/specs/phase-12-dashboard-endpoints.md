@@ -1,209 +1,242 @@
-# Phase 12 — FastAPI Dashboard Endpoints
+# Phase 12 - FastAPI Dashboard Endpoints
 
 ## Goal
 
-Expose incident data and monitoring target policy APIs for the React dashboard.
-Core endpoints remain list, detail, and metrics, and this phase now includes
-target discovery and selection contracts used by local Docker mode and future
-Kubernetes mode.
+Define the canonical FastAPI endpoint contract consumed by the dashboard for
+incident review, metrics, integration visibility, and monitoring target
+selection.
 
-## Endpoints
+This phase establishes:
+- paginated incident list and incident detail APIs
+- aggregate metrics for dashboard charts and stat cards
+- integration health visibility for dashboard warnings
+- persisted and discovered monitoring target APIs with local and Kubernetes
+  environment support
 
-### `GET /api/v1/incidents`
+## Deliverables
 
-Paginated incident list with optional filters.
+### 1) Router surface contract
 
-**Query parameters:**
+The dashboard endpoint router surface is:
 
-| Param | Type | Default | Constraint |
-|---|---|---|---|
-| `page` | int | 1 | ≥ 1 |
-| `page_size` | int | 20 | 1–100 |
-| `status` | str | — | optional filter |
-| `priority` | str | — | optional filter |
-| `date_from` | datetime | — | ISO 8601 |
-| `date_to` | datetime | — | ISO 8601 |
-
-**Response:** `PaginatedResponse[IncidentListItem]`
-
-```json
-{
-  "items": [...],
-  "total": 42,
-  "page": 1,
-  "page_size": 20,
-  "pages": 3
-}
+```text
+apps/api/routers/
+├── incidents.py
+├── metrics.py
+├── integrations.py
+└── targets.py
 ```
 
-**`IncidentListItem` fields:** `id`, `exception_type`, `exception_message`, `priority`, `status`, `created_at`, `updated_at`, `has_analysis`, `external_item_url`
+The response model surface is:
 
----
-
-### `GET /api/v1/incidents/{id}`
-
-Full incident detail including analysis and work items.
-
-**Response:** `IncidentDetail`
-
-Includes: all list fields + `stack_trace`, `root_cause`, `root_cause_json`, `recommendations`, `code_snippets`, `rag_results`, `agent_trace`, `work_items`.
-
-Returns **404** if incident not found.
-
----
-
-### `GET /api/v1/integrations/health`
-
-Returns resolved integration provider status for dashboard warnings and operator
-visibility.
-
-**Response:** `IntegrationsHealthResponse`
-
-```json
-{
-  "llm_provider_id": "azure-openai",
-  "retrieval_provider_id": "azure-ai-search",
-  "scm": {
-    "provider_id": "azure-devops",
-    "configured": true,
-    "warning": null
-  },
-  "ticketing": {
-    "provider_id": "none",
-    "configured": false,
-    "warning": "External ticketing is disabled."
-  },
-  "warnings": [
-    "External ticketing is disabled."
-  ]
-}
+```text
+apps/api/schemas/
+├── incident.py
+├── metrics.py
+├── integrations.py
+└── targets.py
 ```
 
-Auth requirement: same as existing dashboard endpoints for the active
-environment. In local mode this endpoint remains accessible to the dashboard;
-in non-local mode it follows the dashboard API auth policy.
+### 2) Incident list endpoint contract
 
----
+Files:
+- apps/api/routers/incidents.py
+- apps/api/schemas/incident.py
 
-### `GET /api/v1/metrics`
+Route:
+- `GET /api/v1/incidents`
 
-Aggregate counts for the dashboard metrics panel.
+Query parameters:
+- page: int = 1, minimum 1
+- page_size: int = 20, minimum 1, maximum 100
+- status: str | None
+- priority: str | None
+- date_from: datetime | None
+- date_to: datetime | None
 
-**Response:** `MetricsResponse`
+Response contract:
+- `PaginatedResponse[IncidentListItem]`
 
-```json
-{
-  "total_incidents": 100,
-  "total_analyzed": 73,
-  "by_status": [{"status": "analyzed", "count": 73}, ...],
-  "by_priority": [{"priority": "high", "count": 40}, ...],
-  "top_errors": [{"exception_type": "System.NullReferenceException", "count": 28}, ...]
-}
-```
+`IncidentListItem` fields:
+- id
+- exception_type
+- exception_message
+- priority
+- status
+- created_at
+- updated_at
+- has_analysis
+- pr_url
 
-Top errors capped at 10, ordered by count descending.
+Behavior contract:
+- Results are ordered by `created_at` descending.
+- `has_analysis` is derived by a secondary query over `AnalysisOrm.incident_id`.
+- List responses expose `pr_url`, not a legacy external work-item URL field.
 
----
+### 3) Incident detail endpoint contract
 
-### `GET /api/v1/targets`
+Files:
+- apps/api/routers/incidents.py
+- apps/api/schemas/incident.py
 
-Returns persisted monitoring targets.
+Route:
+- `GET /api/v1/incidents/{incident_id}`
 
-**Query parameters:**
+Response contract:
+- `IncidentDetail`
 
-| Param | Type | Default | Constraint |
-|---|---|---|---|
-| `environment` | str | `local` | `local` \| `kubernetes` |
-| `enabled_only` | bool | `false` | optional |
+`IncidentDetail` fields include:
+- all primary incident identity and status fields
+- stack_trace
+- root_cause
+- root_cause_json
+- recommendations
+- code_snippets
+- rag_results
+- agent_trace
+- approval_status
+- approved_by
+- approved_at
+- approved_recommendation_rank
+- pr_url
+- pr_branch
 
-**Response:** `list[MonitorTarget]`
+Behavior contract:
+- The endpoint loads `IncidentOrm` with `analyses` via `selectinload`.
+- If no analysis exists, root cause and analysis arrays return empty or null
+  values.
+- The endpoint does not return `work_items` as part of the current canonical
+  response shape.
+- Unknown incident IDs return HTTP 404.
 
-```json
-[
-  {
-    "id": "uuid",
-    "environment": "local",
-    "target_type": "container",
-    "target_key": "api",
-    "display_name": "api",
-    "enabled": true,
-    "metadata": {}
-  }
-]
-```
+### 4) Integration health endpoint contract
 
-### `PUT /api/v1/targets`
+Files:
+- apps/api/routers/integrations.py
+- apps/api/schemas/integrations.py
 
-Bulk upsert monitoring target policy.
+Route:
+- `GET /api/v1/integrations/health`
 
-**Request:** `UpsertMonitorTargetsRequest`
+Response contract:
+- `IntegrationsHealthResponse`
 
-```json
-{
-  "environment": "local",
-  "targets": [
-    {
-      "target_type": "container",
-      "target_key": "api",
-      "display_name": "api",
-      "enabled": true,
-      "metadata": {}
-    }
-  ]
-}
-```
+Fields:
+- llm_provider_id: str
+- retrieval_provider_id: str
+- scm: IntegrationStatus
+- warnings: list[str]
 
-**Response:**
+`IntegrationStatus` fields:
+- provider_id
+- configured
+- warning
 
-```json
-{
-  "updated": 1
-}
-```
+Behavior contract:
+- The endpoint returns SCM integration status and aggregated warnings.
+- The current response shape does not include a separate `ticketing` object.
 
-### `GET /api/v1/targets/discovered`
+### 5) Metrics endpoint contract
 
-Returns discovered runtime targets for user selection.
+Files:
+- apps/api/routers/metrics.py
+- apps/api/schemas/metrics.py
 
-**Query parameters:**
+Route:
+- `GET /api/v1/metrics`
 
-| Param | Type | Default | Constraint |
-|---|---|---|---|
-| `environment` | str | `local` | `local` \| `kubernetes` |
+Response contract:
+- `MetricsResponse`
 
-**Response:** `list[DiscoveredTarget]`
+Fields:
+- total_incidents
+- total_analyzed
+- by_status: list[StatusCount]
+- by_priority: list[PriorityCount]
+- top_errors: list[TopError]
 
-`local` examples: Docker container names.
-`kubernetes` examples: namespace/workload pairs.
+Behavior contract:
+- `total_analyzed` counts incidents where `status == "analyzed"`.
+- `by_status` and `by_priority` are grouped database aggregations.
+- `top_errors` is grouped by `exception_type`, ordered descending by count, and
+  limited to 10 entries.
 
-## Implementation Notes
+### 6) Monitoring targets endpoint contract
 
-- All endpoints use `AsyncSession` via `Depends(get_db_session)` for DB access
-- `selectinload` used for `analyses` and `work_items` relationships (avoids N+1)
-- `has_analysis` derived with a secondary query on `incident_analyses.incident_id`
-- B008 ruff rule suppressed globally — FastAPI's `Query`/`Depends` in defaults is idiomatic
-- Target APIs are auth-protected in non-local environments and local-only when
-  `LOCAL_MODE=true` unless explicit cluster auth is configured.
+Files:
+- apps/api/routers/targets.py
+- apps/api/schemas/targets.py
 
-## Files
+Routes:
+- `GET /api/v1/targets`
+- `PUT /api/v1/targets`
+- `GET /api/v1/targets/discovered`
 
-```
-apps/api/
-├── main.py                       — router registration
-├── routers/
-│   ├── incidents.py              — list + detail endpoints
-│   ├── metrics.py                — metrics endpoint
-│   ├── integrations.py           — integration health endpoint
-│   └── targets.py                — monitor target APIs
-└── schemas/
-    ├── incident.py               — PaginatedResponse, IncidentListItem, IncidentDetail
-  ├── metrics.py                — MetricsResponse, StatusCount, PriorityCount, TopError
-  ├── integrations.py           — integration health response contracts
-  └── targets.py                — MonitorTarget, DiscoveredTarget, Upsert request/response
+Shared environment contract:
+- environment: `local | kubernetes`
 
-docs/specs/phase-12-dashboard-endpoints.md
-tests/unit/test_incidents_router.py
-tests/unit/test_metrics_router.py
-tests/unit/test_integrations_router.py
-tests/unit/test_targets_router.py
-```
+`GET /api/v1/targets` contract:
+- Query parameters:
+  - environment: defaults to `local`
+  - enabled_only: defaults to `false`
+- Response: `list[MonitorTarget]`
+
+`MonitorTarget` fields:
+- id
+- environment
+- target_type
+- target_key
+- display_name
+- enabled
+- metadata
+- created_at
+- updated_at
+
+`PUT /api/v1/targets` contract:
+- Request: `UpsertMonitorTargetsRequest`
+- Response: `UpsertMonitorTargetsResponse`
+- `updated` returns the number of created or updated target rows.
+
+`GET /api/v1/targets/discovered` contract:
+- Query parameter:
+  - environment: defaults to `local`
+- Response: `list[DiscoveredTarget]`
+
+Discovery behavior contract:
+- `local` discovery returns deduplicated container names from
+  `bridge_containers`.
+- `kubernetes` discovery returns namespace and workload targets derived from
+  `kubernetes_discovery_namespaces` and `kubernetes_discovery_workloads`.
+
+Authorization contract:
+- Target routes depend on `_require_targets_access`.
+- When `local_mode` is true, target routes are accessible without the admin
+  header.
+- When `local_mode` is false, target routes require
+  `X-Remediai-Admin-Token` matching `target_api_token`.
+
+## Security Touchpoints
+
+- Dashboard data endpoints use dependency-injected database sessions rather than
+  direct database access from the client.
+- Target management endpoints enforce an admin token outside local mode.
+- Integration health exposes configuration state and warnings, not secrets.
+- Incident detail exposes approval and PR metadata but not write capabilities.
+
+## Acceptance Criteria
+
+- `python -c "from apps.api.routers.incidents import list_incidents, get_incident; print('OK')"` prints `OK`.
+- `python -c "from apps.api.routers.metrics import get_metrics; from apps.api.routers.integrations import get_integrations_health; from apps.api.routers.targets import list_targets, upsert_targets, discover_targets; print('OK')"` prints `OK`.
+- `python -c "from apps.api.schemas.incident import IncidentListItem, IncidentDetail; from apps.api.schemas.metrics import MetricsResponse; from apps.api.schemas.integrations import IntegrationsHealthResponse; from apps.api.schemas.targets import MonitorTarget, DiscoveredTarget, UpsertMonitorTargetsRequest; print('OK')"` prints `OK`.
+- `pytest tests/unit/test_incidents_router.py -v` executes successfully.
+- `pytest tests/unit/test_metrics_router.py -v` executes successfully.
+- `pytest tests/unit/test_integrations_router.py -v` executes successfully.
+- `pytest tests/unit/test_targets_router.py -v` executes successfully.
+
+## Out of Scope
+
+- Dashboard rendering and client-side UI composition.
+- Approval and rejection write endpoints.
+- Post-deploy monitoring trigger and result endpoints.
+- Legacy work-item response shapes no longer returned by the current incident
+  API contract.

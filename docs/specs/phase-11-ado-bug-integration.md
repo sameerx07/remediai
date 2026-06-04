@@ -1,75 +1,139 @@
-# Phase 11 — Azure DevOps Bug Integration
+# Phase 11 - Incident External Reference Contract
 
 ## Goal
 
-Automatically create an Azure DevOps Bug work item from the completed incident analysis. This is the sixth and final node in the analysis pipeline.
+Define the current external Azure DevOps reference contract used by incident analysis, incident APIs, and downstream PR automation.
 
-## Inputs (from IncidentState)
+This phase reflects the post-Boards implementation state:
+- there is no Azure DevOps Boards bug-creation node in the active analysis pipeline
+- incident records persist pull request references directly on the incident row
+- incident APIs expose PR and approval metadata to downstream consumers
+- the worker persists PR metadata only on the approval-gated PR path
+- monitoring keeps a compatibility fallback for legacy work-item-based PR references
 
-| Field | Type | Source |
-|---|---|---|
-| `exception_type` | `str` | ingestion |
-| `exception_message` | `str` | ingestion |
-| `priority` | `str` | triage agent |
-| `triage_labels` | `list[str]` | triage agent |
-| `root_cause_summary` | `str` | root_cause agent |
-| `root_cause_json` | `dict` | root_cause agent |
-| `recommendations` | `list[dict]` | fix_planner agent |
-| `incident_id` | `str` | ingestion |
+## Deliverables
 
-## Outputs (written to IncidentState)
+### 1) Active pipeline boundary contract
 
-| Field | Type | Notes |
-|---|---|---|
-| `ado_bug_id` | `int \| None` | ADO work item ID; None if skipped or failed |
-| `ado_bug_url` | `str \| None` | Direct link to ADO bug; None if skipped or failed |
-| `agent_trace` | `list[dict]` | appended entry with `latency_ms` |
-| `errors` | `list[str]` | appended on failure |
+File: packages/agent_runtime/pipeline.py
 
-## ADO Work Item Fields
+The active analysis pipeline does not include a bug creator node.
 
-| ADO Field | Value |
-|---|---|
-| `System.Title` | `[PRIORITY] ExceptionType: message[:80]` |
-| `System.Description` | HTML-formatted root cause + recommendations |
-| `Microsoft.VSTS.Common.Priority` | 1=critical, 2=high, 3=medium, 4=low |
-| `System.Tags` | triage labels joined by `, ` |
+Canonical sequence:
+- triage -> root_cause -> code_context -> rag -> fix_planner
+- fix_planner -> END when approval_status is not approved
+- fix_planner -> code_fix_agent -> pr_agent -> validation_agent -> END when approval_status is approved
 
-## Skip Behaviour
+Factory contract:
+- build_pipeline(llm=None, settings=None, ado_client=None, search_client=None, ado_writer=None, pr_reader=None)
 
-When no `boards_client` is injected AND `azure_devops_org_url` is empty in settings, bug creation is silently skipped. `ado_bug_id` and `ado_bug_url` are `None`; no error is added.
+This contract replaces the earlier Boards-based pipeline shape. No `boards_client`
+parameter is part of the current pipeline factory.
 
-This allows the pipeline to run in development/test environments without ADO credentials.
+### 2) Incident state external reference contract
 
-## Failure Behaviour
+File: packages/domain/models/agent_state.py
 
-| Scenario | Result |
-|---|---|
-| ADO API raises exception | Error appended to `errors`; IDs remain `None` |
-| Missing `id` in response | `KeyError` caught; error appended |
+IncidentState fields used for approval-gated repository automation:
+- approval_status: str | None
+- approved_recommendation_rank: int | None
+- pr_branch: str | None
+- pr_url: str | None
 
-## New Client: `AzureDevOpsBoardsClient`
+These fields are the live handoff boundary between the analysis path and the
+later PR creation / validation path.
 
-Separate from `AzureDevOpsClient` (Repos). Located at:
-`packages/integrations/azure_devops/boards_client.py`
+### 3) Incident persistence contract
 
-Uses `application/json-patch+json` content type required by ADO Work Items API.
+File: packages/data_access/models/incident_orm.py
 
-## Pipeline Position
+The incidents table stores external PR metadata directly on the incident row.
 
-`triage → root_cause → code_context → rag → fix_planner → bug_creator → END`
+Columns:
+- approval_status: str | None
+- approved_by: str | None
+- approved_at: datetime | None
+- approved_recommendation_rank: int | None
+- pr_url: str | None
+- pr_branch: str | None
 
-## Files
+Persistence contract:
+- PR metadata is stored directly on `IncidentOrm`.
+- The codebase no longer defines a dedicated work-item ORM as part of the
+  active implementation.
+- The source comment on `IncidentOrm` documents that PR fields were moved from
+  the earlier work-item model after Azure DevOps Boards removal.
 
-```
-packages/agent_runtime/bug_creator/
-├── __init__.py
-├── agent.py          — make_bug_creator_node factory; ADOBoardsClientProtocol
-└── models.py         — BugCreationResult
+### 4) Worker persistence contract
 
-packages/integrations/azure_devops/
-└── boards_client.py  — AzureDevOpsBoardsClient
+File: apps/worker/agents/runner.py
 
-docs/specs/phase-11-ado-bug-integration.md
-tests/unit/test_bug_creator_agent.py
-```
+Execution contract:
+- The normal analysis path persists analysis data and trace entries only.
+- The normal analysis path does not create Azure DevOps bug records.
+- When an incident is already analyzed and has `approval_status == "approved"`,
+  the runner executes the PR and validation path.
+- When the PR path returns a `pr_url`, the runner persists `pr_url` and
+  `pr_branch` directly onto `IncidentOrm`.
+
+### 5) Incident API contract
+
+Files:
+- apps/api/schemas/incident.py
+- apps/api/routers/incidents.py
+
+List response contract:
+- `IncidentListItem` includes `pr_url`.
+- The list endpoint exposes PR availability without loading legacy work-item
+  objects.
+
+Detail response contract:
+- `IncidentDetail` includes:
+  - approval_status
+  - approved_by
+  - approved_at
+  - approved_recommendation_rank
+  - pr_url
+  - pr_branch
+- The detail endpoint returns analysis outputs and PR metadata from the current
+  incident + analysis model only.
+
+### 6) Monitoring compatibility contract
+
+File: apps/api/routers/monitoring.py
+
+Compatibility behavior:
+- Monitoring requires a PR reference before post-deploy monitoring can start.
+- The router first checks `IncidentOrm.pr_url`.
+- If `pr_url` is absent, the router falls back to `_get_pr_url()` and attempts
+  to read a legacy PR reference from `work_items` when that relationship is
+  present on the loaded object.
+
+This fallback exists for compatibility only and does not reintroduce a Boards
+integration requirement into the active pipeline.
+
+## Security Touchpoints
+
+- The active analysis path does not perform Azure DevOps Boards writes.
+- PR metadata is written only after an explicit approval-gated path executes.
+- Monitoring endpoints require API authentication before allowing monitor
+  trigger or result access.
+- External reference persistence is limited to explicit PR metadata fields on
+  the incident record.
+
+## Acceptance Criteria
+
+- `python -c "from packages.agent_runtime.pipeline import build_pipeline; print('OK')"` prints `OK`.
+- `python -c "from packages.domain.models.agent_state import IncidentState; print('OK')"` prints `OK`.
+- `python -c "from packages.data_access.models.incident_orm import IncidentOrm; print('OK')"` prints `OK`.
+- `python -c "from apps.api.schemas.incident import IncidentListItem, IncidentDetail; print('OK')"` prints `OK`.
+- `pytest tests/unit/test_incidents_router.py -v` executes successfully.
+- `ruff check apps/api/routers/incidents.py apps/api/routers/monitoring.py packages/domain/models/agent_state.py packages/data_access/models/incident_orm.py apps/worker/agents/runner.py` exits 0.
+
+## Out of Scope
+
+- Automatic Azure DevOps Boards bug creation.
+- Dedicated Boards client contracts or work-item creation APIs.
+- Dashboard rendering details for legacy work-item links.
+- Pull request patch generation and PR creation logic itself, which belongs to
+  the later approval-gated automation phases.

@@ -76,7 +76,7 @@ RemediAI automates every step of this investigation so engineers focus on **fixi
 - Auto-merge pull requests — humans always approve first.
 - Modify production systems directly.
 - Process Java, Node.js, or Python application exceptions (MVP is .NET only).
-- Integrate with Jira, Grafana, or Datadog (Azure-native only in MVP).
+- Integrate with Grafana or Datadog (Azure-native only in MVP).
 - Provide self-healing automation without human approval.
 
 ---

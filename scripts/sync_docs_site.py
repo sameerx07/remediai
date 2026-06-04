@@ -73,15 +73,7 @@ SYNC_TARGETS: tuple[SyncTarget, ...] = (
     SyncTarget(
         source=ROOT / "ROADMAP.md",
         output=GENERATED_DIR / "roadmap.mdx",
-        sections=(
-            "Current Status",
-            "Milestones",
-            "Parallel Development Tracks",
-            "Remaining Phases — Spec Required Before Implementation",
-            "Is This a Complete Product?",
-            "Completed Phases",
-            "Release Versioning",
-        ),
+        sections=("Current Status",),
     ),
     SyncTarget(
         source=ROOT / "CONTRIBUTING.md",

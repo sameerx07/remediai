@@ -13,7 +13,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from packages.data_access.models.analysis_orm import AnalysisOrm
 from packages.data_access.models.incident_orm import IncidentOrm
-from packages.data_access.models.work_item_orm import WorkItemOrm
 
 from .conftest import make_incident_orm, run_and_persist
 
@@ -67,7 +66,7 @@ class TestIncidentLifecycle:
         assert len(analysis.recommendations) >= 1
 
     @pytest.mark.asyncio
-    async def test_pipeline_writes_work_item_record(
+    async def test_pipeline_writes_pr_fields(
         self, db_session: AsyncSession, mock_pipeline: object
     ) -> None:
         incident = make_incident_orm()
@@ -76,13 +75,10 @@ class TestIncidentLifecycle:
 
         await run_and_persist(mock_pipeline, db_session, incident)
 
-        stmt = select(WorkItemOrm).where(WorkItemOrm.incident_id == incident.id)
-        result = await db_session.execute(stmt)
-        work_item = result.scalar_one_or_none()
-
-        assert work_item is not None
-        assert work_item.ado_item_id == 9001
-        assert "dev.azure.com" in work_item.ado_item_url
+        row = await db_session.get(IncidentOrm, incident.id)
+        assert row is not None
+        assert row.pr_url is None
+        assert row.pr_branch is None
 
     @pytest.mark.asyncio
     async def test_pipeline_writes_agent_trace(
@@ -106,19 +102,18 @@ class TestIncidentLifecycle:
             "code_context",
             "rag",
             "fix_planner",
-            "bug_creator",
         ]
 
     @pytest.mark.asyncio
     async def test_pipeline_errors_do_not_leave_orphan_rows(
         self, db_session: AsyncSession, mock_pipeline: object
     ) -> None:
-        """Even if the bug creator partially fails, analysis is still persisted."""
+        """Even if downstream PR automation does not run, analysis is still persisted."""
         incident = make_incident_orm()
         db_session.add(incident)
         await db_session.flush()
 
-        # Run normally — both analysis and work item should exist
+        # Run normally — analysis should exist and the incident should remain usable.
         await run_and_persist(mock_pipeline, db_session, incident)
 
         stmt = select(AnalysisOrm).where(AnalysisOrm.incident_id == incident.id)

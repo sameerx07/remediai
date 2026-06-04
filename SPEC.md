@@ -22,7 +22,7 @@ Engineering teams lose significant time triaging the same recurring exception pa
 
 - Auto-merging pull requests.
 - Direct modification of production systems.
-- Jira or GitHub Issues integration (Phase 29).
+- GitHub Issues integration (future phase).
 - Python, Node.js, or Java application support (Phases 27–28; Java future).
 - Grafana / Loki / Datadog ingestion (Phase 27+).
 - GitHub source control (Phase 38).

@@ -12,7 +12,6 @@ from apps.api.schemas.incident import (
     IncidentDetail,
     IncidentListItem,
     PaginatedResponse,
-    WorkItemSummary,
 )
 from packages.data_access.models.analysis_orm import AnalysisOrm
 from packages.data_access.models.incident_orm import IncidentOrm
@@ -49,7 +48,6 @@ async def list_incidents(
 
     stmt = (
         select(IncidentOrm)
-        .options(selectinload(IncidentOrm.work_items))
         .order_by(IncidentOrm.created_at.desc())
         .offset((page - 1) * page_size)
         .limit(page_size)
@@ -76,7 +74,7 @@ async def list_incidents(
             created_at=inc.created_at,
             updated_at=inc.updated_at,
             has_analysis=inc.id in analyzed_ids,
-            external_item_url=inc.work_items[0].ado_item_url if inc.work_items else None,
+            pr_url=inc.pr_url,
         )
         for inc in incidents
     ]
@@ -92,10 +90,7 @@ async def get_incident(
     stmt = (
         select(IncidentOrm)
         .where(IncidentOrm.id == incident_id)
-        .options(
-            selectinload(IncidentOrm.analyses),
-            selectinload(IncidentOrm.work_items),
-        )
+        .options(selectinload(IncidentOrm.analyses))
     )
     result = await db.execute(stmt)
     incident = result.scalar_one_or_none()
@@ -103,7 +98,6 @@ async def get_incident(
         raise HTTPException(status_code=404, detail="Incident not found")
 
     analysis = incident.analyses[0] if incident.analyses else None
-    pr_url = next((wi.pr_url for wi in incident.work_items if wi.pr_url), None)
 
     return IncidentDetail(
         id=incident.id,
@@ -120,18 +114,10 @@ async def get_incident(
         code_snippets=list(analysis.code_snippets) if analysis else [],
         rag_results=list(analysis.rag_results) if analysis else [],
         agent_trace=list(analysis.agent_trace) if analysis else [],
-        work_items=[
-            WorkItemSummary(
-                ado_item_id=wi.ado_item_id,
-                ado_item_url=wi.ado_item_url,
-                item_type=wi.item_type,
-                pr_url=wi.pr_url,
-            )
-            for wi in incident.work_items
-        ],
         approval_status=incident.approval_status,
         approved_by=incident.approved_by,
         approved_at=incident.approved_at,
         approved_recommendation_rank=incident.approved_recommendation_rank,
-        pr_url=pr_url,
+        pr_url=incident.pr_url,
+        pr_branch=incident.pr_branch,
     )

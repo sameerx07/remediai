@@ -22,7 +22,7 @@ def _orm_incident(
     exception_message: str = "Object reference not set.",
     priority: str = "high",
     status: str = "analyzed",
-    work_items: list[object] | None = None,
+    pr_url: str | None = None,
 ) -> MagicMock:
     inc = MagicMock()
     inc.id = id_ or uuid4()
@@ -37,7 +37,8 @@ def _orm_incident(
     inc.approved_by = None
     inc.approved_at = None
     inc.approved_recommendation_rank = None
-    inc.work_items = work_items or []
+    inc.pr_url = pr_url
+    inc.pr_branch = None
     inc.analyses = []
     return inc
 
@@ -177,10 +178,9 @@ class TestListIncidents:
         assert resp.json()["items"][0]["has_analysis"] is False
 
     @pytest.mark.asyncio
-    async def test_external_item_url_from_work_item(self) -> None:
-        wi = MagicMock()
-        wi.ado_item_url = "https://dev.azure.com/org/proj/_workitems/edit/42"
-        inc = _orm_incident(work_items=[wi])
+    async def test_pr_url_shown_in_list(self) -> None:
+        pr = "https://dev.azure.com/org/proj/_git/repo/pullrequest/7"
+        inc = _orm_incident(pr_url=pr)
         _override(
             _make_session(
                 [
@@ -194,7 +194,7 @@ class TestListIncidents:
             transport=httpx.ASGITransport(app=app), base_url="http://test"
         ) as client:
             resp = await client.get("/api/v1/incidents")
-        assert "dev.azure.com" in resp.json()["items"][0]["external_item_url"]
+        assert resp.json()["items"][0]["pr_url"] == pr
 
     @pytest.mark.asyncio
     async def test_page_size_capped_at_100(self) -> None:
@@ -266,34 +266,10 @@ class TestGetIncident:
         assert len(body["recommendations"]) == 1
 
     @pytest.mark.asyncio
-    async def test_detail_work_items_included(self) -> None:
-        inc_id = uuid4()
-        wi = MagicMock()
-        wi.ado_item_id = 42
-        wi.ado_item_url = "https://dev.azure.com/org/proj/_workitems/edit/42"
-        wi.item_type = "bug"
-        wi.pr_url = None
-        inc = _orm_incident(id_=inc_id, work_items=[wi])
-        result = _scalar_result(inc)
-        result.scalar_one_or_none.return_value = inc
-        _override(_make_session([result]))
-        async with httpx.AsyncClient(
-            transport=httpx.ASGITransport(app=app), base_url="http://test"
-        ) as client:
-            resp = await client.get(f"/api/v1/incidents/{inc_id}")
-        work_items = resp.json()["work_items"]
-        assert len(work_items) == 1
-        assert work_items[0]["ado_item_id"] == 42
-
-    @pytest.mark.asyncio
     async def test_detail_includes_approval_and_pr_fields(self) -> None:
         inc_id = uuid4()
-        wi = MagicMock()
-        wi.ado_item_id = 42
-        wi.ado_item_url = "https://dev.azure.com/org/proj/_workitems/edit/42"
-        wi.item_type = "bug"
-        wi.pr_url = "https://dev.azure.com/org/proj/_git/repo/pullrequest/7"
-        inc = _orm_incident(id_=inc_id, work_items=[wi])
+        pr = "https://dev.azure.com/org/proj/_git/repo/pullrequest/7"
+        inc = _orm_incident(id_=inc_id, pr_url=pr)
         inc.approval_status = "approved"
         inc.approved_by = "engineer@contoso.com"
         inc.approved_at = _NOW
@@ -313,7 +289,7 @@ class TestGetIncident:
         assert body["approval_status"] == "approved"
         assert body["approved_by"] == "engineer@contoso.com"
         assert body["approved_recommendation_rank"] == 1
-        assert body["pr_url"] == wi.pr_url
+        assert body["pr_url"] == pr
 
     @pytest.mark.asyncio
     async def test_detail_no_analysis_returns_empty_fields(self) -> None:

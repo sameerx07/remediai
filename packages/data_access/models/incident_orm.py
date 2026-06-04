@@ -12,7 +12,6 @@ from packages.data_access.base import Base
 if TYPE_CHECKING:
     from packages.data_access.models.analysis_orm import AnalysisOrm
     from packages.data_access.models.audit_log_orm import AuditLogOrm
-    from packages.data_access.models.work_item_orm import WorkItemOrm
 
 
 class IncidentOrm(Base):
@@ -32,6 +31,9 @@ class IncidentOrm(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
 
+    # Phase 36 — language detected at ingestion time
+    exception_language: Mapped[str | None] = mapped_column(String(20), nullable=True)
+
     # Human approval gate (Phase 19)
     approval_status: Mapped[str | None] = mapped_column(String(20), nullable=True)
 
@@ -41,10 +43,11 @@ class IncidentOrm(Base):
     approved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     approved_recommendation_rank: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
+    # PR fields (moved from WorkItemOrm after ADO Boards removal)
+    pr_url: Mapped[str | None] = mapped_column(Text, nullable=True)
+    pr_branch: Mapped[str | None] = mapped_column(String(255), nullable=True)
+
     analyses: Mapped[list["AnalysisOrm"]] = relationship(
         "AnalysisOrm", back_populates="incident", cascade="all, delete-orphan"
-    )
-    work_items: Mapped[list["WorkItemOrm"]] = relationship(
-        "WorkItemOrm", back_populates="incident", cascade="all, delete-orphan"
     )
     audit_logs: Mapped[list["AuditLogOrm"]] = relationship("AuditLogOrm", back_populates="incident")

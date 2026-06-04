@@ -22,8 +22,6 @@ def test_incident_state_is_typed_dict() -> None:
         "code_snippets": [],
         "rag_results": [],
         "recommendations": [],
-        "ado_bug_id": None,
-        "ado_bug_url": None,
         "pr_branch": None,
         "pr_url": None,
         "validation_report": None,

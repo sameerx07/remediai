@@ -1,10 +1,3 @@
-export interface WorkItemSummary {
-  ado_item_id: number
-  ado_item_url: string
-  item_type: string
-  pr_url: string | null
-}
-
 export interface IncidentListItem {
   id: string
   exception_type: string
@@ -14,7 +7,7 @@ export interface IncidentListItem {
   created_at: string
   updated_at: string
   has_analysis: boolean
-  external_item_url: string | null
+  pr_url: string | null
 }
 
 export interface AgentTraceEntry {
@@ -58,13 +51,13 @@ export interface IncidentDetail {
   code_snippets: unknown[]
   rag_results: unknown[]
   agent_trace: AgentTraceEntry[]
-  work_items: WorkItemSummary[]
   // Phase 19 — approval gate
   approval_status: string | null
   approved_by: string | null
   approved_at: string | null
   approved_recommendation_rank: number | null
   pr_url: string | null
+  pr_branch: string | null
 }
 
 export interface ApprovalResponse {

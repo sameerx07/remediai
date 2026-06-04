@@ -16,7 +16,7 @@
 | Target Registry     | PostgreSQL `monitor_targets`            | Persisted allowlist for local container and Kubernetes target selection |
 | Storage             | Azure Blob Storage                      | Evidence bundles, prompt files, large agent artifacts          |
 | Source Control      | Azure DevOps Repos (MVP) · GitHub (Phase 38) | Abstracted via `SourceControlAdapter`; provider selected per repository |
-| Work Items          | Azure DevOps Boards (MVP) · Jira (Phase 29) | Abstracted via `TicketProvider`; provider selected per project |
+| Work Items          | Azure DevOps Boards (MVP) | Abstracted via `TicketProvider`; provider selected per project |
 | UI Framework        | React 18 + TypeScript                   | Component ecosystem; type safety                               |
 | UI Build            | Vite                                    | Fast dev server; ESM-native                                    |
 | UI State            | React Query (TanStack Query)            | Server state management; cache + refetch                       |

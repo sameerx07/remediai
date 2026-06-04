@@ -12,7 +12,6 @@ const PROVIDER_LABELS: Record<string, string> = {
   llm:       'LLM',
   retrieval: 'Retrieval',
   scm:       'SCM',
-  ticketing: 'Ticketing',
 }
 
 export function Layout() {
@@ -42,7 +41,6 @@ export function Layout() {
     { key: 'llm',       value: integrations?.llm_provider_id },
     { key: 'retrieval', value: integrations?.retrieval_provider_id },
     { key: 'scm',       value: integrations?.scm.provider_id },
-    { key: 'ticketing', value: integrations?.ticketing.provider_id },
   ]
 
   return (

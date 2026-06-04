@@ -10,10 +10,8 @@ from packages.integrations.providers.registry import (
     ensure_valid_provider_config,
     integration_warnings,
     is_scm_configured,
-    is_ticketing_configured,
     provider_config_from_settings,
     resolve_scm_provider_id,
-    resolve_ticket_provider_id,
 )
 
 
@@ -67,18 +65,23 @@ def test_scm_auto_resolves_to_azure_devops_with_repo_settings() -> None:
     assert is_scm_configured(settings) is True
 
 
-def test_ticket_provider_none_is_supported() -> None:
-    settings = SimpleNamespace(ticket_provider_id="none")
-
-    assert resolve_ticket_provider_id(settings) == "none"
-    assert is_ticketing_configured(settings) is False
-
-
-def test_integration_warnings_surface_missing_scm_and_ticketing() -> None:
-    settings = SimpleNamespace(scm_provider_id="none", ticket_provider_id="none")
+def test_integration_warnings_surface_missing_scm() -> None:
+    settings = SimpleNamespace(scm_provider_id="none")
 
     warnings = integration_warnings(settings)
 
-    assert len(warnings) == 2
-    assert any("Source control integration" in warning for warning in warnings)
-    assert any("External ticketing" in warning for warning in warnings)
+    assert len(warnings) == 1
+    assert any("Source control integration" in w for w in warnings)
+
+
+def test_integration_warnings_empty_when_scm_configured() -> None:
+    settings = SimpleNamespace(
+        scm_provider_id="auto",
+        azure_devops_org_url="https://dev.azure.com/org",
+        azure_devops_project="proj",
+        azure_devops_repository="repo",
+    )
+
+    warnings = integration_warnings(settings)
+
+    assert warnings == []

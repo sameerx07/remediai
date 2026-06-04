@@ -34,7 +34,6 @@ from apps.api.main import app
 from packages.agent_runtime.pipeline import build_pipeline
 from packages.data_access.models.analysis_orm import AnalysisOrm
 from packages.data_access.models.incident_orm import IncidentOrm
-from packages.data_access.models.work_item_orm import WorkItemOrm
 from packages.data_access.session import get_db_session
 from packages.domain.models.agent_state import IncidentState
 
@@ -168,7 +167,7 @@ async def api_client(db_session: AsyncSession) -> AsyncGenerator[AsyncClient, No
 
 @pytest.fixture()
 def mock_pipeline() -> object:
-    """Full pipeline with mocked LLM (rule path: 2 calls), ADO, Search, Boards."""
+    """Full pipeline with mocked LLM (rule path: 2 calls), ADO, and Search."""
     llm = MagicMock()
     llm.ainvoke = AsyncMock(side_effect=[AIMessage(content=_RC_JSON), AIMessage(content=_FP_JSON)])
     ado = MagicMock()
@@ -177,14 +176,7 @@ def mock_pipeline() -> object:
     ado.get_latest_commit_sha = AsyncMock(return_value="abc123")
     search = MagicMock()
     search.search = AsyncMock(return_value=[])
-    boards = MagicMock()
-    boards.create_bug = AsyncMock(
-        return_value={
-            "id": 9001,
-            "_links": {"html": {"href": "https://dev.azure.com/test/9001"}},
-        }
-    )
-    return build_pipeline(llm=llm, ado_client=ado, search_client=search, boards_client=boards)
+    return build_pipeline(llm=llm, ado_client=ado, search_client=search)
 
 
 # ---------------------------------------------------------------------------
@@ -253,18 +245,10 @@ async def run_and_persist(
     )
     session.add(analysis)
 
-    ado_bug_id = result.get("ado_bug_id")
-    ado_bug_url = result.get("ado_bug_url")
-    if ado_bug_id:
-        work_item = WorkItemOrm(
-            id=uuid.uuid4(),
-            incident_id=incident.id,
-            item_type="bug",
-            ado_item_id=int(ado_bug_id),
-            ado_item_url=str(ado_bug_url or ""),
-            created_at=datetime.now(UTC),
-        )
-        session.add(work_item)
+    if result.get("pr_url"):
+        incident.pr_url = str(result["pr_url"])
+    if result.get("pr_branch"):
+        incident.pr_branch = str(result["pr_branch"])
 
     await session.flush()
     return result

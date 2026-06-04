@@ -34,13 +34,6 @@ class PaginatedResponse[T](BaseModel):
         )
 
 
-class WorkItemSummary(BaseModel):
-    ado_item_id: int
-    ado_item_url: str
-    item_type: str
-    pr_url: str | None = None
-
-
 class IncidentListItem(BaseModel):
     id: UUID
     exception_type: str
@@ -50,7 +43,7 @@ class IncidentListItem(BaseModel):
     created_at: datetime
     updated_at: datetime
     has_analysis: bool
-    external_item_url: str | None = None
+    pr_url: str | None = None
 
 
 class IncidentDetail(BaseModel):
@@ -68,10 +61,9 @@ class IncidentDetail(BaseModel):
     code_snippets: list[dict[str, Any]] = []
     rag_results: list[dict[str, Any]] = []
     agent_trace: list[dict[str, Any]] = []
-    work_items: list[WorkItemSummary] = []
-    # Phase 19 — approval gate
     approval_status: str | None = None
     approved_by: str | None = None
     approved_at: datetime | None = None
     approved_recommendation_rank: int | None = None
     pr_url: str | None = None
+    pr_branch: str | None = None

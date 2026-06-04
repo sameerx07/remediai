@@ -71,7 +71,7 @@ Selects the integration backend for each capability. See `docs/specs/phase-32-pr
 | `LLM_PROVIDER_ID` | LLM provider (`azure-openai`, `portable`) | No | `azure-openai` |
 | `RETRIEVAL_PROVIDER_ID` | Retrieval provider (`azure-ai-search`, `portable`) | No | `azure-ai-search` |
 | `SCM_PROVIDER_ID` | Source control provider (`auto`, `github`, `azure-devops`) | No | `auto` |
-| `TICKET_PROVIDER_ID` | Ticketing provider (`none`, `azure-devops`, `jira`) | No | `none` |
+| `TICKET_PROVIDER_ID` | Ticketing provider (`none`, `azure-devops`) | No | `none` |
 
 ---
 

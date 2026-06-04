@@ -59,8 +59,6 @@ def _make_state(**overrides: object) -> IncidentState:
         "code_snippets": [{"file_path": "src/processor.py", "content": _ORIGINAL}],
         "rag_results": [],
         "recommendations": [_RECOMMENDATION],
-        "ado_bug_id": None,
-        "ado_bug_url": None,
         "code_fix_result": None,
         "pr_branch": None,
         "pr_url": None,

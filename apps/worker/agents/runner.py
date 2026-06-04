@@ -16,7 +16,6 @@ from packages.config.settings import Settings, get_settings
 from packages.data_access.models.analysis_orm import AnalysisOrm
 from packages.data_access.models.audit_log_orm import AuditLogOrm
 from packages.data_access.models.incident_orm import IncidentOrm
-from packages.data_access.models.work_item_orm import WorkItemOrm
 from packages.domain.models.agent_state import IncidentState
 from packages.domain.models.incident import Incident, IncidentStatus
 
@@ -52,10 +51,7 @@ class AgentPipelineRunner:
         stmt = (
             select(IncidentOrm)
             .where(IncidentOrm.id == incident.id)
-            .options(
-                selectinload(IncidentOrm.analyses),
-                selectinload(IncidentOrm.work_items),
-            )
+            .options(selectinload(IncidentOrm.analyses))
         )
         res = await self._session.execute(stmt)
         orm = res.scalar_one_or_none()
@@ -68,12 +64,10 @@ class AgentPipelineRunner:
             # Running approved PR + validation agents path
             log.info("pipeline_approved_path", note="running PR and validation agents")
 
-            # Update status to triaging during run
             orm.status = IncidentStatus.TRIAGING.value
             await self._session.flush()
 
             analysis = orm.analyses[0] if orm.analyses else None
-            work_item = orm.work_items[0] if orm.work_items else None
 
             lang = detect_language(incident.exception_type, incident.stack_trace or "")
             initial_state: IncidentState = {
@@ -98,9 +92,6 @@ class AgentPipelineRunner:
                 "code_snippets": analysis.code_snippets if analysis else [],
                 "rag_results": analysis.rag_results if analysis else [],
             }
-            if work_item:
-                initial_state["ado_bug_id"] = work_item.ado_item_id
-                initial_state["ado_bug_url"] = work_item.ado_item_url
 
             from packages.agent_runtime.pr_agent.agent import make_pr_agent_node
             from packages.agent_runtime.validation_agent.agent import make_validation_agent_node
@@ -117,7 +108,6 @@ class AgentPipelineRunner:
 
             orig_trace_len = len(initial_state["agent_trace"])
 
-            # Invoke nodes
             pr_res = await pr_node(initial_state)
             initial_state.update(cast(IncidentState, pr_res))
 
@@ -126,7 +116,7 @@ class AgentPipelineRunner:
 
             final_state = initial_state
 
-            # Persist the new agent traces to audit logs
+            # Persist new agent traces to audit logs
             new_trace_entries = final_state.get("agent_trace", [])[orig_trace_len:]
             for entry in new_trace_entries:
                 audit_orm = AuditLogOrm(
@@ -146,18 +136,21 @@ class AgentPipelineRunner:
                 )
                 self._session.add(audit_orm)
 
-            # Update WorkItemOrm with PR details
-            if work_item and final_state.get("pr_url"):
-                work_item.pr_url = final_state.get("pr_url")
-                work_item.pr_branch = final_state.get("pr_branch")
-                self._session.add(work_item)
+            # Persist PR fields directly on the incident
+            if final_state.get("pr_url"):
+                await self._session.execute(
+                    update(IncidentOrm)
+                    .where(IncidentOrm.id == incident.id)
+                    .values(
+                        pr_url=final_state.get("pr_url"),
+                        pr_branch=final_state.get("pr_branch"),
+                    )
+                )
 
-            # Update AnalysisOrm trace
             if analysis:
                 analysis.agent_trace = _to_json_compatible(final_state.get("agent_trace", []))
                 self._session.add(analysis)
 
-            # Update Incident status
             has_errors = bool(final_state.get("errors"))
             orm.status = (
                 IncidentStatus.ANALYSIS_FAILED.value
@@ -199,7 +192,7 @@ class AgentPipelineRunner:
 
             await self._persist_agent_trace(final_state, incident)
             await self._update_incident(final_state, incident)
-            await self._persist_analysis_and_work_item(final_state, incident)
+            await self._persist_analysis(final_state, incident)
             await self._session.flush()
 
             rc_json = final_state.get("root_cause_json") or {}
@@ -251,7 +244,7 @@ class AgentPipelineRunner:
             .values(priority=priority, status=new_status)
         )
 
-    async def _persist_analysis_and_work_item(
+    async def _persist_analysis(
         self,
         state: IncidentState,
         incident: Incident,
@@ -268,23 +261,6 @@ class AgentPipelineRunner:
             created_at=datetime.now(UTC),
         )
         self._session.add(analysis)
-
-        ado_bug_id = state.get("ado_bug_id")
-        ado_bug_url = state.get("ado_bug_url")
-        if ado_bug_id is not None:
-            try:
-                ado_item_id = int(ado_bug_id)
-            except (ValueError, TypeError):
-                ado_item_id = 0
-            work_item = WorkItemOrm(
-                id=uuid4(),
-                incident_id=incident.id,
-                item_type="bug",
-                ado_item_id=ado_item_id,
-                ado_item_url=str(ado_bug_url or ""),
-                created_at=datetime.now(UTC),
-            )
-            self._session.add(work_item)
 
 
 def _to_json_compatible(value: Any) -> Any:

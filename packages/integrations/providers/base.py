@@ -22,4 +22,3 @@ class ProviderConfig:
     llm_provider_id: str
     retrieval_provider_id: str
     scm_provider_id: str
-    ticket_provider_id: str

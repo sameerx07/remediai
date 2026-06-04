@@ -8,8 +8,6 @@ from packages.domain import (
     RAGResult,
     Recommendation,
     RootCauseJson,
-    WorkItem,
-    WorkItemType,
 )
 
 
@@ -99,12 +97,3 @@ def test_audit_log_defaults() -> None:
     assert log.incident_id is None
     assert log.metadata == {}
     assert log.actor_identity is None
-
-
-def test_work_item_defaults_to_bug() -> None:
-    wi = WorkItem(
-        incident_id=uuid4(),
-        ado_item_id=1042,
-        ado_item_url="https://dev.azure.com/org/project/_workitems/1042",
-    )
-    assert wi.item_type == WorkItemType.BUG

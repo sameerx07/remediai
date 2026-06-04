@@ -22,7 +22,6 @@ def provider_config_from_settings(settings: object) -> ProviderConfig:
         llm_provider_id=str(getattr(settings, "llm_provider_id", "azure-openai")),
         retrieval_provider_id=str(getattr(settings, "retrieval_provider_id", "azure-ai-search")),
         scm_provider_id=resolve_scm_provider_id(settings),
-        ticket_provider_id=resolve_ticket_provider_id(settings),
     )
 
 
@@ -69,15 +68,6 @@ def resolve_scm_provider_id(settings: object) -> str:
     return raw
 
 
-def resolve_ticket_provider_id(settings: object) -> str:
-    raw = str(getattr(settings, "ticket_provider_id", "none") or "none").strip().lower()
-    if raw in {"none", "disabled"}:
-        return "none"
-    if raw in {"", "auto"}:
-        return "azure-devops-boards" if _has_ado_boards_settings(settings) else "none"
-    return raw
-
-
 def is_scm_configured(settings: object) -> bool:
     provider_id = resolve_scm_provider_id(settings)
     if provider_id == "none":
@@ -87,23 +77,13 @@ def is_scm_configured(settings: object) -> bool:
     return True
 
 
-def is_ticketing_configured(settings: object) -> bool:
-    provider_id = resolve_ticket_provider_id(settings)
-    if provider_id == "none":
-        return False
-    if provider_id == "azure-devops-boards":
-        return _has_ado_boards_settings(settings)
-    return True
-
-
 def integration_warnings(settings: object) -> list[str]:
     warnings: list[str] = []
     if not is_scm_configured(settings):
         warnings.append(
-            "Source control integration is not configured. Code context, PR creation, and validation are skipped."
+            "Source control integration is not configured. "
+            "Code context, PR creation, and validation are skipped."
         )
-    if not is_ticketing_configured(settings):
-        warnings.append("External ticketing is disabled.")
     return warnings
 
 
@@ -112,12 +92,6 @@ def _has_ado_repo_settings(settings: object) -> bool:
     project = str(getattr(settings, "azure_devops_project", "") or "").strip()
     repository = str(getattr(settings, "azure_devops_repository", "") or "").strip()
     return bool(org_url and project and repository)
-
-
-def _has_ado_boards_settings(settings: object) -> bool:
-    org_url = str(getattr(settings, "azure_devops_org_url", "") or "").strip()
-    project = str(getattr(settings, "azure_devops_project", "") or "").strip()
-    return bool(org_url and project)
 
 
 def _create_azure_chat_model(settings: object) -> BaseChatModel:

@@ -92,6 +92,30 @@ export function IncidentDetail() {
             </Card>
           )}
 
+          {data.approval_status === 'approved' && data.pr_url && (
+            <Card className="p-5">
+              <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-text-2">Pull Request</h2>
+              <div className="space-y-2 text-sm text-text-2">
+                <p>
+                  PR queued by <span className="font-medium text-text-1">{data.approved_by}</span>
+                </p>
+                {data.pr_branch && (
+                  <p>
+                    Branch <span className="font-mono text-text-1">{data.pr_branch}</span>
+                  </p>
+                )}
+                <a
+                  href={data.pr_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-accent hover:text-accent-hover hover:underline"
+                >
+                  View draft PR
+                </a>
+              </div>
+            </Card>
+          )}
+
           {data.recommendations.length > 0 && (
             <Card className="p-5">
               <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-text-2">Recommendations</h2>
@@ -141,25 +165,6 @@ export function IncidentDetail() {
         </div>
 
         <div className="space-y-4 lg:col-span-2">
-          {data.work_items.length > 0 && (
-            <Card className="p-5">
-              <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-text-2">External Work Items</h2>
-              <div className="flex flex-wrap gap-2">
-                {data.work_items.map((item) => (
-                  <a
-                    key={item.ado_item_id}
-                    href={item.ado_item_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="rounded-md border border-border-2 bg-surface-2 px-3 py-1 text-sm text-accent transition-colors hover:text-accent-hover"
-                  >
-                    {item.item_type} #{item.ado_item_id}
-                  </a>
-                ))}
-              </div>
-            </Card>
-          )}
-
           {data.recommendations.length > 0 && data.status === 'analyzed' && (
             <Card className="p-5">
               <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-text-2">Create Pull Request</h2>
@@ -168,6 +173,11 @@ export function IncidentDetail() {
                   <p>
                     PR queued by <span className="font-medium text-text-1">{data.approved_by}</span>
                   </p>
+                  {data.pr_branch && (
+                    <p>
+                      Branch <span className="font-mono text-text-1">{data.pr_branch}</span>
+                    </p>
+                  )}
                   {data.pr_url && (
                     <a
                       href={data.pr_url}

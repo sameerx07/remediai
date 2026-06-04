@@ -15,8 +15,6 @@ from packages.domain.models import (
     RAGResult,
     Recommendation,
     RootCauseJson,
-    WorkItem,
-    WorkItemType,
 )
 
 __all__ = [
@@ -34,6 +32,4 @@ __all__ = [
     "RAGResult",
     "Recommendation",
     "RootCauseJson",
-    "WorkItem",
-    "WorkItemType",
 ]

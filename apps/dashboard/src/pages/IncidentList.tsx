@@ -144,7 +144,7 @@ export function IncidentList() {
               {/* Desktop table */}
               <DataTable
                 className="hidden lg:block"
-                columns={['Exception', 'Message', 'Priority', 'Status', 'Created', 'External']}
+                columns={['Exception', 'Message', 'Priority', 'Status', 'Created', 'PR']}
               >
                 {data.items.map((incident) => (
                   <tr
@@ -168,15 +168,15 @@ export function IncidentList() {
                       {new Date(incident.created_at).toLocaleString()}
                     </td>
                     <td className="px-4 py-3.5">
-                      {incident.external_item_url ? (
+                      {incident.pr_url ? (
                         <a
-                          href={incident.external_item_url}
+                          href={incident.pr_url}
                           target="_blank"
                           rel="noopener noreferrer"
                           onClick={(e) => e.stopPropagation()}
                           className="text-sm font-medium text-accent hover:text-accent-hover hover:underline underline-offset-2"
                         >
-                          View →
+                          Open PR →
                         </a>
                       ) : (
                         <span className="text-text-3">—</span>

@@ -24,7 +24,7 @@ Check off: `Repository structure scaffolded` and `Basic FastAPI app with health 
 ## Structure Reference — Enterprise GenAI Pattern
 
 This phase aligns RemediAI's folder structure with the
-[Enterprise GenAI Project Folder Structure](../enterprise-agent-platform-structure.md).
+[Enterprise GenAI Project Folder Structure](../references/enterprise-agent-platform-structure.md).
 The table below maps each enterprise pattern to RemediAI's equivalent and records
 what is already done, what is being added in this phase, and what is intentionally
 out of scope.
@@ -39,13 +39,12 @@ out of scope.
 | `tools/registry.py` | `packages/integrations/providers/registry.py` | ✅ Exists |
 | `tools/definitions/` | `packages/integrations/` (ADO, Azure Monitor, Azure Search) | ✅ Exists |
 | `tools/mcp_servers/` | — | ⛔ Out of scope (future) |
-| `routes/registry.yaml` | FastAPI routers serve as the contract — no YAML needed | ⛔ Not applicable |
 | `api/routes/` | `apps/api/routers/` | ✅ Exists |
 | `api/schemas/` | `apps/api/schemas/` | ✅ Exists |
 | `api/auth/` | `apps/api/core/auth.py` (inline) | 🔧 Needs split → `apps/api/auth/` |
 | `api/middlewares/` | Middleware inline in `apps/api/main.py` | 🔧 Needs split → `apps/api/middlewares/` |
-| `governance/guardrails/` | `packages/integrations/pii_scrubber.py` (scattered) | 🔧 Needs `packages/governance/guardrails/` |
-| `governance/policies/` | `SECURITY_GUARDRAILS.md` (doc only) | 🔧 Needs `packages/governance/policies/` |
+| `governance/guardrails/` | `packages/governance/guardrails/pii_scrubber.py` | ✅ Exists |
+| `governance/policies/` | `packages/governance/policies/agent_policy.py` | ✅ Exists |
 | `governance/audit/` | `packages/data_access/models/audit_log_orm.py` | ✅ Exists |
 | `evals/datasets/` | Flat files under `tests/agent-evals/` | 🔧 Needs `evals/datasets/` |
 | `evals/suites/` | Flat files under `tests/agent-evals/` | 🔧 Needs `evals/suites/` |
@@ -59,8 +58,7 @@ out of scope.
 > Renaming `packages/agent_runtime/` to match the `agents/specialists/` naming
 > convention would break 30+ imports with zero user-visible benefit — the current
 > structure already implements the specialist pattern, just with different directory names.
-> `tools/mcp_servers/` and `routes/registry.yaml` are not applicable to RemediAI's
-> current architecture.
+> `tools/mcp_servers/` remains out of scope for the current architecture.
 
 ---
 
@@ -398,7 +396,6 @@ AUTO_DEPLOY_ENABLED: bool = False    # never auto-deploy — humans always appro
 ## Out of Scope
 
 - `tools/mcp_servers/` — MCP server adapters (future phase, not needed now)
-- `routes/registry.yaml` — FastAPI routers are the capability contract; no YAML duplication
 - Renaming `packages/agent_runtime/` — would break 30+ imports for zero functional benefit
 
 ---

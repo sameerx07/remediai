@@ -4,7 +4,7 @@
 [![Status: Pre-release](https://img.shields.io/badge/status-pre--release-orange.svg)]()
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
-RemediAI is an AI-powered exception analysis and remediation platform for enterprise .NET applications on Azure that detects exceptions from Azure Monitor / Application Insights, analyzes root causes with AI agents, recommends fixes, and generates Azure DevOps work items and pull requests for human review.
+RemediAI is an AI-powered exception analysis and remediation platform for modern applications that ingests exceptions from observability sources (for example, Azure Monitor / Application Insights), analyzes root causes with AI agents, recommends fixes, and generates work items and pull requests for human review.
 
 ---
 
@@ -48,14 +48,14 @@ This README is the first file every new contributor should read. It provides pro
 
 ## Why RemediAI?
 
-Modern applications running on AKS, App Service, or Azure VMs generate exceptions across multiple observability platforms. Engineers spend hours triaging the same recurring patterns. RemediAI provides a scalable agentic framework to automate that investigation — so teams focus on fixing, not finding.
+Modern applications running across cloud and on-prem environments generate exceptions across multiple observability platforms. Engineers spend hours triaging recurring patterns manually. RemediAI provides a scalable agentic framework to automate that investigation so teams focus on fixing, not finding.
 
-- Reads exception logs from Application Insights / Azure Monitor
+- Reads exception logs from observability sources (for example, Application Insights / Azure Monitor)
 - Groups and triages incidents automatically
 - Analyzes root cause using LangGraph-based AI agents
-- Finds related source code in Azure DevOps Repos
+- Finds related source code in connected repositories
 - Recommends fixes with supporting evidence
-- Creates Azure DevOps Bugs with full context
+- Creates work items with full context in integrated ticketing systems
 - Generates draft Pull Requests after human approval
 - Tracks remediation progress in a React dashboard
 - Exposes integration health warnings and provider status in the dashboard
@@ -67,52 +67,52 @@ Modern applications running on AKS, App Service, or Azure VMs generate exception
 
 ```mermaid
 flowchart TD
-    classDef azure fill:#0078D4,stroke:#005A9E,color:#fff
+  classDef source fill:#0078D4,stroke:#005A9E,color:#fff
+  classDef core fill:#744DA9,stroke:#553688,color:#fff
+  classDef adapter fill:#B14623,stroke:#7A2F18,color:#fff
     classDef ai fill:#8661C5,stroke:#5C4799,color:#fff
     classDef data fill:#107C10,stroke:#054B05,color:#fff
     classDef ui fill:#00B7C3,stroke:#007A80,color:#fff
     classDef security fill:#D83B01,stroke:#A52D01,color:#fff
 
-    A["Application Workloads<br/>AKS / App Service / VMs"]:::azure
-    B["Application Insights<br/>Azure Monitor"]:::azure
-    C["Log Ingestion Service<br/>Python · AKS"]:::azure
-    E["Agent Worker<br/>Python + LangGraph"]:::ai
-    F["Azure OpenAI GPT-4o"]:::ai
-    G["Azure DevOps Repos"]:::azure
-    H["Azure DevOps Boards"]:::azure
-    I["Azure AI Search<br/>RAG Index"]:::ai
+  A["Application Workloads<br/>Services / APIs / Jobs"]:::source
+  B["Observability Sources<br/>Application Insights, OpenTelemetry, Loki, etc."]:::source
+  C["Ingestion Adapters<br/>Normalization + Deduplication"]:::core
+  D["Exception Intelligence Pipeline<br/>Triage -> Root Cause -> Context -> Fix Plan"]:::ai
+  E["Provider Adapters<br/>LLM, SCM, Ticketing, Knowledge"]:::adapter
     J["PostgreSQL<br/>Incidents / Audit"]:::data
-    K["Blob Storage<br/>Evidence"]:::data
-    L["FastAPI Backend API"]:::azure
+  K["Object Storage<br/>Evidence / Artifacts"]:::data
+  L["Backend API"]:::core
     M["React Dashboard"]:::ui
-    N["Azure Key Vault"]:::security
-    O["Managed Identity<br/>Workload Identity"]:::security
+  N["Secret Manager"]:::security
+  O["Identity + Policy Controls"]:::security
 
-    A --> B --> C --> J
-    J -->|"status=new poll"| E
-    E --> F & G & H & I & J & K
+  A --> B --> C --> J
+  J -->|"new incident"| D
+  D --> E
+  E --> J & K
     J --> L --> M
-    N --> C & E & L
+  N --> C & D & L
     O --> N
 ```
 
-> **Color key:** Blue = Azure services &nbsp;·&nbsp; Purple = AI / Agent layer &nbsp;·&nbsp; Green = Data stores &nbsp;·&nbsp; Teal = UI &nbsp;·&nbsp; Red = Security
+> **Color key:** Blue = Sources &nbsp;·&nbsp; Violet = Core platform &nbsp;·&nbsp; Purple = AI pipeline &nbsp;·&nbsp; Orange = provider adapters &nbsp;·&nbsp; Green = data stores &nbsp;·&nbsp; Teal = UI &nbsp;·&nbsp; Red = security
 
 ---
 
 ## Core Workflow
 
 ```
-1. Exception appears in Application Insights.
-2. Log ingestion service queries Azure Monitor using KQL.
+1. Exception appears in an observability source.
+2. Ingestion adapter collects and normalizes event payloads.
 3. Incident is written to PostgreSQL with `status='new'`.
-4. LangGraph worker polls PostgreSQL and picks up the incident.
+4. LangGraph worker picks up the incident.
 5. Triage Agent assigns priority and groups related incidents.
 6. Root Cause Agent analyzes the exception and stack trace.
-7. Code Context Agent retrieves relevant source files.
-8. RAG Agent fetches docs, runbooks, and prior fixes.
+7. Code Context Agent retrieves relevant source files from connected SCM.
+8. RAG Agent fetches docs, runbooks, and prior fixes from configured knowledge stores.
 9. Fix Planner Agent produces ranked remediation recommendations.
-10. Azure DevOps Bug is created with full analysis attached.
+10. Ticket is created in the configured work management system.
 11. (Phase 2) PR Agent creates a draft pull request after human approval.
 12. Dashboard shows status, metrics, integration warnings, and target policy.
 ```
@@ -123,11 +123,11 @@ flowchart TD
 
 | In Scope                              | Out of Scope                        |
 | ------------------------------------- | ----------------------------------- |
-| .NET application exceptions           | Auto-merge pull requests            |
-| Azure Monitor / Application Insights  | Direct production changes           |
-| Azure DevOps Repos + Boards           | Jira integration                    |
-| Python backend + LangGraph agents     | Node.js / Java / Python app support |
-| Azure AI Foundry / Azure OpenAI       | Grafana / Loki / Datadog ingestion  |
+| Multi-application exception remediation | Auto-merge pull requests          |
+| Observability connectors (Azure Monitor / Application Insights as an example) | Direct production changes |
+| SCM + ticketing integrations via adapters | Full autonomous self-healing   |
+| AI-assisted triage, root cause, and fix planning | Unreviewed code changes     |
+| Human-in-the-loop PR draft workflow   |                                     |
 | PostgreSQL + Redis                    | Full self-healing automation        |
 | React dashboard                       |                                     |
 
@@ -139,15 +139,15 @@ flowchart TD
 | ------------------- | --------------------------------------- |
 | Backend API         | Python 3.12 + FastAPI                   |
 | Agent Orchestration | LangGraph                               |
-| AI Platform         | Azure AI Foundry / Azure OpenAI GPT-4o (default) + portable adapters |
-| RAG                 | Azure AI Search (hybrid)                |
-| Log Source          | Application Insights / Azure Monitor    |
+| AI Platform         | Pluggable LLM providers (Azure OpenAI as default example) |
+| RAG                 | Pluggable retrieval providers (Azure AI Search as default example) |
+| Log Source          | Pluggable observability connectors (Application Insights / Azure Monitor example) |
 | Work Queue          | PostgreSQL `incidents.status` polling   |
 | Database            | PostgreSQL 16 on AKS                    |
 | Cache               | Redis 7 on AKS                          |
 | UI                  | React 18 + TypeScript                   |
-| Hosting             | AKS (Azure Kubernetes Service)          |
-| Secrets             | Azure Key Vault + Managed Identity      |
+| Hosting             | Kubernetes-based deployment model        |
+| Secrets             | Secret manager + workload identity model |
 | Infrastructure      | Terraform + Helm                        |
 
 See [TECH_STACK.md](TECH_STACK.md) for the full stack with rationale and dependency lists.
@@ -158,27 +158,34 @@ See [TECH_STACK.md](TECH_STACK.md) for the full stack with rationale and depende
 
 ```
 remediai/
+  .azure/                  # Local Azure Developer CLI metadata (if used)
   .github/
     copilot-instructions.md  # Repository-wide Copilot rules
     instructions/            # Scoped instruction layers by concern
 
+  apps/
+    api/              # FastAPI backend
+    docs/             # Docusaurus documentation site
+    worker/           # Log ingestion + agent worker
+    log_bridge/       # Local log bridge and parser utilities
+    dashboard/        # React TypeScript frontend
+
   docs/
     product/          # Product briefs and discovery notes
-    architecture/     # Architecture decision records (ADRs)
-    specs/            # Detailed specifications
+    architecture/     # Architecture reference documents
+    specs/            # Detailed phase specifications
     prompts/          # Versioned LLM prompt contracts
     runbooks/         # Operational runbooks
 
-  apps/
-    api/              # FastAPI backend
-    worker/           # Log ingestion + agent worker
-    dashboard/        # React TypeScript frontend
-
   packages/
+    config/           # Shared configuration helpers
     domain/           # Shared domain models (Pydantic)
+    governance/       # Policy and approval primitives
     integrations/     # Azure service clients
     agent_runtime/    # LangGraph pipeline and agent base classes
     data_access/      # SQLAlchemy models and repositories
+    observability/    # Telemetry and logging utilities
+    search/           # Search and retrieval components
 
   infrastructure/
     terraform/        # Azure resource provisioning
@@ -192,9 +199,12 @@ remediai/
     validate_prompt_contracts.py  # Prompt contract validator
 
   tests/
+    unit/             # Unit tests
     integration/      # Integration tests (Azure mock clients)
     e2e/              # End-to-end tests
     agent-evals/      # Agent quality evaluation fixtures
+
+  evals/              # Evaluation artifacts and datasets
 
   README.md
   CONTRIBUTING.md
@@ -209,31 +219,13 @@ remediai/
 
 ---
 
-## Implementation Phases
-
-Phases 1–21 are complete. Remaining work runs across parallel tracks.
-
-| Track | Phases | Focus |
-| ----- | ------ | ----- |
-| A — Quality & Security | 15, 17, 18 | PII scrubbing, AI Search index, RAG quality |
-| B — PR Workflow | 19, 20, 21 | PR agent, human approval gate, validation |
-| C — DevOps & Infrastructure | 22, 23, 24, 25, 26, 27 | CI/CD, Terraform, AKS, Key Vault, scaling |
-| D — Testing & Observability | 16, 23, 28 | E2E tests, OpenTelemetry, load + security testing |
-
-Tracks A, B, C, and D can be staffed in parallel. Phase 28 (load + security
-testing) is the final gate that requires all tracks to be complete.
-
-See [ROADMAP.md](ROADMAP.md) for the full dependency graph, milestone detail, and release versioning.
-
----
-
 ## Security Principles
 
 - Human approval required before any code change is merged
 - No direct production access for any agent
 - Read-only access to logs and source code
-- Managed Identity / Workload Identity — no stored credentials
-- Azure Key Vault for all secrets
+- Workload identity model — no stored credentials
+- Secret manager for all credentials and tokens
 - PII scrubbed from exception payloads before LLM transmission
 - Full audit trail for every agent decision
 - All PRs validated before human review

@@ -65,10 +65,10 @@ RemediAI uses `temperature=0.1` for deterministic, structured JSON outputs. High
 
 ## PII scrubbing before every LLM call
 
-Before any exception payload is sent to Azure OpenAI, `scrub()` from `packages.integrations.pii_scrubber` is called on both `exception_message` and `stack_trace`:
+Before any exception payload is sent to Azure OpenAI, `scrub()` from `packages.governance.guardrails.pii_scrubber` is called on both `exception_message` and `stack_trace`:
 
 ```python
-from packages.integrations.pii_scrubber import scrub
+from packages.governance.guardrails.pii_scrubber import scrub
 
 safe_message = scrub(state["exception_message"])
 safe_trace = scrub(state["stack_trace"])

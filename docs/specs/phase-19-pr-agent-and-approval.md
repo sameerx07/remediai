@@ -223,7 +223,7 @@ The PR Agent calls an LLM (`pr_patch_v1`).  Before building `user_content`
 in `_call_llm()`, apply `scrub()` to any field sourced from incident state:
 
 ```python
-from packages.integrations.pii_scrubber import scrub
+from packages.governance.guardrails.pii_scrubber import scrub
 
 user_content = json.dumps({
     "file_path": recommendation.affected_files[0],

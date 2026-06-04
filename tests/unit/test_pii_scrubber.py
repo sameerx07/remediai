@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from packages.integrations.pii_scrubber import PiiScrubber, scrub
+from packages.governance.guardrails.pii_scrubber import PiiScrubber, scrub
 
 
 @pytest.mark.parametrize(
@@ -81,7 +81,7 @@ def test_scrub_multiple_patterns_in_one_string() -> None:
 def test_scrub_dict_replaces_nested_string_value() -> None:
     scrubber = PiiScrubber()
     data: dict[str, object] = {"msg": "contact x@y.com for support", "count": 1}
-    result = scrubber.scrub_dict(data)  # type: ignore[arg-type]
+    result = scrubber.scrub_dict(data)
     assert result["msg"] == "contact [EMAIL] for support"
     assert result["count"] == 1
 
@@ -89,7 +89,7 @@ def test_scrub_dict_replaces_nested_string_value() -> None:
 def test_scrub_dict_handles_list_values() -> None:
     scrubber = PiiScrubber()
     data: dict[str, object] = {"frames": ["at x@y.com line 42", "at safe_method line 7"]}
-    result = scrubber.scrub_dict(data)  # type: ignore[arg-type]
+    result = scrubber.scrub_dict(data)
     frames = result["frames"]
     assert isinstance(frames, list)
     assert "[EMAIL]" in frames[0]

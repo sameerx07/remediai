@@ -406,7 +406,7 @@ class TestPromptRegistry:
         registry = PromptRegistry()
         content = registry.load("root_cause", "2")
         assert "## Goal" in content
-        assert "affected_namespace" in content
+        assert "affected_module" in content
 
     def test_registry_clear_cache(self) -> None:
         from packages.agent_runtime.prompt_registry import PromptRegistry

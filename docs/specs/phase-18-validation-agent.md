@@ -186,7 +186,7 @@ The Validation Agent calls an LLM (`validation_v1`).  Before building
 from incident state:
 
 ```python
-from packages.integrations.pii_scrubber import scrub
+from packages.governance.guardrails.pii_scrubber import scrub
 
 user_content = json.dumps({
     "root_cause_summary": scrub(state.get("root_cause_summary", "") or ""),

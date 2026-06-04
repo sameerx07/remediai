@@ -29,7 +29,7 @@ Scrubbing must also be applied to `input_summary` fields written to
 
 | Artifact | Description |
 |---|---|
-| `packages/agent_runtime/pii_scrubber.py` | `PiiScrubber` class + `scrub()` function |
+| `packages/governance/guardrails/pii_scrubber.py` | `PiiScrubber` class + `scrub()` function |
 | Updated `triage/agent.py` | call `scrub()` before building `user_content` |
 | Updated `root_cause/agent.py` | call `scrub()` before building `user_content` |
 | Updated `fix_planner/agent.py` | call `scrub()` before building `user_content` |
@@ -61,7 +61,7 @@ avoid overlapping replacements.
 ## `PiiScrubber` Design
 
 ```python
-# packages/agent_runtime/pii_scrubber.py
+# packages/governance/guardrails/pii_scrubber.py
 
 class PiiScrubber:
     """Applies ordered regex substitutions to mask PII in text."""
@@ -95,7 +95,7 @@ In each agent's `_call_llm()` function, apply scrubbing to the user-facing
 text fields before they are serialised to JSON:
 
 ```python
-from packages.agent_runtime.pii_scrubber import scrub
+from packages.governance.guardrails.pii_scrubber import scrub
 
 user_content = json.dumps(
     {

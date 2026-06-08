@@ -1,23 +1,23 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="docker-dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Remedy AI — Dashboard</title>
+  <title>RemediAI — Incident Remediation Platform</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    /* ── LIGHT THEME (default) ─────────────────────── */
+    /* ── LIGHT THEME ──────────────────────────────────────── */
     :root {
-      --bg-page:      #F4F6FB;
-      --bg-sidebar:   #ffffff;
-      --bg-card:      #ffffff;
-      --bg-header:    #ffffff;
-      --bg-input:     #F8FAFC;
-      --border:       #ECEEF4;
-      --border-input: #E2E8F0;
+      --bg-page:        #F4F6FB;
+      --bg-sidebar:     #ffffff;
+      --bg-card:        #ffffff;
+      --bg-header:      #ffffff;
+      --bg-input:       #F8FAFC;
+      --border:         #ECEEF4;
+      --border-input:   #E2E8F0;
       --text-primary:   #1E293B;
       --text-secondary: #374151;
       --text-muted:     #6B7280;
@@ -28,22 +28,26 @@
       --nav-hover-bg:   #EFF6FF;
       --divider:        #F3F4F8;
       --shadow:         0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
-      --upgrade-gradient: linear-gradient(145deg,#2563EB 0%,#3B82F6 60%,#60A5FA 100%);
+      --shadow-hover:   0 4px 12px rgba(0,0,0,.10), 0 2px 6px rgba(0,0,0,.06);
+      --border-hover:   #D0D7E6;
+      --upgrade-gradient: linear-gradient(145deg, #EFF6FF 0%, #DBEAFE 100%);
       --chart-grid:     #F1F5F9;
       --toggle-bg:      #E2E8F0;
       --toggle-knob:    #ffffff;
-      --toggle-track-on: #2563EB;
+      --toggle-track-on:#2563EB;
+      --accent:         #2563EB;
+      --accent-dim:     #EFF6FF;
     }
 
-    /* ── DARK THEME (VS Code style) ───────────────── */
-    [data-theme="dark"] {
-      --bg-page:      #1E1E1E;
-      --bg-sidebar:   #252526;
-      --bg-card:      #2D2D2D;
-      --bg-header:    #252526;
-      --bg-input:     #3C3C3C;
-      --border:       #3E3E42;
-      --border-input: #4E4E52;
+    /* ── OCEAN BLUE DARK ─────────────────────────────────── */
+    [data-theme="ocean"] {
+      --bg-page:        #1E1E1E;
+      --bg-sidebar:     #252526;
+      --bg-card:        #2D2D2D;
+      --bg-header:      #252526;
+      --bg-input:       #3C3C3C;
+      --border:         #3E3E42;
+      --border-input:   #4E4E52;
       --text-primary:   #D4D4D4;
       --text-secondary: #CCCCCC;
       --text-muted:     #9D9D9D;
@@ -53,262 +57,777 @@
       --nav-active:     #93C5FD;
       --nav-hover-bg:   #2A2D2E;
       --divider:        #3E3E42;
-      --shadow:         0 1px 3px rgba(0,0,0,.4), 0 1px 2px rgba(0,0,0,.3);
-      --upgrade-gradient: linear-gradient(145deg,#172554 0%,#1D4ED8 60%,#2563EB 100%);
+      --shadow:         0 1px 4px rgba(0,0,0,.45), 0 1px 2px rgba(0,0,0,.3);
+      --shadow-hover:   0 4px 16px rgba(0,0,0,.65);
+      --border-hover:   #5E6370;
+      --upgrade-gradient: linear-gradient(145deg, #2D2D2D 0%, #3A3A3A 100%);
       --chart-grid:     #3A3A3A;
       --toggle-bg:      #3E3E42;
       --toggle-knob:    #D4D4D4;
-      --toggle-track-on: #93C5FD;
+      --toggle-track-on:#93C5FD;
+      --accent:         #93C5FD;
+      --accent-dim:     #172554;
     }
 
+    /* ── DOCKER DARK ────────────────────────────────────── */
+    [data-theme="docker-dark"] {
+      --bg-page:        #1E2028;
+      --bg-sidebar:     #1B1D25;
+      --bg-card:        #23262F;
+      --bg-header:      #1B1D25;
+      --bg-input:       #262930;
+      --border:         #2A2D38;
+      --border-input:   #363A48;
+      --text-primary:   #EDF0F5;
+      --text-secondary: #C0C8D8;
+      --text-muted:     #8591A8;
+      --text-faint:     #4E5670;
+      --nav-inactive:   #8591A8;
+      --nav-active-bg:  #23262F;
+      --nav-active:     #FFFFFF;
+      --nav-hover-bg:   #1E2130;
+      --divider:        #2A2D38;
+      --shadow:         0 1px 4px rgba(0,0,0,.5), 0 1px 2px rgba(0,0,0,.3);
+      --shadow-hover:   0 4px 16px rgba(0,0,0,.7);
+      --border-hover:   #363A48;
+      --upgrade-gradient: linear-gradient(145deg, #23262F 0%, #2A2D38 100%);
+      --chart-grid:     #23262F;
+      --toggle-bg:      #2A2D38;
+      --toggle-knob:    #EDF0F5;
+      --toggle-track-on:#0091E2;
+      --accent:         #0091E2;
+      --accent-dim:     rgba(0,145,226,.12);
+    }
+    /* Light theme upgrade card — soft blue tint, dark text */
+    :root .upgrade-card { border: 1px solid var(--border-input); }
+    :root .upgrade-card > div:first-child  { color: var(--text-primary) !important; }
+    :root .upgrade-card > div:nth-child(2) { color: var(--text-muted) !important; }
+    :root .upgrade-card button { background: var(--accent) !important; color: #fff !important; }
+
+    /* Ocean dark upgrade card — subtle dark elevation */
+    [data-theme="ocean"] .upgrade-card { border: 1px solid var(--border); }
+    [data-theme="ocean"] .upgrade-card button { background: var(--accent) !important; color: var(--bg-sidebar) !important; }
+
+    /* Docker dark upgrade card — subtle dark elevation */
+    [data-theme="docker-dark"] .nav-item.active { border-left: none; padding-left: 12px; }
+    [data-theme="docker-dark"] .upgrade-card { border: 1px solid var(--border); }
+    [data-theme="docker-dark"] .upgrade-card button { background: var(--accent) !important; color: #fff !important; }
+
+    /* ── PAGE SYSTEM ────────────────────────────────────── */
+    .page-content { display:flex; flex-direction:column; flex:1; }
+    .page-content.hidden { display:none; }
+    .page-hd { padding: var(--sp-5) var(--sp-6) var(--sp-4); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; gap: var(--sp-4); }
+    .page-hd-left h2 { font-size: var(--text-lg); font-weight: var(--fw-bold); color: var(--text-primary); margin: 0; line-height: var(--lh-tight); }
+    .page-hd-left p  { font-size: var(--text-sm); color: var(--text-muted); margin: 3px 0 0; }
+    .page-body { padding:20px 24px; display:flex; flex-direction:column; gap:18px; flex:1; overflow:auto; }
+
+    /* ── DATA TABLE ─────────────────────────────────────── */
+    .data-table { width:100%; border-collapse:collapse; }
+    .data-table thead th { font-size:11px; font-weight:600; color:var(--text-faint); text-transform:uppercase; letter-spacing:.04em; padding:10px 16px; border-bottom:1px solid var(--border); text-align:left; white-space:nowrap; }
+    .data-table tbody td { padding:11px 16px; font-size:12.5px; color:var(--text-primary); border-bottom:1px solid var(--divider); vertical-align:middle; }
+    .data-table tbody tr:last-child td { border-bottom:none; }
+    .data-table tbody tr:hover td { background:var(--nav-hover-bg); }
+
+    /* ── FORM ────────────────────────────────────────────── */
+    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    .form-group { display:flex; flex-direction:column; gap:5px; }
+    .form-label { font-size:12px; font-weight:500; color:var(--text-secondary); }
+    .form-input { background: var(--bg-input); border: 1.5px solid var(--border-input); border-radius: var(--r-md); padding: var(--sp-2) var(--sp-3); font-size: var(--text-base); color: var(--text-primary); outline: none; width: 100%; box-sizing: border-box; transition: var(--t-fast); font-family: inherit; }
+    .form-input:hover:not(:disabled) { border-color: var(--accent); }
+    .form-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,.12); }
+    .form-input:disabled { opacity: .5; cursor: not-allowed; }
+    .form-input.error { border-color: #EF4444; }
+    .form-input.success { border-color: #26C281; }
+    .form-input::placeholder { color:var(--text-faint); }
+    select.form-input { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
+    .form-section-title { font-size:13px; font-weight:700; color:var(--text-primary); margin:0 0 14px; padding-bottom:8px; border-bottom:1px solid var(--border); }
+
+    /* ── TOGGLE ──────────────────────────────────────────── */
+    .tog { position:relative; width:36px; height:20px; flex-shrink:0; }
+    .tog input { opacity:0; width:0; height:0; position:absolute; }
+    .tog-sl { position:absolute; inset:0; background:var(--toggle-bg); border-radius:20px; cursor:pointer; transition:.2s; }
+    .tog-sl:before { content:''; position:absolute; width:14px; height:14px; left:3px; top:3px; background:var(--toggle-knob); border-radius:50%; transition:.2s; }
+    .tog input:checked + .tog-sl { background:var(--toggle-track-on); }
+    .tog input:checked + .tog-sl:before { transform:translateX(16px); }
+
+    /* ── FILTER TABS ─────────────────────────────────────── */
+    .filter-tabs { display:flex; gap:4px; background:var(--bg-input); border-radius:9px; padding:3px; }
+    .ftab { padding:5px 14px; border-radius:7px; font-size:12px; font-weight:500; color:var(--text-muted); cursor:pointer; border:none; background:transparent; transition:all .15s; }
+    .ftab.active { background:var(--bg-card); color:var(--text-primary); font-weight:600; box-shadow:var(--shadow); }
+
+    /* ── COMPACT TOOLBAR ─────────────────────────────────── */
+    .compact-toolbar { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+    .compact-search { display:flex; align-items:center; gap:7px; background:var(--bg-input); border:1px solid var(--border-input); border-radius:8px; padding:6px 10px; min-width:220px; }
+    .compact-search input { background:transparent; border:none; outline:none; color:var(--text-primary); font-size:12px; width:150px; }
+    .compact-select {
+      background: var(--bg-input);
+      border: 1px solid var(--border-input);
+      color: var(--text-primary);
+      border-radius: 8px;
+      font-size: 12px;
+      padding: 6px 28px 6px 10px;
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background-image:
+        linear-gradient(45deg, transparent 50%, var(--text-faint) 50%),
+        linear-gradient(135deg, var(--text-faint) 50%, transparent 50%);
+      background-position:
+        calc(100% - 14px) calc(50% - 2px),
+        calc(100% - 9px) calc(50% - 2px);
+      background-size: 5px 5px, 5px 5px;
+      background-repeat: no-repeat;
+      cursor: pointer;
+    }
+    .compact-select:hover { border-color: var(--accent); }
+    .compact-btn {
+      border: 1px solid var(--border-input);
+      background: var(--bg-input);
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: 8px;
+      padding: 6px 10px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .compact-btn.primary {
+      background: var(--accent);
+      border-color: transparent;
+      color: #fff;
+    }
+
+    /* ── LOGS PAGE ──────────────────────────────────────── */
+    .logs-toolbar {
+      display: flex;
+      align-items: center;
+      flex-wrap: nowrap;
+      overflow: visible;
+      margin-bottom: 6px;
+      gap: 8px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--bg-input);
+      padding: 6px;
+    }
+    .logs-input, .logs-select, .logs-btn {
+      background: var(--bg-input);
+      border: 1px solid var(--border-input);
+      color: var(--text-primary);
+      border-radius: 8px;
+      font-size: 12.5px;
+      padding: 8px 10px;
+      width: 100%;
+    }
+    .logs-btn {
+      cursor: pointer;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .logs-btn.primary { background: var(--accent); color: var(--bg-sidebar); border-color: transparent; }
+    .logs-btn.ghost:hover { border-color: var(--accent); }
+    .logs-input:focus-visible,
+    .logs-select:focus-visible,
+    .logs-btn:focus-visible,
+    .quick-chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+    .quick-chip {
+      font-size: 11px;
+      padding: 5px 9px;
+      border-radius: 14px;
+      border: 1px solid var(--border-input);
+      background: var(--bg-input);
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .quick-chip:hover { border-color: var(--accent); color: var(--text-primary); }
+    .quick-chip-compact { padding: 3px 8px; font-size: 10.5px; border-radius: 999px; line-height: 1.1; white-space: nowrap; }
+    .toolbar-spacer { flex: 1 1 auto; min-width: 10px; }
+    .logs-advanced-wrap { position: relative; flex-shrink: 0; }
+    .advanced-count {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 17px; height: 17px; border-radius: 999px;
+      background: rgba(255,255,255,0.16); color: #fff; font-size: 10px; font-weight: 700; padding: 0 5px;
+    }
+    .logs-advanced-popover {
+      position: absolute; right: 0; top: calc(100% + 6px); width: 300px;
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px;
+      box-shadow: var(--shadow); padding: 10px; display: none; z-index: 30;
+    }
+    .logs-advanced-popover.open { display: block; }
+    .logs-advanced-title { font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--text-faint); margin-bottom: 8px; }
+    .logs-advanced-grid { display: grid; grid-template-columns: 1fr; gap: 8px; margin-bottom: 8px; }
+    .logs-advanced-actions { display: flex; justify-content: flex-end; gap: 8px; }
+    .logs-btn.slim { width: auto; padding: 6px 9px; font-size: 11px; }
+    .logs-top-controls {
+      position: sticky;
+      top: 64px;
+      z-index: 19;
+      background: var(--bg-card);
+      padding-bottom: 6px;
+      margin-bottom: 4px;
+      overflow: visible;
+    }
+    .logs-top-controls-inner { position: relative; }
+    .logs-toolbar > * { flex-shrink: 0; }
+    .logs-toolbar .logs-input { min-width: 160px; width: 210px; }
+    .logs-toolbar .logs-select {
+      min-width: 112px; width: 112px;
+      appearance: none; -webkit-appearance: none; -moz-appearance: none;
+      background-image: linear-gradient(45deg,transparent 50%,var(--text-faint) 50%),linear-gradient(135deg,var(--text-faint) 50%,transparent 50%);
+      background-position: calc(100% - 14px) calc(50% - 2px),calc(100% - 9px) calc(50% - 2px);
+      background-size: 5px 5px,5px 5px; background-repeat: no-repeat; padding-right: 24px;
+    }
+    .logs-toolbar .logs-select:hover { border-color: var(--accent); }
+    .logs-toolbar .logs-select.priority { min-width: 112px; width: 112px; }
+    .logs-main-layout { display: grid; grid-template-columns: 1fr auto; gap: 8px; min-height: 0; flex: 1; }
+    .logs-settings {
+      width: 210px; border: 1px solid var(--border); border-radius: 10px;
+      background: var(--bg-input); padding: 10px; height: 100%; overflow: auto;
+    }
+    .logs-settings.hidden { display: none; }
+    .logs-settings h4 { margin: 0 0 8px; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--text-faint); }
+    .logs-setting-row {
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      padding: 7px 0; border-bottom: 1px solid var(--divider); font-size: 12px; color: var(--text-secondary);
+    }
+    .logs-setting-row:last-child { border-bottom: none; }
+    .logs-meta { font-size: 11px; color: var(--text-muted); }
+    .filter-chip {
+      display: inline-flex; align-items: center; gap: 6px; padding: 4px 9px;
+      border-radius: 999px; border: 1px solid var(--border-input); background: var(--bg-input);
+      color: var(--text-secondary); font-size: 11px; font-weight: 600;
+    }
+    .filter-chip button { border: none; background: transparent; color: var(--text-muted); cursor: pointer; font-size: 12px; line-height: 1; padding: 0; }
+    .active-filter-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 10px 0 12px; min-height: 24px; }
+    .active-filter-row:empty { display: none; }
+    #logs-console {
+      white-space: normal;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-variant-ligatures: none;
+    }
+    .log-row {
+      display: block; position: relative;
+      padding: 2px 0 2px 10px;
+      border-left: 3px solid rgba(145,158,171,0.35);
+    }
+    .log-row.error { border-left-color: #f43f5e; }
+    .log-row.warn  { border-left-color: #f59e0b; }
+    .log-row.info  { border-left-color: #22c55e; }
+    .log-row.debug { border-left-color: #60a5fa; }
+    .log-ts { color: #8a97ac; opacity: .82; margin-right: 6px; }
+    .log-level-pill {
+      display: inline-block; min-width: 48px; text-align: center;
+      font-size: 10px; font-weight: 700; border-radius: 999px;
+      padding: 1px 7px; margin-right: 7px; letter-spacing: .02em;
+    }
+    .log-level-pill.error { color: #fecdd3; background: rgba(244,63,94,.22); }
+    .log-level-pill.warn  { color: #fde68a; background: rgba(245,158,11,.2); }
+    .log-level-pill.info  { color: #bbf7d0; background: rgba(34,197,94,.18); }
+    .log-level-pill.debug { color: #bfdbfe; background: rgba(96,165,250,.18); }
+    .log-msg-text { color: #e2e8f3; }
+    .log-meta-inline { color: #8a97ac; margin-left: 8px; }
+    #logs-console.wrap-lines .log-row { white-space: pre-wrap; word-break: break-word; }
+    #logs-console:not(.wrap-lines) .log-row { white-space: pre; overflow-x: auto; overflow-y: hidden; }
+    .toast {
+      position: fixed; right: 20px; bottom: 20px;
+      min-width: 220px; max-width: 340px; border-radius: 10px;
+      padding: 10px 12px; background: var(--bg-card); border: 1px solid var(--border);
+      color: var(--text-primary); box-shadow: var(--shadow); font-size: 12px;
+      transform: translateY(12px); opacity: 0; pointer-events: none;
+      transition: opacity .2s ease, transform .2s ease; z-index: 90;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    @media (max-width: 1200px) {
+      .logs-toolbar .logs-input { min-width: 140px; width: 160px; }
+      .logs-main-layout { grid-template-columns: 1fr; }
+      .logs-settings { width: 100%; }
+    }
+    @media (max-width: 780px) {
+      .logs-toolbar { padding: 5px; }
+      .logs-toolbar .logs-input { min-width: 110px; width: 130px; }
+      .logs-advanced-popover { width: min(92vw,300px); }
+    }
+
+    /* ── INTEGRATION CARD ────────────────────────────────── */
+    .int-card { display:flex; flex-direction:column; gap:12px; padding:20px; }
+    .int-icon { width:44px; height:44px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+
+    /* ── SETTINGS TABS ───────────────────────────────────── */
+    .stab-bar { display:flex; gap:0; border-bottom:1px solid var(--border); padding:0 24px; }
+    .stab { padding: 10px var(--sp-4); font-size: var(--text-base); font-weight: var(--fw-medium); color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; transition: var(--t-fast); background: none; border-top: none; border-left: none; border-right: none; font-family: inherit; }
+    .stab:hover { color: var(--text-primary); }
+    .stab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: var(--fw-semibold); }
+    .stab:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; border-radius: var(--r-sm) var(--r-sm) 0 0; }
+
+    /* ── BASE ─────────────────────────────────────────────── */
     * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; box-sizing: border-box; transition: background-color .2s, color .15s, border-color .15s; }
     body { background: var(--bg-page); margin: 0; display: flex; min-height: 100vh; }
 
-    /* ── SIDEBAR ── */
+    /* ── SIDEBAR ─────────────────────────────────────────── */
     .sidebar { width: 200px; min-height: 100vh; background: var(--bg-sidebar); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; overflow: hidden; transition: width .25s cubic-bezier(.4,0,.2,1); flex-shrink: 0; }
     .sidebar.collapsed { width: 52px; }
 
-    /* Collapse toggle button */
     .sidebar-toggle { width: 24px; height: 24px; border-radius: 6px; background: transparent; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-faint); flex-shrink: 0; transition: all .15s; }
     .sidebar-toggle:hover { background: var(--nav-hover-bg); color: var(--nav-active); }
 
-    /* Nav items */
-    .nav-item { display: flex; align-items: center; gap: 9px; padding: 8px 12px; border-radius: 8px; color: var(--nav-inactive); font-size: 13px; font-weight: 500; cursor: pointer; transition: all .15s; margin: 1px 0; white-space: nowrap; overflow: hidden; }
-    .nav-item:hover { background: var(--nav-hover-bg); color: var(--nav-active); }
-    .nav-item.active { background: var(--nav-active-bg); color: var(--nav-active); font-weight: 600; }
+    /* ── NAV ITEMS ──────────────────────────────────────── */
+    .nav-item { display: flex; align-items: center; gap: var(--sp-2); padding: var(--sp-2) var(--sp-3); border-radius: var(--r-md); color: var(--nav-inactive); font-size: var(--text-base); font-weight: var(--fw-medium); cursor: pointer; transition: var(--t-fast); margin: 1px 0; white-space: nowrap; overflow: hidden; position: relative; }
+    .nav-item:hover { background: var(--nav-hover-bg); color: var(--text-primary); transform: translateX(1px); }
+    .nav-item.active { background: var(--nav-active-bg); color: var(--nav-active); font-weight: var(--fw-semibold); border-left: 2px solid var(--accent); padding-left: 10px; }
+    .nav-item:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
     .nav-item svg[data-lucide] { width: 15px !important; height: 15px !important; flex-shrink: 0; }
 
-    /* Collapsed nav: center icons, hide labels */
+    /* Collapsed state */
     .sidebar.collapsed .nav-item { justify-content: center; padding: 8px; gap: 0; }
+    .sidebar.collapsed .nav-item.active { border-left: none; padding-left: 8px; }
     .sidebar.collapsed .nav-label { display: none; }
     .sidebar.collapsed .logo-text { display: none; }
     .sidebar.collapsed .upgrade-card { display: none; }
     .sidebar.collapsed .user-text { display: none; }
     .sidebar.collapsed .user-more { display: none; }
-    .sidebar.collapsed .theme-label-row { display: none; }
+    .sidebar.collapsed .theme-label-row { flex-direction: column; align-items: center; justify-content: center; padding: 8px 4px; gap: 2px; }
+    .sidebar.collapsed .theme-chip { padding: 7px; justify-content: center; }
 
     /* Tooltip on collapsed icons */
-    .nav-item { position: relative; }
     .sidebar.collapsed .nav-item::after { content: attr(data-label); position: absolute; left: calc(100% + 10px); top: 50%; transform: translateY(-50%); background: var(--text-primary); color: var(--bg-sidebar); font-size: 11.5px; font-weight: 600; padding: 4px 10px; border-radius: 6px; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity .15s; z-index: 100; }
     .sidebar.collapsed .nav-item:hover::after { opacity: 1; }
 
-    .card { background: var(--bg-card); border-radius: 14px; box-shadow: var(--shadow); border: 1px solid var(--border); }
+    /* ── CARDS ───────────────────────────────────────────── */
+    .card { background: var(--bg-card); border-radius: var(--r-lg); border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04); transition: var(--t-base); }
+    .card:hover { border-color: var(--border-hover, var(--border-input)); box-shadow: 0 4px 12px rgba(0,0,0,.10), 0 2px 4px rgba(0,0,0,.06); }
+    .card-flat { box-shadow: none; }
+    .card-flat:hover { box-shadow: none; }
 
-    .badge-up-green  { color: #16A34A; background: #DCFCE7; font-size: 10.5px; font-weight: 700; padding: 2px 6px; border-radius: 20px; display: inline-flex; align-items: center; gap: 2px; }
-    .badge-up-orange { color: #2563EB; background: #DBEAFE; font-size: 10.5px; font-weight: 700; padding: 2px 6px; border-radius: 20px; display: inline-flex; align-items: center; gap: 2px; }
-    [data-theme="dark"] .badge-up-green  { color: #4ADE80; background: #14532D; }
-    [data-theme="dark"] .badge-up-orange { color: #60A5FA; background: #451A03; }
+    /* ── BADGES ─────────────────────────────────────────── */
+    .badge-up-green  { color: #16A34A; background: #DCFCE7; font-size: 10.5px; font-weight: 700; padding: 2px 7px; border-radius: 20px; display: inline-flex; align-items: center; gap: 2px; }
+    .badge-up-orange { color: #2563EB; background: #DBEAFE; font-size: 10.5px; font-weight: 700; padding: 2px 7px; border-radius: 20px; display: inline-flex; align-items: center; gap: 2px; }
+
+    [data-theme="ocean"] .badge-up-green  { color: #4ADE80; background: #14532D; }
+    [data-theme="ocean"] .badge-up-orange { color: #60A5FA; background: #172554; }
+    [data-theme="docker-dark"] .badge-up-green  { color: #26C281; background: rgba(38,194,129,.13); }
+    [data-theme="docker-dark"] .badge-up-orange { color: #F5A623; background: rgba(245,166,35,.13); }
 
     .sparkline { display: block; width: 100%; height: 40px; overflow: visible; }
 
+    /* ── STATUS TAGS ─────────────────────────────────────── */
     .tag-green  { color: #16A34A; background: #DCFCE7; font-size: 10.5px; font-weight: 600; padding: 3px 9px; border-radius: 20px; white-space: nowrap; }
     .tag-yellow { color: #1D4ED8; background: #DBEAFE; font-size: 10.5px; font-weight: 600; padding: 3px 9px; border-radius: 20px; white-space: nowrap; }
     .tag-blue   { color: #2563EB; background: #DBEAFE; font-size: 10.5px; font-weight: 600; padding: 3px 9px; border-radius: 20px; white-space: nowrap; }
-    [data-theme="dark"] .tag-green  { color: #4ADE80; background: #14532D; }
-    [data-theme="dark"] .tag-yellow { color: #60A5FA; background: #451A03; }
-    [data-theme="dark"] .tag-blue   { color: #93C5FD; background: #172554; }
 
+    [data-theme="ocean"] .tag-green  { color: #4ADE80; background: #14532D; }
+    [data-theme="ocean"] .tag-yellow { color: #60A5FA; background: #172554; }
+    [data-theme="ocean"] .tag-blue   { color: #93C5FD; background: #172554; }
+    [data-theme="docker-dark"] .tag-green  { color: #26C281; background: rgba(38,194,129,.13); }
+    [data-theme="docker-dark"] .tag-yellow { color: #F5A623; background: rgba(245,166,35,.13); }
+    [data-theme="docker-dark"] .tag-blue   { color: #0091E2; background: rgba(0,145,226,.13); }
+
+    /* ── AVATARS / ICONS ─────────────────────────────────── */
     .av { width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #fff; }
     .divider { height: 1px; background: var(--divider); margin: 8px 0; }
     .act-icon { width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
 
-    main { flex: 1; display: flex; flex-direction: column; overflow: auto; }
+    /* Icon tinted backgrounds — light */
+    .icon-bg-purple { background: #EFF6FF; }
+    .icon-bg-green  { background: #F0FDF4; }
+    .icon-bg-blue   { background: #EFF6FF; }
+    .icon-bg-orange { background: #FFF7ED; }
+    .icon-bg-yellow { background: #DBEAFE; }
 
+    /* Ocean dark */
+    [data-theme="ocean"] .icon-bg-purple { background: #1E3A8A !important; }
+    [data-theme="ocean"] .icon-bg-green  { background: #14532D !important; }
+    [data-theme="ocean"] .icon-bg-blue   { background: #172554 !important; }
+    [data-theme="ocean"] .icon-bg-orange { background: #451A03 !important; }
+    [data-theme="ocean"] .icon-bg-yellow { background: #3B2A00 !important; }
+
+    /* Docker dark */
+    [data-theme="docker-dark"] .icon-bg-purple { background: rgba(0,145,226,.14) !important; }
+    [data-theme="docker-dark"] .icon-bg-green  { background: rgba(38,194,129,.14) !important; }
+    [data-theme="docker-dark"] .icon-bg-blue   { background: rgba(0,145,226,.14) !important; }
+    [data-theme="docker-dark"] .icon-bg-orange { background: rgba(245,166,35,.14) !important; }
+    [data-theme="docker-dark"] .icon-bg-yellow { background: rgba(245,166,35,.14) !important; }
+
+    /* Icon stroke colors in dark themes */
+    [data-theme="ocean"] .icon-bg-purple i[data-lucide],
+    [data-theme="ocean"] .icon-bg-blue   i[data-lucide] { color: #93C5FD !important; }
+    [data-theme="ocean"] .icon-bg-green  i[data-lucide] { color: #4ADE80 !important; }
+    [data-theme="ocean"] .icon-bg-orange i[data-lucide],
+    [data-theme="ocean"] .icon-bg-yellow i[data-lucide] { color: #FBA46C !important; }
+
+    [data-theme="docker-dark"] .icon-bg-purple i[data-lucide],
+    [data-theme="docker-dark"] .icon-bg-blue   i[data-lucide] { color: #0091E2 !important; }
+    [data-theme="docker-dark"] .icon-bg-green  i[data-lucide] { color: #26C281 !important; }
+    [data-theme="docker-dark"] .icon-bg-orange i[data-lucide],
+    [data-theme="docker-dark"] .icon-bg-yellow i[data-lucide] { color: #F5A623 !important; }
+
+    /* ── LAYOUT ────────────────────────────────────────── */
+    main { flex: 1; display: flex; flex-direction: column; overflow: auto; }
     svg[data-lucide] { display: inline-block; flex-shrink: 0; }
     i[data-lucide]   { display: inline-flex; align-items: center; justify-content: center; }
 
-    /* Theme toggle switch */
-    .toggle-switch { width: 36px; height: 20px; border-radius: 10px; background: var(--toggle-bg); position: relative; cursor: pointer; flex-shrink: 0; transition: background .2s; }
-    .toggle-switch.on { background: var(--toggle-track-on); }
-    .toggle-switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 14px; height: 14px; border-radius: 50%; background: var(--toggle-knob); transition: transform .2s; }
-    .toggle-switch.on::after { transform: translateX(16px); }
+    /* ── HEADER BUTTON ───────────────────────────────────── */
+    .header-icon-btn { width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-input); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: all .15s; }
+    .header-icon-btn:hover { border-color: var(--nav-active); }
+    .header-icon-btn:hover i[data-lucide] { color: var(--nav-active) !important; }
 
-    /* Dark-mode icon backgrounds — keep color but adjust opacity */
-    [data-theme="dark"] .icon-bg-purple { background: #1E3A8A !important; }
-    [data-theme="dark"] .icon-bg-green  { background: #14532D !important; }
-    [data-theme="dark"] .icon-bg-blue   { background: #172554 !important; }
-    [data-theme="dark"] .icon-bg-orange { background: #451A03 !important; }
-    [data-theme="dark"] .icon-bg-yellow { background: #3B2A00 !important; }
+    /* ── SEARCH BOX ──────────────────────────────────────── */
+    .search-box { display: flex; align-items: center; gap: var(--sp-2); background: var(--bg-input); border: 1.5px solid var(--border-input); border-radius: var(--r-md); padding: var(--sp-2) var(--sp-3); transition: var(--t-fast); }
+    .search-box:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
+    .search-box input { background: transparent; border: none; outline: none; font-size: var(--text-sm); color: var(--text-primary); font-family: inherit; }
 
-    /* Input/search dark style */
-    [data-theme="dark"] input::placeholder { color: #6A6A6A; }
+    /* ── THEME CHIPS ─────────────────────────────────────── */
+    .theme-chip { display: flex; align-items: center; justify-content: center; padding: 6px 10px; border-radius: 7px; border: 1px solid transparent; background: transparent; color: var(--text-muted); cursor: pointer; transition: all .15s; }
+    .theme-chip:hover { background: var(--nav-hover-bg); color: var(--text-primary); }
+    .theme-chip.active { background: var(--nav-active-bg); color: var(--nav-active); border-color: var(--border-input); }
+    .theme-chip i[data-lucide] { width: 13px !important; height: 13px !important; flex-shrink: 0; }
 
-    /* Scrollbar */
-    ::-webkit-scrollbar { width: 5px; }
+    /* ── LINK ACCENT ─────────────────────────────────────── */
+    .link-accent { color: var(--accent); text-decoration: none; font-size: var(--text-xs); font-weight: var(--fw-semibold); transition: var(--t-fast); }
+    .link-accent:hover { filter: brightness(1.15); text-decoration: underline; }
+    .link-accent:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+
+    /* ── LIST ROW HOVER ──────────────────────────────────── */
+    .list-row { padding: 7px 4px; border-radius: 8px; transition: background .15s; margin: 0 -4px; display: flex; align-items: center; gap: 10px; }
+    .list-row:hover { background: var(--nav-hover-bg); }
+
+    /* ── SCROLLBAR ───────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: var(--r-full); }
+
+    /* ── DARK SHARED ─────────────────────────────────────── */
+    [data-theme="ocean"] input::placeholder { color: #6A6A6A; }
+    [data-theme="docker-dark"] input::placeholder { color: #4E5670; }
+
+    /* ── TYPOGRAPHY SCALE ─────────────────────────────── */
+    :root {
+      --text-xs:   10.5px;
+      --text-sm:   12px;
+      --text-base: 13px;
+      --text-md:   14px;
+      --text-lg:   17px;
+      --text-xl:   20px;
+      --text-2xl:  24px;
+      --text-3xl:  28px;
+
+      --fw-normal:    400;
+      --fw-medium:    500;
+      --fw-semibold:  600;
+      --fw-bold:      700;
+      --fw-extrabold: 800;
+
+      --lh-tight:   1.2;
+      --lh-normal:  1.5;
+      --lh-relaxed: 1.6;
+
+      /* ── SPACING SCALE ───────────────────────────────── */
+      --sp-1: 4px;
+      --sp-2: 8px;
+      --sp-3: 12px;
+      --sp-4: 16px;
+      --sp-5: 20px;
+      --sp-6: 24px;
+      --sp-8: 32px;
+      --sp-10: 40px;
+      --sp-12: 48px;
+
+      /* ── RADIUS TOKENS ───────────────────────────────── */
+      --r-sm:   6px;
+      --r-md:   8px;
+      --r-lg:   12px;
+      --r-xl:   16px;
+      --r-full: 9999px;
+
+      /* ── TRANSITION ──────────────────────────────────── */
+      --t-fast:   all .12s ease;
+      --t-base:   all .18s ease;
+      --t-slow:   all .28s ease;
+    }
+
+    /* ── BUTTON SYSTEM ───────────────────────────────── */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      gap: var(--sp-1); padding: 7px var(--sp-4);
+      border-radius: var(--r-md); font-size: var(--text-sm);
+      font-weight: var(--fw-semibold); border: 1.5px solid transparent;
+      cursor: pointer; transition: var(--t-fast); white-space: nowrap;
+      font-family: inherit; text-decoration: none; line-height: 1;
+      user-select: none;
+    }
+    .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .btn:disabled { opacity: .45; cursor: not-allowed; pointer-events: none; }
+
+    .btn-primary  { background: var(--accent); color: #fff; border-color: transparent; }
+    .btn-primary:hover  { filter: brightness(1.08); box-shadow: 0 2px 8px rgba(0,0,0,.18); }
+    .btn-primary:active { filter: brightness(.96); }
+
+    .btn-secondary { background: var(--bg-input); color: var(--text-secondary); border-color: var(--border); }
+    .btn-secondary:hover  { background: var(--nav-hover-bg); color: var(--text-primary); border-color: var(--border-input); }
+
+    .btn-ghost { background: transparent; color: var(--text-muted); border-color: transparent; }
+    .btn-ghost:hover { background: var(--nav-hover-bg); color: var(--text-primary); }
+
+    .btn-danger { background: rgba(239,68,68,.1); color: #EF4444; border-color: rgba(239,68,68,.2); }
+    .btn-danger:hover { background: rgba(239,68,68,.18); }
+
+    .btn-sm { padding: 5px 10px; font-size: var(--text-xs); border-radius: var(--r-sm); }
+    .btn-xs { padding: 3px 8px;  font-size: 10.5px;         border-radius: var(--r-sm); }
+    .btn-icon { padding: 7px; border-radius: var(--r-md); }
+
+    /* Accent-dim action button used in tables */
+    .btn-action { font-size: var(--text-xs); color: var(--accent); background: var(--accent-dim); border: none; padding: 4px 10px; border-radius: var(--r-sm); cursor: pointer; font-weight: var(--fw-semibold); transition: var(--t-fast); }
+    .btn-action:hover { filter: brightness(1.1); }
+
+    /* ── ACCESSIBILITY ───────────────────────────────── */
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: var(--r-sm); }
+    :focus:not(:focus-visible) { outline: none; }
+
+    /* Skip link for keyboard nav */
+    .skip-link {
+      position: fixed; top: -100%; left: var(--sp-4); z-index: 10000;
+      background: var(--accent); color: #fff; padding: var(--sp-2) var(--sp-4);
+      border-radius: var(--r-md); font-size: var(--text-sm); font-weight: var(--fw-semibold);
+      text-decoration: none; transition: top .15s;
+    }
+    .skip-link:focus { top: var(--sp-4); }
+
+    /* ── TABLE ENHANCEMENTS ──────────────────────────── */
+    /* Table sort headers */
+    .data-table thead th.sortable { cursor: pointer; user-select: none; }
+    .data-table thead th.sortable:hover { color: var(--text-primary); }
+    .data-table thead th.sortable::after { content: ' ⇅'; color: var(--text-faint); font-size: 9px; }
+    .data-table thead th.sort-asc::after  { content: ' ↑'; color: var(--accent); }
+    .data-table thead th.sort-desc::after { content: ' ↓'; color: var(--accent); }
+
+    /* Checkbox column */
+    .data-table .col-check { width: 40px; }
+
+    /* Empty state inside table */
+    .tbl-empty { padding: 48px 24px; text-align: center; }
+    .tbl-empty-icon { width: 44px; height: 44px; background: var(--bg-input); border-radius: var(--r-lg); display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; }
+    .tbl-empty-title { font-size: var(--text-md); font-weight: var(--fw-semibold); color: var(--text-primary); margin-bottom: 4px; }
+    .tbl-empty-desc  { font-size: var(--text-sm); color: var(--text-muted); }
+
+    /* Row selected state */
+    .data-table tbody tr.selected td { background: var(--accent-dim); }
+
+    /* Column width hints */
+    .data-table td.td-mono { font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace; font-size: var(--text-xs); color: var(--text-muted); }
+
+    /* ── SKELETON / LOADING ──────────────────────────── */
+    @keyframes shimmer {
+      0%   { background-position: -400px 0; }
+      100% { background-position: 400px 0; }
+    }
+    .skeleton {
+      background: linear-gradient(90deg, var(--bg-input) 25%, var(--bg-card) 50%, var(--bg-input) 75%);
+      background-size: 400px 100%;
+      animation: shimmer 1.4s ease infinite;
+      border-radius: var(--r-sm);
+    }
+
+    /* ── SMOOTH HOVER LIFT ───────────────────────────── */
+    .hover-lift { transition: var(--t-base); }
+    .hover-lift:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,.12); }
+
+    /* ── BADGE PULSE ─────────────────────────────────── */
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: .4; }
+    }
+    .pulse { animation: pulse-dot 1.8s ease-in-out infinite; }
+
+    /* ── STAT CARD TOKENS ────────────────────────────── */
+    .stat-value { font-size: var(--text-3xl); font-weight: var(--fw-extrabold); color: var(--text-primary); line-height: var(--lh-tight); margin-bottom: var(--sp-2); }
+    .stat-label { font-size: var(--text-sm); font-weight: var(--fw-medium); color: var(--text-muted); }
+    .stat-meta  { font-size: var(--text-xs); color: var(--text-muted); }
+
+    /* ── SCROLLBAR ───────────────────────────────────── */
+    * { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--border-input); }
+
   </style>
 </head>
 <body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
 
 <!-- ══════════ SIDEBAR ══════════ -->
 <aside class="sidebar">
+
+  <!-- Logo row -->
   <div style="padding:14px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
     <div style="display:flex;align-items:center;gap:8px;overflow:hidden;">
-      <div style="width:28px;height:28px;background:#2563EB;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+      <div style="width:28px;height:28px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
         <i data-lucide="activity" style="color:#fff;width:14px;height:14px;"></i>
       </div>
-      <span class="logo-text" style="font-size:15px;font-weight:700;color:var(--text-primary);white-space:nowrap;">Remedy AI</span>
+      <span class="logo-text" style="font-size:15px;font-weight:700;color:var(--text-primary);white-space:nowrap;">RemediAI</span>
     </div>
-    <div class="sidebar-toggle" onclick="toggleSidebar()" title="Toggle sidebar">
+    <div class="sidebar-toggle" onclick="toggleSidebar()" title="Toggle sidebar" aria-label="Toggle sidebar" role="button" tabindex="0">
       <i data-lucide="chevrons-left" id="sidebar-chevron" style="width:13px;height:13px;color:var(--text-faint);"></i>
     </div>
   </div>
 
-  <nav style="flex:1;padding:12px 8px;display:flex;flex-direction:column;gap:2px;">
-    <div class="nav-item active"     data-label="Overview">      <i data-lucide="layout-grid"></i>  <span class="nav-label">Overview</span></div>
-    <div class="nav-item"             data-label="Conversations"> <i data-lucide="message-square"></i><span class="nav-label">Conversations</span></div>
-    <div class="nav-item"             data-label="Patients">      <i data-lucide="users"></i>         <span class="nav-label">Patients</span></div>
-    <div class="nav-item"             data-label="Analytics">     <i data-lucide="bar-chart-2"></i>   <span class="nav-label">Analytics</span></div>
-    <div class="nav-item"             data-label="Knowledge Base"><i data-lucide="book-open"></i>     <span class="nav-label">Knowledge Base</span></div>
-    <div class="nav-item"             data-label="Automation">    <i data-lucide="zap"></i>           <span class="nav-label">Automation</span></div>
-    <div class="nav-item"             data-label="Integrations">  <i data-lucide="link-2"></i>        <span class="nav-label">Integrations</span></div>
-    <div class="nav-item"             data-label="Settings">      <i data-lucide="settings"></i>     <span class="nav-label">Settings</span></div>
+  <!-- Nav -->
+  <nav role="navigation" aria-label="Main navigation" style="flex:1;padding:12px 8px;display:flex;flex-direction:column;gap:2px;">
+    <div class="nav-item active"  data-label="Overview"      data-page="overview"      onclick="showPage('overview')"      aria-current="page"><i data-lucide="layout-grid"></i>    <span class="nav-label">Overview</span></div>
+    <div class="nav-item"         data-label="Logs"          data-page="logs"          onclick="showPage('logs')"         ><i data-lucide="scroll-text"></i>    <span class="nav-label">Logs</span></div>
+    <div class="nav-item"         data-label="Incidents"     data-page="incidents"     onclick="showPage('incidents')"    ><i data-lucide="alert-triangle"></i> <span class="nav-label">Incidents</span></div>
+    <div class="nav-item"         data-label="Services"      data-page="services"      onclick="showPage('services')"     ><i data-lucide="server"></i>         <span class="nav-label">Services</span></div>
+    <div class="nav-item"         data-label="Analytics"     data-page="analytics"     onclick="showPage('analytics')"    ><i data-lucide="bar-chart-2"></i>    <span class="nav-label">Analytics</span></div>
+    <div class="nav-item"         data-label="Runbooks"      data-page="runbooks"      onclick="showPage('runbooks')"     ><i data-lucide="book-open"></i>      <span class="nav-label">Runbooks</span></div>
+    <div class="nav-item"         data-label="Agents"        data-page="agents"        onclick="showPage('agents')"       ><i data-lucide="cpu"></i>            <span class="nav-label">Agents</span></div>
+    <div class="nav-item"         data-label="Integrations"  data-page="integrations"  onclick="showPage('integrations')" ><i data-lucide="link-2"></i>         <span class="nav-label">Integrations</span></div>
+    <div style="height:1px;background:var(--divider);margin:6px 4px;"></div>
+    <div class="nav-item"         data-label="Settings"      data-page="settings"      onclick="showPage('settings')"     ><i data-lucide="settings"></i>      <span class="nav-label">Settings</span></div>
   </nav>
 
   <!-- Upgrade to Pro -->
   <div class="upgrade-card" style="margin:0 10px 10px;border-radius:12px;padding:14px;background:var(--upgrade-gradient);">
     <div style="font-size:12.5px;font-weight:700;color:#fff;margin-bottom:4px;">Upgrade to Pro</div>
     <div style="font-size:11px;color:rgba(255,255,255,.8);line-height:1.5;margin-bottom:10px;">Get unlimited access to AI analytics and priority support.</div>
-    <button style="width:100%;background:#fff;color:#2563EB;font-size:11.5px;font-weight:700;padding:6px 0;border-radius:8px;border:none;cursor:pointer;">Upgrade Now</button>
+    <button style="width:100%;background:rgba(255,255,255,.95);color:#1E3A8A;font-size:11.5px;font-weight:700;padding:6px 0;border-radius:8px;border:none;cursor:pointer;">Upgrade Now</button>
   </div>
 
-  <!-- Theme toggle — hidden when collapsed, icon-only toggle instead shown via user row -->
-  <div class="theme-label-row" style="padding:10px 16px;border-top:1px solid var(--border);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;overflow:hidden;">
-    <div style="display:flex;align-items:center;gap:6px;">
-      <i data-lucide="sun" id="icon-sun" style="color:var(--text-muted);width:13px;height:13px;"></i>
-      <span style="font-size:12px;color:var(--text-muted);font-weight:500;" id="theme-label">Light mode</span>
-    </div>
-    <div class="toggle-switch" id="themeToggle" onclick="toggleTheme()"></div>
+  <!-- Theme switcher — 3 icon chips (stacks vertically when collapsed) -->
+  <div class="theme-label-row" style="padding:6px 8px;border-top:1px solid var(--border);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:center;gap:4px;overflow:hidden;">
+    <button class="theme-chip" id="chip-light" onclick="setTheme('light')" title="Light" aria-label="Switch to light theme">
+      <i data-lucide="sun"></i>
+    </button>
+    <button class="theme-chip" id="chip-ocean" onclick="setTheme('ocean')" title="Ocean Blue" aria-label="Switch to ocean dark theme">
+      <i data-lucide="monitor"></i>
+    </button>
+    <button class="theme-chip active" id="chip-docker" onclick="setTheme('docker-dark')" title="Docker Dark" aria-label="Switch to docker dark theme">
+      <i data-lucide="moon"></i>
+    </button>
   </div>
 
-  <!-- Collapsed-only: icon-only theme toggle -->
-  <div id="collapsed-theme-btn" style="display:none;padding:8px;justify-content:center;border-top:1px solid var(--border);" onclick="toggleTheme()" title="Toggle theme">
-    <i data-lucide="sun" id="icon-sun-mini" style="color:var(--text-muted);width:15px;height:15px;cursor:pointer;"></i>
-  </div>
-
-  <!-- User -->
+  <!-- User row -->
   <div style="padding:10px 12px 14px;display:flex;align-items:center;gap:8px;overflow:hidden;">
-    <div class="av" style="background:#2563EB;font-size:10px;">SL</div>
+    <div class="av" style="background:var(--accent);font-size:10px;">AK</div>
     <div class="user-text" style="flex:1;min-width:0;overflow:hidden;">
-      <div style="font-size:12px;font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Dr. Sarah Lee</div>
-      <div style="font-size:10.5px;color:var(--text-faint);">sarah@clinic.com</div>
+      <div style="font-size:12px;font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Anji Keesari</div>
+      <div style="font-size:10.5px;color:var(--text-faint);">admin@remediai.dev</div>
     </div>
     <i data-lucide="more-vertical" class="user-more" style="color:var(--text-faint);width:14px;height:14px;cursor:pointer;flex-shrink:0;"></i>
   </div>
 </aside>
 
 <!-- ══════════ MAIN ══════════ -->
-<main>
+<main id="main-content" role="main">
+  <!-- Header -->
   <header style="background:var(--bg-header);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20;">
     <div style="display:flex;align-items:center;gap:14px;">
-      <!-- Hamburger toggle -->
-      <button onclick="toggleSidebar()" title="Toggle sidebar"
-        style="width:34px;height:34px;border-radius:8px;border:1px solid var(--border);background:var(--bg-input);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .15s;"
-        onmouseover="this.style.borderColor='#2563EB';this.style.color='#2563EB'"
-        onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">
-        <i data-lucide="menu" id="topbar-menu-icon" style="color:var(--text-muted);width:16px;height:16px;pointer-events:none;"></i>
-      </button>
       <div>
-        <div style="font-size:17px;font-weight:700;color:var(--text-primary);line-height:1.2;">Good morning, Dr. Sarah 🌟</div>
-        <div style="font-size:12px;color:var(--text-secondary);margin-top:2px;">Here's what's happening with Remedy AI today</div>
+        <div class="page-title-main" style="font-size:17px;font-weight:700;color:var(--text-primary);line-height:1.2;">Good morning, Anji</div>
+        <div class="page-title-sub" style="font-size:12px;color:var(--text-muted);margin-top:2px;">Here's your incident overview for today</div>
       </div>
     </div>
     <div style="display:flex;align-items:center;gap:10px;">
-      <div style="display:flex;align-items:center;gap:8px;background:var(--bg-input);border:1px solid var(--border-input);border-radius:10px;padding:7px 12px;">
+      <div class="search-box">
         <i data-lucide="search" style="color:var(--text-faint);width:13px;height:13px;flex-shrink:0;"></i>
         <input style="background:transparent;border:none;outline:none;font-size:12.5px;color:var(--text-primary);width:160px;" placeholder="Search platforms, contacts..." />
       </div>
-      <div style="position:relative;padding:6px;cursor:pointer;">
+      <button class="btn btn-ghost btn-icon" aria-label="View notifications" style="position:relative;">
         <i data-lucide="bell" style="color:var(--text-muted);width:18px;height:18px;"></i>
-        <span style="position:absolute;top:4px;right:4px;width:7px;height:7px;background:#EF4444;border-radius:50%;border:1.5px solid var(--bg-header);"></span>
-      </div>
-      <div class="av" style="background:#2563EB;font-size:10px;">SL</div>
-      <button style="background:#2563EB;color:#fff;font-size:12.5px;font-weight:600;padding:7px 16px;border-radius:9px;border:none;cursor:pointer;display:flex;align-items:center;gap:5px;">
+        <span class="pulse" style="position:absolute;top:4px;right:4px;width:7px;height:7px;background:#EF4444;border-radius:50%;border:1.5px solid var(--bg-header);"></span>
+      </button>
+      <div class="av" style="background:var(--accent);font-size:10px;">AK</div>
+      <button style="background:var(--accent);color:#fff;font-size:12.5px;font-weight:600;padding:7px 16px;border-radius:9px;border:none;cursor:pointer;display:flex;align-items:center;gap:5px;transition:opacity .15s;" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
         <i data-lucide="plus" style="color:#fff;width:13px;height:13px;"></i>
         New
       </button>
     </div>
   </header>
 
-  <div style="padding:20px 24px;display:flex;flex-direction:column;gap:18px;">
+  <!-- ══ OVERVIEW ══ -->
+  <div id="page-overview" class="page-content">
+    <div style="padding:20px 24px;display:flex;flex-direction:column;gap:18px;">
 
     <!-- STAT CARDS -->
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;">
 
+      <!-- Card 1: Active Incidents -->
       <div class="card" style="padding:18px 20px 0;overflow:hidden;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-          <span style="font-size:12px;font-weight:500;color:var(--text-muted);">Total Conversations</span>
-          <div class="icon-bg-purple" style="width:30px;height:30px;background:#EFF6FF;border-radius:8px;display:flex;align-items:center;justify-content:center;">
-            <i data-lucide="message-square" style="color:#2563EB;width:14px;height:14px;"></i>
+          <span style="font-size:12px;font-weight:500;color:var(--text-muted);">Active Incidents</span>
+          <div class="icon-bg-orange" style="width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;">
+            <i data-lucide="alert-triangle" style="color:#EA580C;width:14px;height:14px;"></i>
           </div>
         </div>
-        <div style="font-size:28px;font-weight:800;color:var(--text-primary);line-height:1;margin-bottom:8px;">1,248</div>
+        <div style="font-size:28px;font-weight:800;color:var(--text-primary);line-height:1;margin-bottom:8px;">12</div>
         <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;">
-          <span class="badge-up-green">↑ 8.8%</span>
-          <span style="font-size:10.5px;color:var(--text-muted);">since last 7 days</span>
+          <span class="badge-up-orange">↑ 4 new</span>
+          <span style="font-size:10.5px;color:var(--text-muted);">since yesterday</span>
         </div>
         <svg class="sparkline" viewBox="0 0 200 42" preserveAspectRatio="none" style="margin:0 -20px;width:calc(100% + 40px);">
-          <defs><linearGradient id="g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3B82F6" stop-opacity="0.18"/><stop offset="100%" stop-color="#3B82F6" stop-opacity="0.01"/></linearGradient></defs>
+          <defs><linearGradient id="g1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#F5A623" stop-opacity="0.2"/><stop offset="100%" stop-color="#F5A623" stop-opacity="0.01"/></linearGradient></defs>
           <path d="M0,38 C20,36 35,32 55,26 C75,20 90,24 110,18 C130,12 150,8 170,6 C185,4 195,3 200,2 L200,42 L0,42 Z" fill="url(#g1)"/>
-          <path d="M0,38 C20,36 35,32 55,26 C75,20 90,24 110,18 C130,12 150,8 170,6 C185,4 195,3 200,2" fill="none" stroke="#3B82F6" stroke-width="1.8" stroke-linecap="round"/>
+          <path d="M0,38 C20,36 35,32 55,26 C75,20 90,24 110,18 C130,12 150,8 170,6 C185,4 195,3 200,2" fill="none" stroke="#F5A623" stroke-width="1.8" stroke-linecap="round"/>
         </svg>
       </div>
 
+      <!-- Card 2: AI Resolution Rate -->
       <div class="card" style="padding:18px 20px 0;overflow:hidden;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-          <span style="font-size:12px;font-weight:500;color:var(--text-muted);">AI Resolutions</span>
-          <div class="icon-bg-green" style="width:30px;height:30px;background:#F0FDF4;border-radius:8px;display:flex;align-items:center;justify-content:center;">
+          <span style="font-size:12px;font-weight:500;color:var(--text-muted);">AI Resolution Rate</span>
+          <div class="icon-bg-green" style="width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;">
             <i data-lucide="check-circle-2" style="color:#16A34A;width:14px;height:14px;"></i>
           </div>
         </div>
-        <div style="font-size:28px;font-weight:800;color:var(--text-primary);line-height:1;margin-bottom:8px;">94.2%</div>
+        <div style="font-size:28px;font-weight:800;color:var(--text-primary);line-height:1;margin-bottom:8px;">89.4%</div>
         <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;">
-          <span class="badge-up-green">↑ 5.3%</span>
-          <span style="font-size:10.5px;color:var(--text-muted);">since last 7 days</span>
+          <span class="badge-up-green">↑ 5.2%</span>
+          <span style="font-size:10.5px;color:var(--text-muted);">last 7 days</span>
         </div>
         <svg class="sparkline" viewBox="0 0 200 42" preserveAspectRatio="none" style="margin:0 -20px;width:calc(100% + 40px);">
-          <defs><linearGradient id="g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#16A34A" stop-opacity="0.18"/><stop offset="100%" stop-color="#16A34A" stop-opacity="0.01"/></linearGradient></defs>
+          <defs><linearGradient id="g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#16A34A" stop-opacity="0.2"/><stop offset="100%" stop-color="#16A34A" stop-opacity="0.01"/></linearGradient></defs>
           <path d="M0,36 C15,34 30,30 50,28 C70,26 85,22 105,16 C125,10 145,7 165,5 C180,3 192,2 200,2 L200,42 L0,42 Z" fill="url(#g2)"/>
           <path d="M0,36 C15,34 30,30 50,28 C70,26 85,22 105,16 C125,10 145,7 165,5 C180,3 192,2 200,2" fill="none" stroke="#16A34A" stroke-width="1.8" stroke-linecap="round"/>
         </svg>
       </div>
 
+      <!-- Card 3: Avg Fix Time -->
       <div class="card" style="padding:18px 20px 0;overflow:hidden;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-          <span style="font-size:12px;font-weight:500;color:var(--text-muted);">Time Saved</span>
-          <div class="icon-bg-blue" style="width:30px;height:30px;background:#EFF6FF;border-radius:8px;display:flex;align-items:center;justify-content:center;">
-            <i data-lucide="clock" style="color:#2563EB;width:14px;height:14px;"></i>
+          <span style="font-size:12px;font-weight:500;color:var(--text-muted);">Avg Fix Time</span>
+          <div class="icon-bg-blue" style="width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;">
+            <i data-lucide="clock" style="color:var(--accent);width:14px;height:14px;"></i>
           </div>
         </div>
-        <div style="font-size:28px;font-weight:800;color:var(--text-primary);line-height:1;margin-bottom:8px;">32.4 <span style="font-size:17px;font-weight:600;color:var(--text-muted);">hrs</span></div>
+        <div style="font-size:28px;font-weight:800;color:var(--text-primary);line-height:1;margin-bottom:8px;">4.2 <span style="font-size:17px;font-weight:600;color:var(--text-muted);">min</span></div>
         <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;">
-          <span class="badge-up-green">↑ 6.1%</span>
-          <span style="font-size:10.5px;color:var(--text-muted);">from last 7 days</span>
+          <span class="badge-up-green">↓ 1.1 min</span>
+          <span style="font-size:10.5px;color:var(--text-muted);">vs last week</span>
         </div>
         <svg class="sparkline" viewBox="0 0 200 42" preserveAspectRatio="none" style="margin:0 -20px;width:calc(100% + 40px);">
-          <defs><linearGradient id="g3" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2563EB" stop-opacity="0.15"/><stop offset="100%" stop-color="#2563EB" stop-opacity="0.01"/></linearGradient></defs>
+          <defs><linearGradient id="g3" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0091E2" stop-opacity="0.18"/><stop offset="100%" stop-color="#0091E2" stop-opacity="0.01"/></linearGradient></defs>
           <path d="M0,37 C20,35 38,34 58,28 C78,22 95,20 115,14 C135,8 155,6 175,4 C188,3 196,2 200,2 L200,42 L0,42 Z" fill="url(#g3)"/>
-          <path d="M0,37 C20,35 38,34 58,28 C78,22 95,20 115,14 C135,8 155,6 175,4 C188,3 196,2 200,2" fill="none" stroke="#2563EB" stroke-width="1.8" stroke-linecap="round"/>
+          <path d="M0,37 C20,35 38,34 58,28 C78,22 95,20 115,14 C135,8 155,6 175,4 C188,3 196,2 200,2" fill="none" style="stroke:var(--accent)" stroke-width="1.8" stroke-linecap="round"/>
         </svg>
       </div>
 
+      <!-- Card 4: PRs Auto-Created -->
       <div class="card" style="padding:18px 20px 0;overflow:hidden;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-          <span style="font-size:12px;font-weight:500;color:var(--text-muted);">Patient Satisfaction</span>
-          <div class="icon-bg-orange" style="width:30px;height:30px;background:#FFF7ED;border-radius:8px;display:flex;align-items:center;justify-content:center;">
-            <i data-lucide="star" style="color:#EA580C;width:14px;height:14px;"></i>
+          <span style="font-size:12px;font-weight:500;color:var(--text-muted);">PRs Auto-Created</span>
+          <div class="icon-bg-purple" style="width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;">
+            <i data-lucide="git-pull-request" style="color:var(--accent);width:14px;height:14px;"></i>
           </div>
         </div>
-        <div style="font-size:28px;font-weight:800;color:var(--text-primary);line-height:1;margin-bottom:8px;">4.8<span style="font-size:17px;font-weight:600;color:var(--text-muted);">/5</span></div>
+        <div style="font-size:28px;font-weight:800;color:var(--text-primary);line-height:1;margin-bottom:8px;">37</div>
         <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;">
-          <span class="badge-up-orange">↑ 4.1%</span>
-          <span style="font-size:10.5px;color:var(--text-muted);">from last 7 days</span>
+          <span class="badge-up-green">↑ 8</span>
+          <span style="font-size:10.5px;color:var(--text-muted);">this week</span>
         </div>
         <svg class="sparkline" viewBox="0 0 200 42" preserveAspectRatio="none" style="margin:0 -20px;width:calc(100% + 40px);">
-          <defs><linearGradient id="g4" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#EA580C" stop-opacity="0.15"/><stop offset="100%" stop-color="#EA580C" stop-opacity="0.01"/></linearGradient></defs>
+          <defs><linearGradient id="g4" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0091E2" stop-opacity="0.18"/><stop offset="100%" stop-color="#0091E2" stop-opacity="0.01"/></linearGradient></defs>
           <path d="M0,38 C18,37 32,35 52,30 C72,25 90,22 110,16 C130,10 150,7 170,5 C183,3 193,2 200,2 L200,42 L0,42 Z" fill="url(#g4)"/>
-          <path d="M0,38 C18,37 32,35 52,30 C72,25 90,22 110,16 C130,10 150,7 170,5 C183,3 193,2 200,2" fill="none" stroke="#EA580C" stroke-width="1.8" stroke-linecap="round"/>
+          <path d="M0,38 C18,37 32,35 52,30 C72,25 90,22 110,16 C130,10 150,7 170,5 C183,3 193,2 200,2" fill="none" style="stroke:var(--accent)" stroke-width="1.8" stroke-linecap="round"/>
         </svg>
       </div>
     </div>
@@ -318,13 +837,13 @@
 
       <div class="card" style="padding:20px 22px;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-          <span style="font-size:14px;font-weight:700;color:var(--text-primary);">Conversations Overview</span>
+          <span style="font-size:14px;font-weight:700;color:var(--text-primary);">Incident Trend — Last 7 Days</span>
           <div style="display:flex;align-items:center;gap:14px;">
-            <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-muted);font-weight:500;">
-              <svg width="18" height="4" viewBox="0 0 18 4"><line x1="0" y1="2" x2="18" y2="2" stroke="#2563EB" stroke-width="2.5" stroke-linecap="round"/></svg>This Week
+            <span id="legend-this" style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-muted);font-weight:500;">
+              <svg width="18" height="4" viewBox="0 0 18 4"><line x1="0" y1="2" x2="18" y2="2" stroke="#2563EB" stroke-width="2.5" stroke-linecap="round" id="legend-line"/></svg>This Week
             </span>
             <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-faint);font-weight:500;">
-              <svg width="18" height="4" viewBox="0 0 18 4"><line x1="0" y1="2" x2="4" y2="2" stroke="#94A3B8" stroke-width="2" stroke-dasharray="4 3"/><line x1="7" y1="2" x2="11" y2="2" stroke="#94A3B8" stroke-width="2" stroke-dasharray="4 3"/><line x1="14" y1="2" x2="18" y2="2" stroke="#94A3B8" stroke-width="2" stroke-dasharray="4 3"/></svg>Last Week
+              <svg width="18" height="4" viewBox="0 0 18 4"><line x1="0" y1="2" x2="4" y2="2" stroke="#94A3B8" stroke-width="2" stroke-dasharray="4 3" id="legend-line2-a"/><line x1="7" y1="2" x2="11" y2="2" stroke="#94A3B8" stroke-width="2" stroke-dasharray="4 3" id="legend-line2-b"/><line x1="14" y1="2" x2="18" y2="2" stroke="#94A3B8" stroke-width="2" stroke-dasharray="4 3" id="legend-line2-c"/></svg>Last Week
             </span>
             <div style="border:1px solid var(--border-input);border-radius:7px;padding:4px 10px;font-size:11px;color:var(--text-muted);display:flex;align-items:center;gap:4px;cursor:pointer;background:var(--bg-input);">
               7 Days <i data-lucide="chevron-down" style="width:10px;height:10px;color:var(--text-faint);"></i>
@@ -335,37 +854,37 @@
       </div>
 
       <div class="card" style="padding:20px;">
-        <div style="font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:16px;">AI Insights</div>
+        <div style="font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:16px;">Agent Pipeline Status</div>
 
         <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:14px;">
-          <div class="act-icon icon-bg-yellow" style="background:#DBEAFE;width:32px;height:32px;flex-shrink:0;">
-            <i data-lucide="alert-circle" style="color:#2563EB;width:14px;height:14px;"></i>
+          <div class="act-icon icon-bg-yellow" style="width:32px;height:32px;flex-shrink:0;">
+            <i data-lucide="alert-circle" style="color:#F5A623;width:14px;height:14px;"></i>
           </div>
           <div>
-            <div style="font-size:12.5px;font-weight:600;color:var(--text-primary);margin-bottom:3px;">Common Issue</div>
-            <div style="font-size:11.5px;color:var(--text-muted);line-height:1.5;">Appointment scheduling is the top inquiry (39% this week)</div>
+            <div style="font-size:12.5px;font-weight:600;color:var(--text-primary);margin-bottom:3px;">Top Error Source</div>
+            <div style="font-size:11.5px;color:var(--text-muted);line-height:1.5;">remediai-api service has 6 unresolved NullReferenceExceptions today</div>
           </div>
         </div>
         <div class="divider"></div>
 
         <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:14px;">
-          <div class="act-icon icon-bg-green" style="background:#DCFCE7;width:32px;height:32px;flex-shrink:0;">
+          <div class="act-icon icon-bg-green" style="width:32px;height:32px;flex-shrink:0;">
             <i data-lucide="trending-up" style="color:#16A34A;width:14px;height:14px;"></i>
           </div>
           <div>
-            <div style="font-size:12.5px;font-weight:600;color:var(--text-primary);margin-bottom:3px;">Resolution Rate</div>
-            <div style="font-size:11.5px;color:var(--text-muted);line-height:1.5;">AI resolutions increased by 5.3% compared to last week</div>
+            <div style="font-size:12.5px;font-weight:600;color:var(--text-primary);margin-bottom:3px;">Resolution Rate Up</div>
+            <div style="font-size:11.5px;color:var(--text-muted);line-height:1.5;">AI fix acceptance rate increased 5.2% compared to last week</div>
           </div>
         </div>
         <div class="divider"></div>
 
         <div style="display:flex;gap:10px;align-items:flex-start;">
-          <div class="act-icon icon-bg-yellow" style="background:#DBEAFE;width:32px;height:32px;flex-shrink:0;">
-            <i data-lucide="clock" style="color:#2563EB;width:14px;height:14px;"></i>
+          <div class="act-icon icon-bg-blue" style="width:32px;height:32px;flex-shrink:0;">
+            <i data-lucide="clock" style="color:var(--accent);width:14px;height:14px;"></i>
           </div>
           <div>
-            <div style="font-size:12.5px;font-weight:600;color:var(--text-primary);margin-bottom:3px;">Time Saved</div>
-            <div style="font-size:11.5px;color:var(--text-muted);line-height:1.5;">You saved 32.4 hours this week vs 30.5 hrs last week</div>
+            <div style="font-size:12.5px;font-weight:600;color:var(--text-primary);margin-bottom:3px;">Avg Fix Time</div>
+            <div style="font-size:11.5px;color:var(--text-muted);line-height:1.5;">Fix generation dropped from 5.3 min to 4.2 min this week</div>
           </div>
         </div>
       </div>
@@ -374,63 +893,650 @@
     <!-- BOTTOM ROW -->
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
 
+      <!-- Incidents by Service -->
       <div class="card" style="padding:18px 20px;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-          <span style="font-size:13px;font-weight:700;color:var(--text-primary);">Top Inquiry Categories</span>
-          <a href="#" style="font-size:11.5px;font-weight:600;color:#2563EB;text-decoration:none;">View All</a>
+          <span style="font-size:13px;font-weight:700;color:var(--text-primary);">Incidents by Service</span>
+          <a href="#" class="link-accent">View All</a>
         </div>
         <div style="display:flex;align-items:center;gap:16px;">
           <div style="position:relative;flex-shrink:0;">
             <canvas id="donutChart" width="110" height="110"></canvas>
             <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;">
-              <div style="font-size:18px;font-weight:800;color:var(--text-primary);line-height:1;">1,248</div>
+              <div style="font-size:18px;font-weight:800;color:var(--text-primary);line-height:1;">142</div>
               <div style="font-size:9.5px;color:var(--text-faint);margin-top:1px;">Total</div>
             </div>
           </div>
           <div style="flex:1;display:flex;flex-direction:column;gap:7px;">
-            <div style="display:flex;align-items:center;justify-content:space-between;"><div style="display:flex;align-items:center;gap:7px;"><span style="width:8px;height:8px;border-radius:50%;background:#2563EB;flex-shrink:0;"></span><span style="font-size:11.5px;color:var(--text-muted);">Appointments</span></div><span style="font-size:11.5px;font-weight:700;color:var(--text-primary);">39%</span></div>
-            <div style="display:flex;align-items:center;justify-content:space-between;"><div style="display:flex;align-items:center;gap:7px;"><span style="width:8px;height:8px;border-radius:50%;background:#60A5FA;flex-shrink:0;"></span><span style="font-size:11.5px;color:var(--text-muted);">Medical Refills</span></div><span style="font-size:11.5px;font-weight:700;color:var(--text-primary);">22%</span></div>
-            <div style="display:flex;align-items:center;justify-content:space-between;"><div style="display:flex;align-items:center;gap:7px;"><span style="width:8px;height:8px;border-radius:50%;background:#60A5FA;flex-shrink:0;"></span><span style="font-size:11.5px;color:var(--text-muted);">Billing & Insurance</span></div><span style="font-size:11.5px;font-weight:700;color:var(--text-primary);">15%</span></div>
-            <div style="display:flex;align-items:center;justify-content:space-between;"><div style="display:flex;align-items:center;gap:7px;"><span style="width:8px;height:8px;border-radius:50%;background:#FBBF24;flex-shrink:0;"></span><span style="font-size:11.5px;color:var(--text-muted);">Scheduling</span></div><span style="font-size:11.5px;font-weight:700;color:var(--text-primary);">12%</span></div>
-            <div style="display:flex;align-items:center;justify-content:space-between;"><div style="display:flex;align-items:center;gap:7px;"><span style="width:8px;height:8px;border-radius:50%;background:#E2E8F0;flex-shrink:0;"></span><span style="font-size:11.5px;color:var(--text-muted);">Other</span></div><span style="font-size:11.5px;font-weight:700;color:var(--text-primary);">12%</span></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;"><div style="display:flex;align-items:center;gap:7px;"><span class="donut-dot donut-d1" style="width:8px;height:8px;border-radius:50%;background:#0091E2;flex-shrink:0;display:inline-block;"></span><span style="font-size:11.5px;color:var(--text-muted);">api</span></div><span style="font-size:11.5px;font-weight:700;color:var(--text-primary);">39%</span></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;"><div style="display:flex;align-items:center;gap:7px;"><span class="donut-dot donut-d2" style="width:8px;height:8px;border-radius:50%;background:#8B5CF6;flex-shrink:0;display:inline-block;"></span><span style="font-size:11.5px;color:var(--text-muted);">worker</span></div><span style="font-size:11.5px;font-weight:700;color:var(--text-primary);">28%</span></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;"><div style="display:flex;align-items:center;gap:7px;"><span class="donut-dot donut-d3" style="width:8px;height:8px;border-radius:50%;background:#26C281;flex-shrink:0;display:inline-block;"></span><span style="font-size:11.5px;color:var(--text-muted);">log-bridge</span></div><span style="font-size:11.5px;font-weight:700;color:var(--text-primary);">15%</span></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;"><div style="display:flex;align-items:center;gap:7px;"><span class="donut-dot donut-d4" style="width:8px;height:8px;border-radius:50%;background:#F5A623;flex-shrink:0;display:inline-block;"></span><span style="font-size:11.5px;color:var(--text-muted);">dashboard</span></div><span style="font-size:11.5px;font-weight:700;color:var(--text-primary);">12%</span></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;"><div style="display:flex;align-items:center;gap:7px;"><span class="donut-dot donut-d5" style="width:8px;height:8px;border-radius:50%;background:#2A2D38;flex-shrink:0;display:inline-block;"></span><span style="font-size:11.5px;color:var(--text-muted);">Other</span></div><span style="font-size:11.5px;font-weight:700;color:var(--text-primary);">6%</span></div>
           </div>
         </div>
       </div>
 
+      <!-- Recent Incidents -->
       <div class="card" style="padding:18px 20px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-          <span style="font-size:13px;font-weight:700;color:var(--text-primary);">Recent Conversations</span>
-          <a href="#" style="font-size:11.5px;font-weight:600;color:#2563EB;text-decoration:none;">View All</a>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <span style="font-size:13px;font-weight:700;color:var(--text-primary);">Recent Incidents</span>
+          <a href="#" class="link-accent">View All</a>
         </div>
         <div>
-          <div style="display:flex;align-items:center;gap:10px;padding:7px 0;"><div class="av" style="background:#2563EB;font-size:10px;">JD</div><div style="flex:1;min-width:0;"><div style="font-size:12.5px;font-weight:600;color:var(--text-primary);">John Doe</div><div style="font-size:11px;color:var(--text-faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Lab results inquiry</div></div><span class="tag-green">Resolved</span></div>
+          <div class="list-row"><div class="av" style="background:var(--accent);font-size:9px;">API</div><div style="flex:1;min-width:0;"><div style="font-size:12.5px;font-weight:600;color:var(--text-primary);">NullReferenceException</div><div style="font-size:11px;color:var(--text-faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">remediai-api · IncidentController.cs:47</div></div><span class="tag-yellow">Triaging</span></div>
           <div class="divider"></div>
-          <div style="display:flex;align-items:center;gap:10px;padding:7px 0;"><div class="av" style="background:#2563EB;font-size:10px;">SM</div><div style="flex:1;min-width:0;"><div style="font-size:12.5px;font-weight:600;color:var(--text-primary);">Sarah Miller</div><div style="font-size:11px;color:var(--text-faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Appointment rescheduling</div></div><span class="tag-yellow">Pending</span></div>
+          <div class="list-row"><div class="av" style="background:#8B5CF6;font-size:9px;">WRK</div><div style="flex:1;min-width:0;"><div style="font-size:12.5px;font-weight:600;color:var(--text-primary);">OutOfMemoryException</div><div style="font-size:11px;color:var(--text-faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">remediai-worker · IngestionService.cs:123</div></div><span class="tag-green">Resolved</span></div>
           <div class="divider"></div>
-          <div style="display:flex;align-items:center;gap:10px;padding:7px 0;"><div class="av" style="background:#EA580C;font-size:10px;">MC</div><div style="flex:1;min-width:0;"><div style="font-size:12.5px;font-weight:600;color:var(--text-primary);">Michael Carter</div><div style="font-size:11px;color:var(--text-faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Prescription renewal</div></div><span class="tag-green">Resolved</span></div>
+          <div class="list-row"><div class="av" style="background:#26C281;font-size:9px;">LBR</div><div style="flex:1;min-width:0;"><div style="font-size:12.5px;font-weight:600;color:var(--text-primary);">SqlException: Timeout</div><div style="font-size:11px;color:var(--text-faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">remediai-log-bridge · LogBridgeService.cs:88</div></div><span class="tag-blue">Fix Suggested</span></div>
           <div class="divider"></div>
-          <div style="display:flex;align-items:center;gap:10px;padding:7px 0;"><div class="av" style="background:#16A34A;font-size:10px;">BW</div><div style="flex:1;min-width:0;"><div style="font-size:12.5px;font-weight:600;color:var(--text-primary);">Brooklyn Wells</div><div style="font-size:11px;color:var(--text-faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Insurance verification</div></div><span class="tag-blue">Active</span></div>
+          <div class="list-row"><div class="av" style="background:var(--accent);font-size:9px;">API</div><div style="flex:1;min-width:0;"><div style="font-size:12.5px;font-weight:600;color:var(--text-primary);">ArgumentNullException</div><div style="font-size:11px;color:var(--text-faint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">remediai-api · AuthMiddleware.cs:34</div></div><span class="tag-green">Resolved</span></div>
         </div>
       </div>
 
+      <!-- Agent Activity -->
       <div class="card" style="padding:18px 20px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-          <span style="font-size:13px;font-weight:700;color:var(--text-primary);">Recent Activity</span>
-          <a href="#" style="font-size:11.5px;font-weight:600;color:#2563EB;text-decoration:none;">View All</a>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <span style="font-size:13px;font-weight:700;color:var(--text-primary);">Agent Activity</span>
+          <a href="#" class="link-accent">View All</a>
         </div>
         <div>
-          <div style="display:flex;gap:10px;align-items:center;padding:7px 0;"><div class="act-icon icon-bg-purple" style="background:#EFF6FF;width:30px;height:30px;"><i data-lucide="cpu" style="color:#2563EB;width:13px;height:13px;"></i></div><div style="flex:1;"><div style="font-size:12px;font-weight:600;color:var(--text-primary);">AI system updated</div><div style="font-size:11px;color:var(--text-faint);">New model deployed</div></div><span style="font-size:10.5px;color:var(--text-faint);white-space:nowrap;">2m ago</span></div>
+          <div class="list-row" style="gap:10px;">
+            <div class="act-icon icon-bg-purple" style="width:30px;height:30px;flex-shrink:0;"><i data-lucide="cpu" style="color:var(--accent);width:13px;height:13px;"></i></div>
+            <div style="flex:1;"><div style="font-size:12px;font-weight:600;color:var(--text-primary);">Triage Agent completed</div><div style="font-size:11px;color:var(--text-faint);">Classified NullReferenceException as High severity</div></div>
+            <span style="font-size:10.5px;color:var(--text-faint);white-space:nowrap;">2m ago</span>
+          </div>
           <div class="divider"></div>
-          <div style="display:flex;gap:10px;align-items:center;padding:7px 0;"><div class="act-icon icon-bg-green" style="background:#DCFCE7;width:30px;height:30px;"><i data-lucide="user-plus" style="color:#16A34A;width:13px;height:13px;"></i></div><div style="flex:1;"><div style="font-size:12px;font-weight:600;color:var(--text-primary);">New patient connected</div><div style="font-size:11px;color:var(--text-faint);">Treatment guidelines synced</div></div><span style="font-size:10.5px;color:var(--text-faint);white-space:nowrap;">15m ago</span></div>
+          <div class="list-row" style="gap:10px;">
+            <div class="act-icon icon-bg-green" style="width:30px;height:30px;flex-shrink:0;"><i data-lucide="git-pull-request" style="color:#16A34A;width:13px;height:13px;"></i></div>
+            <div style="flex:1;"><div style="font-size:12px;font-weight:600;color:var(--text-primary);">PR auto-created</div><div style="font-size:11px;color:var(--text-faint);">Fix for SqlException in log-bridge merged</div></div>
+            <span style="font-size:10.5px;color:var(--text-faint);white-space:nowrap;">18m ago</span>
+          </div>
           <div class="divider"></div>
-          <div style="display:flex;gap:10px;align-items:center;padding:7px 0;"><div class="act-icon icon-bg-blue" style="background:#EFF6FF;width:30px;height:30px;"><i data-lucide="book-open" style="color:#2563EB;width:13px;height:13px;"></i></div><div style="flex:1;"><div style="font-size:12px;font-weight:600;color:var(--text-primary);">Knowledge base updated</div><div style="font-size:11px;color:var(--text-faint);">42 new articles added</div></div><span style="font-size:10.5px;color:var(--text-faint);white-space:nowrap;">1h ago</span></div>
+          <div class="list-row" style="gap:10px;">
+            <div class="act-icon icon-bg-yellow" style="width:30px;height:30px;flex-shrink:0;"><i data-lucide="search" style="color:#F5A623;width:13px;height:13px;"></i></div>
+            <div style="flex:1;"><div style="font-size:12px;font-weight:600;color:var(--text-primary);">Root Cause Agent</div><div style="font-size:11px;color:var(--text-faint);">Identified memory leak in worker service</div></div>
+            <span style="font-size:10.5px;color:var(--text-faint);white-space:nowrap;">45m ago</span>
+          </div>
           <div class="divider"></div>
-          <div style="display:flex;gap:10px;align-items:center;padding:7px 0;"><div class="act-icon icon-bg-orange" style="background:#FFF7ED;width:30px;height:30px;"><i data-lucide="users" style="color:#EA580C;width:13px;height:13px;"></i></div><div style="flex:1;"><div style="font-size:12px;font-weight:600;color:var(--text-primary);">New team member added</div><div style="font-size:11px;color:var(--text-faint);">Dr. James Wilson joined</div></div><span style="font-size:10.5px;color:var(--text-faint);white-space:nowrap;">3h ago</span></div>
+          <div class="list-row" style="gap:10px;">
+            <div class="act-icon icon-bg-purple" style="width:30px;height:30px;flex-shrink:0;"><i data-lucide="zap" style="color:#8B5CF6;width:13px;height:13px;"></i></div>
+            <div style="flex:1;"><div style="font-size:12px;font-weight:600;color:var(--text-primary);">Fix Planner Agent</div><div style="font-size:11px;color:var(--text-faint);">Generated 3 candidate fixes for api service</div></div>
+            <span style="font-size:10.5px;color:var(--text-faint);white-space:nowrap;">1h ago</span>
+          </div>
         </div>
       </div>
 
     </div>
   </div>
+  </div>
+
+  <!-- ══ LOGS ══ -->
+  <div id="page-logs" class="page-content hidden" style="padding:6px 8px;">
+    <div class="card" style="padding:6px;display:flex;flex-direction:column;min-height:calc(100vh - 80px);">
+
+      <div class="logs-top-controls">
+        <div class="logs-top-controls-inner">
+          <div class="logs-toolbar">
+            <div class="logs-meta" id="logs-meta" style="align-self:center;white-space:nowrap;">0 lines</div>
+            <input id="log-search" class="logs-input" placeholder="Search message, trace, service, host, tags..." aria-label="Search logs" />
+            <button class="quick-chip quick-chip-compact" data-quick="errors">Errors</button>
+            <button class="quick-chip quick-chip-compact" data-quick="auth">Auth</button>
+            <button class="quick-chip quick-chip-compact" data-quick="last1h">Last 1h</button>
+            <button class="quick-chip quick-chip-compact" data-quick="slow">Slow</button>
+            <select id="filter-level" class="logs-select priority" aria-label="Filter by level">
+              <option value="">Level: All</option>
+              <option value="ERROR">ERROR</option>
+              <option value="WARN">WARN</option>
+              <option value="INFO">INFO</option>
+              <option value="DEBUG">DEBUG</option>
+            </select>
+            <select id="filter-service" class="logs-select priority" aria-label="Filter by service">
+              <option value="">Service: All</option>
+            </select>
+            <select id="filter-env" class="logs-select priority" aria-label="Filter by environment">
+              <option value="">Env: All</option>
+              <option value="prod">prod</option>
+              <option value="staging">staging</option>
+              <option value="dev">dev</option>
+            </select>
+            <div class="toolbar-spacer"></div>
+            <div class="logs-advanced-wrap">
+              <button class="logs-btn ghost" id="open-advanced" aria-label="Open advanced log filters" style="width:auto;padding:8px 10px;">
+                <i data-lucide="funnel"></i>More <span class="advanced-count" id="advanced-count">0</span>
+              </button>
+              <div class="logs-advanced-popover" id="logs-advanced-popover" role="dialog" aria-label="Advanced log filters">
+                <div class="logs-advanced-title">Advanced Controls</div>
+                <div class="logs-advanced-grid">
+                  <select id="filter-source" class="logs-select" aria-label="Filter by source">
+                    <option value="">Source: All</option>
+                    <option value="api">api</option>
+                    <option value="worker">worker</option>
+                    <option value="ingestion">ingestion</option>
+                    <option value="search">search</option>
+                    <option value="auth">auth</option>
+                  </select>
+                  <select id="filter-time" class="logs-select" aria-label="Filter by time range">
+                    <option value="all">Time: All</option>
+                    <option value="15m">Last 15m</option>
+                    <option value="1h">Last 1h</option>
+                    <option value="6h">Last 6h</option>
+                    <option value="24h">Last 24h</option>
+                  </select>
+                  <select id="filter-sort" class="logs-select" aria-label="Sort logs">
+                    <option value="timestamp_desc">Newest</option>
+                    <option value="timestamp_asc">Oldest</option>
+                    <option value="level_desc">Severity</option>
+                    <option value="latencyMs_desc">Latency</option>
+                  </select>
+                </div>
+                <div class="logs-advanced-actions">
+                  <button class="logs-btn ghost slim" id="advanced-close" aria-label="Close advanced filters">Close</button>
+                </div>
+              </div>
+            </div>
+            <button class="logs-btn ghost slim" id="btn-live-toggle" aria-label="Toggle live tail"><i data-lucide="play"></i><span id="live-label">Start</span></button>
+            <button class="logs-btn ghost slim" id="copy-visible" aria-label="Copy visible log lines"><i data-lucide="clipboard"></i>Copy</button>
+            <button class="logs-btn ghost slim" id="btn-export" aria-label="Export current results"><i data-lucide="download"></i>Export</button>
+            <button class="logs-btn ghost slim" id="btn-clear" aria-label="Clear all filters"><i data-lucide="x"></i>Clear</button>
+            <button class="logs-btn primary" id="open-settings" aria-label="Toggle log settings" style="width:auto;padding:8px 10px;">
+              <i data-lucide="sliders-horizontal"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="logs-main-layout">
+        <div class="logs-table-wrap" style="padding:0;display:flex;flex-direction:column;max-height:none;min-height:0;background:linear-gradient(180deg,rgba(6,9,15,.98) 0%,rgba(4,7,12,1) 100%);">
+          <pre id="logs-console" class="mono" style="margin:0;padding:10px 12px;min-height:0;flex:1;overflow:auto;background:transparent;color:#d7dfec;font-size:12px;line-height:1.38;"></pre>
+        </div>
+
+        <aside class="logs-settings hidden" id="logs-settings">
+          <h4>Log Settings</h4>
+          <div class="logs-setting-row"><span>Timestamp</span><input id="toggle-timestamp" type="checkbox" checked /></div>
+          <div class="logs-setting-row"><span>Highlight Search</span><input id="toggle-highlight" type="checkbox" checked /></div>
+          <div class="logs-setting-row"><span>Wrap</span><input id="toggle-wrap" type="checkbox" /></div>
+          <div class="logs-setting-row"><span>Auto Scroll</span><input id="toggle-autoscroll" type="checkbox" checked /></div>
+          <div class="logs-setting-row"><span>Quick: Errors only</span><button class="quick-chip" data-quick="errors" style="padding:3px 8px;">Run</button></div>
+          <div class="logs-setting-row"><span>Quick: Auth service</span><button class="quick-chip" data-quick="auth" style="padding:3px 8px;">Run</button></div>
+          <div class="logs-setting-row"><span>Quick: Last 1 hour</span><button class="quick-chip" data-quick="last1h" style="padding:3px 8px;">Run</button></div>
+          <div class="logs-setting-row"><span>Quick: Slow &gt; 700ms</span><button class="quick-chip" data-quick="slow" style="padding:3px 8px;">Run</button></div>
+        </aside>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ INCIDENTS ══ -->
+  <div id="page-incidents" class="page-content hidden">
+    <div class="page-hd">
+      <div class="page-hd-left"><h2>Incidents</h2><p>142 incidents this month — 89% resolved by AI</p></div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <div class="filter-tabs">
+          <button class="ftab active" role="tab" aria-selected="true" onclick="filterTab(this,'inc')">All <span style="background:var(--accent-dim);color:var(--accent);border-radius:10px;padding:1px 7px;font-size:10.5px;font-weight:700;margin-left:4px;">142</span></button>
+          <button class="ftab" role="tab" aria-selected="false" onclick="filterTab(this,'inc')">Active <span style="background:var(--accent-dim);color:var(--accent);border-radius:10px;padding:1px 7px;font-size:10.5px;font-weight:700;margin-left:4px;">12</span></button>
+          <button class="ftab" role="tab" aria-selected="false" onclick="filterTab(this,'inc')">Triaging <span style="background:rgba(245,166,35,.12);color:#F5A623;border-radius:10px;padding:1px 7px;font-size:10.5px;font-weight:700;margin-left:4px;">5</span></button>
+          <button class="ftab" role="tab" aria-selected="false" onclick="filterTab(this,'inc')">Fix Suggested <span style="background:rgba(0,145,226,.12);color:var(--accent);border-radius:10px;padding:1px 7px;font-size:10.5px;font-weight:700;margin-left:4px;">7</span></button>
+          <button class="ftab" role="tab" aria-selected="false" onclick="filterTab(this,'inc')">Escalated <span style="background:rgba(239,68,68,.12);color:#EF4444;border-radius:10px;padding:1px 7px;font-size:10.5px;font-weight:700;margin-left:4px;">3</span></button>
+        </div>
+        <div class="compact-toolbar">
+          <div class="compact-search">
+            <i data-lucide="search" style="color:var(--text-faint);width:12px;height:12px;"></i>
+            <input placeholder="Search incidents" />
+          </div>
+          <select class="compact-select" aria-label="Severity filter">
+            <option>Severity: All</option>
+            <option>Critical</option>
+            <option>High</option>
+            <option>Medium</option>
+            <option>Low</option>
+          </select>
+          <select class="compact-select" aria-label="Status filter">
+            <option>Status: All</option>
+            <option>Triaging</option>
+            <option>Fix Suggested</option>
+            <option>Resolved</option>
+            <option>Escalated</option>
+          </select>
+          <button class="compact-btn"><i data-lucide="x"></i>Clear</button>
+          <button class="compact-btn primary"><i data-lucide="plus"></i>New Alert Rule</button>
+        </div>
+      </div>
+    </div>
+    <div class="page-body" style="padding-top:16px;">
+      <div class="card" style="overflow:hidden;">
+        <table class="data-table">
+          <thead><tr><th>Service</th><th>Exception</th><th>Stack Trace</th><th>Severity</th><th>Status</th><th>Agent Run</th><th>Created</th><th>Actions</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><div style="display:flex;align-items:center;gap:8px;"><div class="av" style="background:var(--accent);font-size:9px;width:26px;height:26px;">API</div><span style="font-weight:600;">remediai-api</span></div></td>
+              <td style="font-size:12.5px;font-weight:600;">NullReferenceException</td>
+              <td style="max-width:200px;"><div style="font-size:11px;color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">at IncidentController.GetAsync() :line 47</div></td>
+              <td><span class="tag-yellow">High</span></td>
+              <td><span class="tag-yellow">Triaging</span></td>
+              <td style="color:var(--text-muted);font-size:12px;">Run #1082</td>
+              <td style="color:var(--text-faint);font-size:12px;">Jun 7, 9:42 AM</td>
+              <td><button style="font-size:11px;color:var(--accent);background:var(--accent-dim);border:none;padding:4px 10px;border-radius:6px;cursor:pointer;font-weight:600;">View</button></td>
+            </tr>
+            <tr>
+              <td><div style="display:flex;align-items:center;gap:8px;"><div class="av" style="background:#8B5CF6;font-size:9px;width:26px;height:26px;">WRK</div><span style="font-weight:600;">remediai-worker</span></div></td>
+              <td style="font-size:12.5px;font-weight:600;">OutOfMemoryException</td>
+              <td style="max-width:200px;"><div style="font-size:11px;color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">at IngestionService.ProcessBatchAsync() :line 123</div></td>
+              <td><span style="background:rgba(239,68,68,.13);color:#EF4444;font-size:10.5px;font-weight:600;padding:3px 9px;border-radius:20px;white-space:nowrap;">Critical</span></td>
+              <td><span class="tag-green">Resolved</span></td>
+              <td style="color:var(--text-muted);font-size:12px;">Run #1081</td>
+              <td style="color:var(--text-faint);font-size:12px;">Jun 7, 9:15 AM</td>
+              <td><button style="font-size:11px;color:var(--accent);background:var(--accent-dim);border:none;padding:4px 10px;border-radius:6px;cursor:pointer;font-weight:600;">View</button></td>
+            </tr>
+            <tr>
+              <td><div style="display:flex;align-items:center;gap:8px;"><div class="av" style="background:#26C281;font-size:9px;width:26px;height:26px;">LBR</div><span style="font-weight:600;">remediai-log-bridge</span></div></td>
+              <td style="font-size:12.5px;font-weight:600;">SqlException: Timeout</td>
+              <td style="max-width:200px;"><div style="font-size:11px;color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">at LogBridgeService.FlushAsync() :line 88</div></td>
+              <td><span class="tag-yellow">High</span></td>
+              <td><span class="tag-blue">Fix Suggested</span></td>
+              <td style="color:var(--text-muted);font-size:12px;">Run #1080</td>
+              <td style="color:var(--text-faint);font-size:12px;">Jun 7, 8:55 AM</td>
+              <td><button style="font-size:11px;color:var(--accent);background:var(--accent-dim);border:none;padding:4px 10px;border-radius:6px;cursor:pointer;font-weight:600;">View</button></td>
+            </tr>
+            <tr>
+              <td><div style="display:flex;align-items:center;gap:8px;"><div class="av" style="background:var(--accent);font-size:9px;width:26px;height:26px;">API</div><span style="font-weight:600;">remediai-api</span></div></td>
+              <td style="font-size:12.5px;font-weight:600;">ArgumentNullException</td>
+              <td style="max-width:200px;"><div style="font-size:11px;color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">at AuthMiddleware.InvokeAsync() :line 34</div></td>
+              <td><span style="background:rgba(0,145,226,.12);color:var(--accent);font-size:10.5px;font-weight:600;padding:3px 9px;border-radius:20px;white-space:nowrap;">Medium</span></td>
+              <td><span class="tag-green">Resolved</span></td>
+              <td style="color:var(--text-muted);font-size:12px;">Run #1079</td>
+              <td style="color:var(--text-faint);font-size:12px;">Jun 7, 8:20 AM</td>
+              <td><button style="font-size:11px;color:var(--accent);background:var(--accent-dim);border:none;padding:4px 10px;border-radius:6px;cursor:pointer;font-weight:600;">View</button></td>
+            </tr>
+            <tr>
+              <td><div style="display:flex;align-items:center;gap:8px;"><div class="av" style="background:#8B5CF6;font-size:9px;width:26px;height:26px;">WRK</div><span style="font-weight:600;">remediai-worker</span></div></td>
+              <td style="font-size:12.5px;font-weight:600;">TimeoutException</td>
+              <td style="max-width:200px;"><div style="font-size:11px;color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">at AzureServiceBusConsumer.ConsumeAsync() :line 67</div></td>
+              <td><span class="tag-yellow">High</span></td>
+              <td><span class="tag-blue">Fix Suggested</span></td>
+              <td style="color:var(--text-muted);font-size:12px;">Run #1078</td>
+              <td style="color:var(--text-faint);font-size:12px;">Jun 6, 5:30 PM</td>
+              <td><button style="font-size:11px;color:var(--accent);background:var(--accent-dim);border:none;padding:4px 10px;border-radius:6px;cursor:pointer;font-weight:600;">View</button></td>
+            </tr>
+            <tr>
+              <td><div style="display:flex;align-items:center;gap:8px;"><div class="av" style="background:var(--accent);font-size:9px;width:26px;height:26px;">API</div><span style="font-weight:600;">remediai-api</span></div></td>
+              <td style="font-size:12.5px;font-weight:600;">InvalidOperationException</td>
+              <td style="max-width:200px;"><div style="font-size:11px;color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">at KqlConnector.ExecuteQueryAsync() :line 212</div></td>
+              <td><span style="background:rgba(0,145,226,.12);color:var(--accent);font-size:10.5px;font-weight:600;padding:3px 9px;border-radius:20px;white-space:nowrap;">Medium</span></td>
+              <td><span class="tag-green">Resolved</span></td>
+              <td style="color:var(--text-muted);font-size:12px;">Run #1077</td>
+              <td style="color:var(--text-faint);font-size:12px;">Jun 6, 3:18 PM</td>
+              <td><button style="font-size:11px;color:var(--accent);background:var(--accent-dim);border:none;padding:4px 10px;border-radius:6px;cursor:pointer;font-weight:600;">View</button></td>
+            </tr>
+            <tr>
+              <td><div style="display:flex;align-items:center;gap:8px;"><div class="av" style="background:#F5A623;font-size:9px;width:26px;height:26px;">DSH</div><span style="font-weight:600;">remediai-dashboard</span></div></td>
+              <td style="font-size:12.5px;font-weight:600;">UnhandledPromiseRejection</td>
+              <td style="max-width:200px;"><div style="font-size:11px;color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">at DashboardController.LoadAsync() :line 91</div></td>
+              <td><span class="tag-green">Low</span></td>
+              <td><span class="tag-green">Resolved</span></td>
+              <td style="color:var(--text-muted);font-size:12px;">Run #1076</td>
+              <td style="color:var(--text-faint);font-size:12px;">Jun 6, 11:02 AM</td>
+              <td><button style="font-size:11px;color:var(--accent);background:var(--accent-dim);border:none;padding:4px 10px;border-radius:6px;cursor:pointer;font-weight:600;">View</button></td>
+            </tr>
+            <tr>
+              <td><div style="display:flex;align-items:center;gap:8px;"><div class="av" style="background:#8B5CF6;font-size:9px;width:26px;height:26px;">WRK</div><span style="font-weight:600;">remediai-worker</span></div></td>
+              <td style="font-size:12.5px;font-weight:600;">Azure.RequestFailedException</td>
+              <td style="max-width:200px;"><div style="font-size:11px;color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">at AzureMonitorConnector.QueryAsync() :line 55</div></td>
+              <td><span style="background:rgba(239,68,68,.13);color:#EF4444;font-size:10.5px;font-weight:600;padding:3px 9px;border-radius:20px;white-space:nowrap;">Critical</span></td>
+              <td><span class="tag-yellow">Escalated</span></td>
+              <td style="color:var(--text-muted);font-size:12px;">Run #1075</td>
+              <td style="color:var(--text-faint);font-size:12px;">Jun 5, 4:00 PM</td>
+              <td><button style="font-size:11px;color:var(--accent);background:var(--accent-dim);border:none;padding:4px 10px;border-radius:6px;cursor:pointer;font-weight:600;">View</button></td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="padding:12px 16px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
+          <span style="font-size:12px;color:var(--text-muted);">Showing 8 of 142 incidents</span>
+          <div style="display:flex;gap:4px;">
+            <button style="padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text-muted);font-size:12px;cursor:pointer;">← Prev</button>
+            <button style="padding:4px 10px;border-radius:6px;border:1px solid var(--accent);background:var(--accent);color:#fff;font-size:12px;cursor:pointer;font-weight:600;">1</button>
+            <button style="padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text-muted);font-size:12px;cursor:pointer;">2</button>
+            <button style="padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text-muted);font-size:12px;cursor:pointer;">3</button>
+            <button style="padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--text-muted);font-size:12px;cursor:pointer;">Next →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SERVICES ══ -->
+  <div id="page-services" class="page-content hidden">
+    <div class="page-hd">
+      <div class="page-hd-left"><h2>Services</h2><p>5 monitored services — connected to Azure Monitor</p></div>
+      <div style="display:flex;gap:8px;">
+        <button style="background:var(--accent);color:#fff;font-size:12px;font-weight:600;padding:7px 14px;border-radius:9px;border:none;cursor:pointer;display:flex;align-items:center;gap:5px;"><i data-lucide="plus" style="width:13px;height:13px;"></i> Add Service</button>
+      </div>
+    </div>
+    <div class="page-body" style="padding-top:16px;">
+      <div class="card" style="overflow:hidden;">
+        <table class="data-table">
+          <thead><tr><th>Service</th><th>Runtime</th><th>Last Incident</th><th>Incidents (30d)</th><th>Resolution Rate</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><div style="display:flex;align-items:center;gap:9px;"><div class="av" style="background:var(--accent);font-size:9px;width:28px;height:28px;">API</div><div><div style="font-weight:600;">remediai-api</div></div></div></td>
+              <td style="color:var(--text-muted);font-size:12.5px;">.NET 8</td>
+              <td style="color:var(--text-muted);font-size:12.5px;">Jun 7, 9:42 AM</td>
+              <td style="font-size:12.5px;font-weight:600;color:var(--text-primary);">64 incidents</td>
+              <td style="font-size:12.5px;font-weight:600;color:var(--text-primary);">91%</td>
+              <td><span class="tag-green">Healthy</span></td>
+              <td><button style="font-size:11px;color:var(--accent);background:var(--accent-dim);border:none;padding:4px 10px;border-radius:6px;cursor:pointer;font-weight:600;">Configure</button></td>
+            </tr>
+            <tr>
+              <td><div style="display:flex;align-items:center;gap:9px;"><div class="av" style="background:#8B5CF6;font-size:9px;width:28px;height:28px;">WRK</div><div><div style="font-weight:600;">remediai-worker</div></div></div></td>
+              <td style="color:var(--text-muted);font-size:12.5px;">.NET 8</td>
+              <td style="color:var(--text-muted);font-size:12.5px;">Jun 7, 9:15 AM</td>
+              <td style="font-size:12.5px;font-weight:600;color:var(--text-primary);">48 incidents</td>
+              <td style="font-size:12.5px;font-weight:600;color:var(--text-primary);">85%</td>
+              <td><span class="tag-yellow">Degraded</span></td>
+              <td><button style="font-size:11px;color:var(--accent);background:var(--accent-dim);border:none;padding:4px 10px;border-radius:6px;cursor:pointer;font-weight:600;">Configure</button></td>
+            </tr>
+            <tr>
+              <td><div style="display:flex;align-items:center;gap:9px;"><div class="av" style="background:#26C281;font-size:9px;width:28px;height:28px;">LBR</div><div><div style="font-weight:600;">remediai-log-bridge</div></div></div></td>
+              <td style="color:var(--text-muted);font-size:12.5px;">Node.js 20</td>
+              <td style="color:var(--text-muted);font-size:12.5px;">Jun 7, 8:55 AM</td>
+              <td style="font-size:12.5px;font-weight:600;color:var(--text-primary);">18 incidents</td>
+              <td style="font-size:12.5px;font-weight:600;color:var(--text-primary);">94%</td>
+              <td><span class="tag-green">Healthy</span></td>
+              <td><button style="font-size:11px;color:var(--accent);background:var(--accent-dim);border:none;padding:4px 10px;border-radius:6px;cursor:pointer;font-weight:600;">Configure</button></td>
+            </tr>
+            <tr>
+              <td><div style="display:flex;align-items:center;gap:9px;"><div class="av" style="background:#F5A623;font-size:9px;width:28px;height:28px;">DSH</div><div><div style="font-weight:600;">remediai-dashboard</div></div></div></td>
+              <td style="color:var(--text-muted);font-size:12.5px;">Node.js 20</td>
+              <td style="color:var(--text-muted);font-size:12.5px;">Jun 6, 11:02 AM</td>
+              <td style="font-size:12.5px;font-weight:600;color:var(--text-primary);">7 incidents</td>
+              <td style="font-size:12.5px;font-weight:600;color:var(--text-primary);">100%</td>
+              <td><span class="tag-green">Healthy</span></td>
+              <td><button style="font-size:11px;color:var(--accent);background:var(--accent-dim);border:none;padding:4px 10px;border-radius:6px;cursor:pointer;font-weight:600;">Configure</button></td>
+            </tr>
+            <tr>
+              <td><div style="display:flex;align-items:center;gap:9px;"><div class="av" style="background:var(--accent);font-size:9px;width:28px;height:28px;">DOC</div><div><div style="font-weight:600;">remediai-docs</div></div></div></td>
+              <td style="color:var(--text-muted);font-size:12.5px;">Python 3.12</td>
+              <td style="color:var(--text-muted);font-size:12.5px;">Jun 5, 2:00 PM</td>
+              <td style="font-size:12.5px;font-weight:600;color:var(--text-primary);">5 incidents</td>
+              <td style="font-size:12.5px;font-weight:600;color:var(--text-primary);">100%</td>
+              <td><span class="tag-green">Healthy</span></td>
+              <td><button style="font-size:11px;color:var(--accent);background:var(--accent-dim);border:none;padding:4px 10px;border-radius:6px;cursor:pointer;font-weight:600;">Configure</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ ANALYTICS ══ -->
+  <div id="page-analytics" class="page-content hidden">
+    <div class="page-hd">
+      <div class="page-hd-left"><h2>Analytics</h2><p>Performance insights — last 30 days</p></div>
+      <div style="display:flex;gap:8px;">
+        <select class="form-input" style="width:auto;padding:6px 12px;font-size:12px;cursor:pointer;"><option>Last 30 days</option><option>Last 90 days</option><option>This year</option></select>
+        <button style="padding:7px 14px;border-radius:9px;border:1px solid var(--border);background:var(--bg-input);color:var(--text-secondary);font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;"><i data-lucide="download" style="width:13px;height:13px;"></i> Export</button>
+      </div>
+    </div>
+    <div class="page-body">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;">
+        <div class="card" style="padding:18px 20px;"><div style="font-size:11.5px;font-weight:500;color:var(--text-muted);margin-bottom:8px;">Total Incidents</div><div style="font-size:26px;font-weight:800;color:var(--text-primary);line-height:1;margin-bottom:6px;">4,821</div><span class="badge-up-green">↑ 12.4%</span><span style="font-size:10.5px;color:var(--text-muted);margin-left:6px;">vs last period</span></div>
+        <div class="card" style="padding:18px 20px;"><div style="font-size:11.5px;font-weight:500;color:var(--text-muted);margin-bottom:8px;">AI Resolution Rate</div><div style="font-size:26px;font-weight:800;color:var(--text-primary);line-height:1;margin-bottom:6px;">89.4%</div><span class="badge-up-green">↑ 5.2%</span><span style="font-size:10.5px;color:var(--text-muted);margin-left:6px;">vs last period</span></div>
+        <div class="card" style="padding:18px 20px;"><div style="font-size:11.5px;font-weight:500;color:var(--text-muted);margin-bottom:8px;">Avg Fix Time</div><div style="font-size:26px;font-weight:800;color:var(--text-primary);line-height:1;margin-bottom:6px;">4.2 <span style="font-size:14px;font-weight:600;color:var(--text-muted);">min</span></div><span class="badge-up-green">↓ 1.1 min</span><span style="font-size:10.5px;color:var(--text-muted);margin-left:6px;">improvement</span></div>
+        <div class="card" style="padding:18px 20px;"><div style="font-size:11.5px;font-weight:500;color:var(--text-muted);margin-bottom:8px;">PRs Created</div><div style="font-size:26px;font-weight:800;color:var(--text-primary);line-height:1;margin-bottom:6px;">184</div><span class="badge-up-green">↑ 8</span><span style="font-size:10.5px;color:var(--text-muted);margin-left:6px;">vs last period</span></div>
+      </div>
+      <div style="display:grid;grid-template-columns:2fr 1fr;gap:14px;">
+        <div class="card" style="padding:20px 22px;">
+          <div style="font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:16px;">Incident Volume — Last 30 Days</div>
+          <canvas id="analyticsChart" style="max-height:200px;"></canvas>
+        </div>
+        <div class="card" style="padding:20px;">
+          <div style="font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:14px;">By Service</div>
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            <div><div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:12.5px;color:var(--text-primary);">api</span><span style="font-size:12.5px;font-weight:700;color:var(--text-primary);">42%</span></div><div style="height:6px;background:var(--bg-input);border-radius:3px;"><div style="height:100%;width:42%;background:var(--accent);border-radius:3px;"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:12.5px;color:var(--text-primary);">worker</span><span style="font-size:12.5px;font-weight:700;color:var(--text-primary);">31%</span></div><div style="height:6px;background:var(--bg-input);border-radius:3px;"><div style="height:100%;width:31%;background:#8B5CF6;border-radius:3px;"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:12.5px;color:var(--text-primary);">log-bridge</span><span style="font-size:12.5px;font-weight:700;color:var(--text-primary);">15%</span></div><div style="height:6px;background:var(--bg-input);border-radius:3px;"><div style="height:100%;width:15%;background:#26C281;border-radius:3px;"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:12.5px;color:var(--text-primary);">dashboard</span><span style="font-size:12.5px;font-weight:700;color:var(--text-primary);">8%</span></div><div style="height:6px;background:var(--bg-input);border-radius:3px;"><div style="height:100%;width:8%;background:#F5A623;border-radius:3px;"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:12.5px;color:var(--text-primary);">docs</span><span style="font-size:12.5px;font-weight:700;color:var(--text-primary);">4%</span></div><div style="height:6px;background:var(--bg-input);border-radius:3px;"><div style="height:100%;width:4%;background:var(--text-faint);border-radius:3px;"></div></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="padding:20px 22px;">
+        <div style="font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:14px;">Exception Categories by Week</div>
+        <canvas id="analyticsBar" style="max-height:180px;"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ RUNBOOKS ══ -->
+  <div id="page-runbooks" class="page-content hidden">
+    <div class="page-hd">
+      <div class="page-hd-left"><h2>Runbooks</h2><p>62 fix patterns — used by AI agents during remediation</p></div>
+      <button style="background:var(--accent);color:#fff;font-size:12px;font-weight:600;padding:7px 14px;border-radius:9px;border:none;cursor:pointer;display:flex;align-items:center;gap:5px;"><i data-lucide="plus" style="width:13px;height:13px;"></i> New Runbook</button>
+    </div>
+    <div class="page-body" style="padding-top:16px;">
+      <div style="display:flex;gap:10px;align-items:center;">
+        <div class="search-box" style="flex:1;max-width:360px;"><i data-lucide="search" style="color:var(--text-faint);width:13px;height:13px;"></i><input class="form-input" style="border:none;background:transparent;padding:0;" placeholder="Search runbooks..."/></div>
+        <div class="filter-tabs">
+          <button class="ftab active" role="tab" aria-selected="true" onclick="filterTab(this,'rb')">All</button>
+          <button class="ftab" role="tab" aria-selected="false" onclick="filterTab(this,'rb')">.NET</button>
+          <button class="ftab" role="tab" aria-selected="false" onclick="filterTab(this,'rb')">Node.js</button>
+          <button class="ftab" role="tab" aria-selected="false" onclick="filterTab(this,'rb')">Python</button>
+          <button class="ftab" role="tab" aria-selected="false" onclick="filterTab(this,'rb')">Azure</button>
+        </div>
+      </div>
+      <div class="card" style="overflow:hidden;">
+        <table class="data-table">
+          <thead><tr><th>Title</th><th>Category</th><th>AI Usage (30d)</th><th>Success Rate</th><th>Last Updated</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody>
+            <tr><td><div style="font-weight:600;">NullReferenceException — Null check injection pattern</div><div style="font-size:11px;color:var(--text-faint);margin-top:2px;">Adds null guards before dereference in C# controller/service layers</div></td><td><span class="tag-blue">.NET</span></td><td style="font-size:12.5px;color:var(--text-primary);font-weight:600;">312 times</td><td style="color:var(--text-muted);font-size:12.5px;">94%</td><td style="color:var(--text-faint);font-size:12px;">Jun 1</td><td><span class="tag-green">Published</span></td><td><button style="font-size:11px;color:var(--accent);background:var(--accent-dim);border:none;padding:4px 10px;border-radius:6px;cursor:pointer;font-weight:600;">Edit</button></td></tr>
+            <tr><td><div style="font-weight:600;">SQL Timeout — Connection retry with exponential backoff</div><div style="font-size:11px;color:var(--text-faint);margin-top:2px;">Wraps SqlClient calls in Polly retry policy with jitter</div></td><td><span class="tag-blue">.NET</span></td><td style="font-size:12.5px;color:var(--text-primary);font-weight:600;">187 times</td><td style="color:var(--text-muted);font-size:12.5px;">91%</td><td style="color:var(--text-faint);font-size:12px;">May 28</td><td><span class="tag-green">Published</span></td><td><button style="font-size:11px;color:var(--accent);background:var(--accent-dim);border:none;padding:4px 10px;border-radius:6px;cursor:pointer;font-weight:600;">Edit</button></td></tr>
+            <tr><td><div style="font-weight:600;">Azure Service Bus — Dead letter queue drain</div><div style="font-size:11px;color:var(--text-faint);margin-top:2px;">Moves unprocessable messages to DLQ and alerts on-call</div></td><td><span class="tag-yellow">Azure</span></td><td style="font-size:12.5px;color:var(--text-primary);font-weight:600;">124 times</td><td style="color:var(--text-muted);font-size:12.5px;">88%</td><td style="color:var(--text-faint);font-size:12px;">Jun 3</td><td><span class="tag-green">Published</span></td><td><button style="font-size:11px;color:var(--accent);background:var(--accent-dim);border:none;padding:4px 10px;border-radius:6px;cursor:pointer;font-weight:600;">Edit</button></td></tr>
+            <tr><td><div style="font-weight:600;">OutOfMemoryException — Heap dump + stream reader fix</div><div style="font-size:11px;color:var(--text-faint);margin-top:2px;">Identifies large object allocations and applies streaming pattern</div></td><td><span class="tag-blue">.NET</span></td><td style="font-size:12.5px;color:var(--text-primary);font-weight:600;">98 times</td><td style="color:var(--text-muted);font-size:12.5px;">82%</td><td style="color:var(--text-faint);font-size:12px;">May 20</td><td><span class="tag-green">Published</span></td><td><button style="font-size:11px;color:var(--accent);background:var(--accent-dim);border:none;padding:4px 10px;border-radius:6px;cursor:pointer;font-weight:600;">Edit</button></td></tr>
+            <tr><td><div style="font-weight:600;">Node.js UnhandledRejection — Promise catch wrapper</div><div style="font-size:11px;color:var(--text-faint);margin-top:2px;">Wraps async handlers with global error boundary middleware</div></td><td><span class="tag-green">Node.js</span></td><td style="font-size:12.5px;color:var(--text-primary);font-weight:600;">76 times</td><td style="color:var(--text-muted);font-size:12.5px;">95%</td><td style="color:var(--text-faint);font-size:12px;">Jun 5</td><td><span class="tag-green">Published</span></td><td><button style="font-size:11px;color:var(--accent);background:var(--accent-dim);border:none;padding:4px 10px;border-radius:6px;cursor:pointer;font-weight:600;">Edit</button></td></tr>
+            <tr><td><div style="font-weight:600;">Python ImportError — Dependency pinning fix</div><div style="font-size:11px;color:var(--text-faint);margin-top:2px;">Pins transitive dependencies and rebuilds lockfile</div></td><td><span style="background:rgba(139,92,246,.13);color:#8B5CF6;font-size:10.5px;font-weight:600;padding:3px 9px;border-radius:20px;white-space:nowrap;">Python</span></td><td style="font-size:12.5px;color:var(--text-primary);font-weight:600;">41 times</td><td style="color:var(--text-muted);font-size:12.5px;">89%</td><td style="color:var(--text-faint);font-size:12px;">Apr 30</td><td><span class="tag-yellow">Draft</span></td><td><button style="font-size:11px;color:var(--accent);background:var(--accent-dim);border:none;padding:4px 10px;border-radius:6px;cursor:pointer;font-weight:600;">Edit</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ AGENTS ══ -->
+  <div id="page-agents" class="page-content hidden">
+    <div class="page-hd">
+      <div class="page-hd-left"><h2>Agent Runs</h2><p>AI pipeline executions — Triage → Root Cause → Code Context → Fix Planner</p></div>
+      <button style="background:var(--accent);color:#fff;font-size:12px;font-weight:600;padding:7px 14px;border-radius:9px;border:none;cursor:pointer;display:flex;align-items:center;gap:5px;"><i data-lucide="plus" style="width:13px;height:13px;"></i> Trigger Run</button>
+    </div>
+    <div class="page-body" style="padding-top:16px;">
+      <div class="card" style="overflow:hidden;">
+        <table class="data-table">
+          <thead><tr><th>Run ID</th><th>Service</th><th>Exception</th><th>Triage</th><th>Root Cause</th><th>Fix Planner</th><th>PR</th><th>Duration</th><th>Created</th></tr></thead>
+          <tbody>
+            <tr>
+              <td style="font-weight:700;color:var(--text-primary);">#1082</td>
+              <td><div class="av" style="background:var(--accent);font-size:9px;width:24px;height:24px;display:inline-flex;">API</div> <span style="font-size:12.5px;">api</span></td>
+              <td style="font-size:12.5px;font-weight:600;">NullReferenceException</td>
+              <td><span style="background:rgba(38,194,129,.13);color:#26C281;font-size:10.5px;font-weight:600;padding:3px 8px;border-radius:12px;white-space:nowrap;">&#10003; Done</span></td>
+              <td><span style="background:rgba(245,166,35,.13);color:#F5A623;font-size:10.5px;font-weight:600;padding:3px 8px;border-radius:12px;white-space:nowrap;">&#8635; Running</span></td>
+              <td><span style="background:var(--bg-input);color:var(--text-faint);font-size:10.5px;font-weight:600;padding:3px 8px;border-radius:12px;white-space:nowrap;">&#8212; Pending</span></td>
+              <td style="color:var(--text-faint);font-size:12px;">—</td>
+              <td style="color:var(--text-muted);font-size:12px;">1.2 min</td>
+              <td style="color:var(--text-faint);font-size:12px;">Jun 7, 9:42</td>
+            </tr>
+            <tr>
+              <td style="font-weight:700;color:var(--text-primary);">#1081</td>
+              <td><div class="av" style="background:#8B5CF6;font-size:9px;width:24px;height:24px;display:inline-flex;">WRK</div> <span style="font-size:12.5px;">worker</span></td>
+              <td style="font-size:12.5px;font-weight:600;">OutOfMemoryException</td>
+              <td><span style="background:rgba(38,194,129,.13);color:#26C281;font-size:10.5px;font-weight:600;padding:3px 8px;border-radius:12px;white-space:nowrap;">&#10003; Done</span></td>
+              <td><span style="background:rgba(38,194,129,.13);color:#26C281;font-size:10.5px;font-weight:600;padding:3px 8px;border-radius:12px;white-space:nowrap;">&#10003; Done</span></td>
+              <td><span style="background:rgba(38,194,129,.13);color:#26C281;font-size:10.5px;font-weight:600;padding:3px 8px;border-radius:12px;white-space:nowrap;">&#10003; Done</span></td>
+              <td><a href="#" class="link-accent">PR #247</a></td>
+              <td style="color:var(--text-muted);font-size:12px;">4.8 min</td>
+              <td style="color:var(--text-faint);font-size:12px;">Jun 7, 9:15</td>
+            </tr>
+            <tr>
+              <td style="font-weight:700;color:var(--text-primary);">#1080</td>
+              <td><div class="av" style="background:#26C281;font-size:9px;width:24px;height:24px;display:inline-flex;">LBR</div> <span style="font-size:12.5px;">log-bridge</span></td>
+              <td style="font-size:12.5px;font-weight:600;">SqlException</td>
+              <td><span style="background:rgba(38,194,129,.13);color:#26C281;font-size:10.5px;font-weight:600;padding:3px 8px;border-radius:12px;white-space:nowrap;">&#10003; Done</span></td>
+              <td><span style="background:rgba(38,194,129,.13);color:#26C281;font-size:10.5px;font-weight:600;padding:3px 8px;border-radius:12px;white-space:nowrap;">&#10003; Done</span></td>
+              <td><span style="background:rgba(38,194,129,.13);color:#26C281;font-size:10.5px;font-weight:600;padding:3px 8px;border-radius:12px;white-space:nowrap;">&#10003; Done</span></td>
+              <td><a href="#" class="link-accent">PR #246</a></td>
+              <td style="color:var(--text-muted);font-size:12px;">3.1 min</td>
+              <td style="color:var(--text-faint);font-size:12px;">Jun 7, 8:55</td>
+            </tr>
+            <tr>
+              <td style="font-weight:700;color:var(--text-primary);">#1079</td>
+              <td><div class="av" style="background:var(--accent);font-size:9px;width:24px;height:24px;display:inline-flex;">API</div> <span style="font-size:12.5px;">api</span></td>
+              <td style="font-size:12.5px;font-weight:600;">ArgumentNullException</td>
+              <td><span style="background:rgba(38,194,129,.13);color:#26C281;font-size:10.5px;font-weight:600;padding:3px 8px;border-radius:12px;white-space:nowrap;">&#10003; Done</span></td>
+              <td><span style="background:rgba(38,194,129,.13);color:#26C281;font-size:10.5px;font-weight:600;padding:3px 8px;border-radius:12px;white-space:nowrap;">&#10003; Done</span></td>
+              <td><span style="background:rgba(38,194,129,.13);color:#26C281;font-size:10.5px;font-weight:600;padding:3px 8px;border-radius:12px;white-space:nowrap;">&#10003; Done</span></td>
+              <td><a href="#" class="link-accent">PR #245 (merged)</a></td>
+              <td style="color:var(--text-muted);font-size:12px;">2.4 min</td>
+              <td style="color:var(--text-faint);font-size:12px;">Jun 7, 8:20</td>
+            </tr>
+            <tr>
+              <td style="font-weight:700;color:var(--text-primary);">#1078</td>
+              <td><div class="av" style="background:#8B5CF6;font-size:9px;width:24px;height:24px;display:inline-flex;">WRK</div> <span style="font-size:12.5px;">worker</span></td>
+              <td style="font-size:12.5px;font-weight:600;">TimeoutException</td>
+              <td><span style="background:rgba(38,194,129,.13);color:#26C281;font-size:10.5px;font-weight:600;padding:3px 8px;border-radius:12px;white-space:nowrap;">&#10003; Done</span></td>
+              <td><span style="background:rgba(38,194,129,.13);color:#26C281;font-size:10.5px;font-weight:600;padding:3px 8px;border-radius:12px;white-space:nowrap;">&#10003; Done</span></td>
+              <td><span style="background:rgba(245,166,35,.13);color:#F5A623;font-size:10.5px;font-weight:600;padding:3px 8px;border-radius:12px;white-space:nowrap;">&#8635; Running</span></td>
+              <td style="color:var(--text-faint);font-size:12px;">—</td>
+              <td style="color:var(--text-muted);font-size:12px;">5.6 min</td>
+              <td style="color:var(--text-faint);font-size:12px;">Jun 6, 5:30</td>
+            </tr>
+            <tr>
+              <td style="font-weight:700;color:var(--text-primary);">#1075</td>
+              <td><div class="av" style="background:#8B5CF6;font-size:9px;width:24px;height:24px;display:inline-flex;">WRK</div> <span style="font-size:12.5px;">worker</span></td>
+              <td style="font-size:12.5px;font-weight:600;">Azure.RequestFailedException</td>
+              <td><span style="background:rgba(38,194,129,.13);color:#26C281;font-size:10.5px;font-weight:600;padding:3px 8px;border-radius:12px;white-space:nowrap;">&#10003; Done</span></td>
+              <td><span style="background:rgba(38,194,129,.13);color:#26C281;font-size:10.5px;font-weight:600;padding:3px 8px;border-radius:12px;white-space:nowrap;">&#10003; Done</span></td>
+              <td><span style="background:rgba(239,68,68,.13);color:#EF4444;font-size:10.5px;font-weight:600;padding:3px 8px;border-radius:12px;white-space:nowrap;">&#10007; Failed</span></td>
+              <td style="color:var(--text-faint);font-size:12px;">—</td>
+              <td style="color:var(--text-muted);font-size:12px;">2.9 min</td>
+              <td style="color:var(--text-faint);font-size:12px;">Jun 5, 4:00</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ INTEGRATIONS ══ -->
+  <div id="page-integrations" class="page-content hidden">
+    <div class="page-hd">
+      <div class="page-hd-left"><h2>Integrations</h2><p>Connect your existing tools to RemediAI</p></div>
+    </div>
+    <div class="page-body">
+      <div style="font-size:13px;font-weight:700;color:var(--text-primary);margin-bottom:2px;">Connected (4)</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
+        <div class="card int-card"><div style="display:flex;align-items:center;justify-content:space-between;"><div style="display:flex;align-items:center;gap:12px;"><div class="int-icon icon-bg-blue"><i data-lucide="activity" style="width:20px;height:20px;color:var(--accent);"></i></div><div><div style="font-size:13px;font-weight:700;color:var(--text-primary);">Azure Monitor</div><div style="font-size:11.5px;color:var(--text-muted);">Log analytics &amp; KQL ingestion</div></div></div><span class="tag-green">Connected</span></div><div style="font-size:12px;color:var(--text-muted);margin-top:4px;">Last synced: 1 min ago · 142 incidents</div><button style="margin-top:8px;width:100%;padding:6px 0;border-radius:7px;border:1px solid var(--border);background:var(--bg-input);color:var(--text-secondary);font-size:12px;font-weight:600;cursor:pointer;">Configure</button></div>
+        <div class="card int-card"><div style="display:flex;align-items:center;justify-content:space-between;"><div style="display:flex;align-items:center;gap:12px;"><div class="int-icon icon-bg-purple"><i data-lucide="git-pull-request" style="width:20px;height:20px;color:#8B5CF6;"></i></div><div><div style="font-size:13px;font-weight:700;color:var(--text-primary);">Azure DevOps</div><div style="font-size:11.5px;color:var(--text-muted);">PR creation &amp; work item tracking</div></div></div><span class="tag-green">Connected</span></div><div style="font-size:12px;color:var(--text-muted);margin-top:4px;">RemediAI org · 184 PRs created</div><button style="margin-top:8px;width:100%;padding:6px 0;border-radius:7px;border:1px solid var(--border);background:var(--bg-input);color:var(--text-secondary);font-size:12px;font-weight:600;cursor:pointer;">Configure</button></div>
+        <div class="card int-card"><div style="display:flex;align-items:center;justify-content:space-between;"><div style="display:flex;align-items:center;gap:12px;"><div class="int-icon icon-bg-green"><i data-lucide="code" style="width:20px;height:20px;color:#26C281;"></i></div><div><div style="font-size:13px;font-weight:700;color:var(--text-primary);">GitHub</div><div style="font-size:11.5px;color:var(--text-muted);">Code context &amp; repo analysis</div></div></div><span class="tag-green">Connected</span></div><div style="font-size:12px;color:var(--text-muted);margin-top:4px;">3 repos indexed · 47,291 files</div><button style="margin-top:8px;width:100%;padding:6px 0;border-radius:7px;border:1px solid var(--border);background:var(--bg-input);color:var(--text-secondary);font-size:12px;font-weight:600;cursor:pointer;">Configure</button></div>
+        <div class="card int-card"><div style="display:flex;align-items:center;justify-content:space-between;"><div style="display:flex;align-items:center;gap:12px;"><div class="int-icon icon-bg-blue"><i data-lucide="radio" style="width:20px;height:20px;color:var(--accent);"></i></div><div><div style="font-size:13px;font-weight:700;color:var(--text-primary);">Azure Service Bus</div><div style="font-size:11.5px;color:var(--text-muted);">Real-time event ingestion</div></div></div><span class="tag-green">Connected</span></div><div style="font-size:12px;color:var(--text-muted);margin-top:4px;">remediai-events topic · 99.9% uptime</div><button style="margin-top:8px;width:100%;padding:6px 0;border-radius:7px;border:1px solid var(--border);background:var(--bg-input);color:var(--text-secondary);font-size:12px;font-weight:600;cursor:pointer;">Configure</button></div>
+      </div>
+      <div style="font-size:13px;font-weight:700;color:var(--text-primary);margin-top:4px;margin-bottom:2px;">Available (4)</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;">
+        <div class="card int-card" style="opacity:.8;"><div style="display:flex;align-items:center;justify-content:space-between;"><div style="display:flex;align-items:center;gap:12px;"><div class="int-icon icon-bg-yellow"><i data-lucide="message-square" style="width:20px;height:20px;color:#F5A623;"></i></div><div><div style="font-size:13px;font-weight:700;color:var(--text-primary);">Slack</div><div style="font-size:11.5px;color:var(--text-muted);">Incident alerts &amp; team notifications</div></div></div><span class="tag-yellow">Not Connected</span></div><div style="font-size:12px;color:var(--text-muted);margin-top:4px;">Get notified when new incidents are triaged</div><button style="margin-top:8px;width:100%;padding:6px 0;border-radius:7px;border:none;background:var(--accent);color:#fff;font-size:12px;font-weight:600;cursor:pointer;">Connect</button></div>
+        <div class="card int-card" style="opacity:.8;"><div style="display:flex;align-items:center;justify-content:space-between;"><div style="display:flex;align-items:center;gap:12px;"><div class="int-icon icon-bg-orange"><i data-lucide="bell" style="width:20px;height:20px;color:#EA580C;"></i></div><div><div style="font-size:13px;font-weight:700;color:var(--text-primary);">PagerDuty</div><div style="font-size:11.5px;color:var(--text-muted);">On-call escalation &amp; alerts</div></div></div><span class="tag-yellow">Not Connected</span></div><div style="font-size:12px;color:var(--text-muted);margin-top:4px;">Escalate critical incidents to on-call</div><button style="margin-top:8px;width:100%;padding:6px 0;border-radius:7px;border:none;background:var(--accent);color:#fff;font-size:12px;font-weight:600;cursor:pointer;">Connect</button></div>
+        <div class="card int-card" style="opacity:.8;"><div style="display:flex;align-items:center;justify-content:space-between;"><div style="display:flex;align-items:center;gap:12px;"><div class="int-icon icon-bg-blue"><i data-lucide="layers" style="width:20px;height:20px;color:var(--accent);"></i></div><div><div style="font-size:13px;font-weight:700;color:var(--text-primary);">Jira</div><div style="font-size:11.5px;color:var(--text-muted);">Cross-platform issue tracking</div></div></div><span class="tag-yellow">Not Connected</span></div><div style="font-size:12px;color:var(--text-muted);margin-top:4px;">Sync incidents to Jira tickets</div><button style="margin-top:8px;width:100%;padding:6px 0;border-radius:7px;border:none;background:var(--accent);color:#fff;font-size:12px;font-weight:600;cursor:pointer;">Connect</button></div>
+        <div class="card int-card" style="opacity:.8;"><div style="display:flex;align-items:center;justify-content:space-between;"><div style="display:flex;align-items:center;gap:12px;"><div class="int-icon icon-bg-purple"><i data-lucide="bar-chart-2" style="width:20px;height:20px;color:#8B5CF6;"></i></div><div><div style="font-size:13px;font-weight:700;color:var(--text-primary);">Datadog</div><div style="font-size:11.5px;color:var(--text-muted);">APM metrics &amp; tracing</div></div></div><span class="tag-yellow">Not Connected</span></div><div style="font-size:12px;color:var(--text-muted);margin-top:4px;">Correlate incidents with performance traces</div><button style="margin-top:8px;width:100%;padding:6px 0;border-radius:7px;border:none;background:var(--accent);color:#fff;font-size:12px;font-weight:600;cursor:pointer;">Connect</button></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SETTINGS ══ -->
+  <div id="page-settings" class="page-content hidden">
+    <div class="page-hd">
+      <div class="page-hd-left"><h2>Settings</h2><p>Manage your account, AI configuration, and preferences</p></div>
+    </div>
+    <div class="stab-bar" id="settings-tabs">
+      <div class="stab active" onclick="showSettingsTab('profile',this)">Profile</div>
+      <div class="stab" onclick="showSettingsTab('notifications',this)">Notifications</div>
+      <div class="stab" onclick="showSettingsTab('ai-config',this)">AI Configuration</div>
+      <div class="stab" onclick="showSettingsTab('security',this)">Security</div>
+    </div>
+    <!-- Profile -->
+    <div id="stab-profile" class="page-body" style="max-width:680px;">
+      <div class="card" style="padding:24px;">
+        <div class="form-section-title">Personal Information</div>
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">First Name</label><input class="form-input" value="Anji"/></div>
+          <div class="form-group"><label class="form-label">Last Name</label><input class="form-input" value="Keesari"/></div>
+          <div class="form-group"><label class="form-label">Title</label><input class="form-input" value="Platform Engineer"/></div>
+          <div class="form-group"><label class="form-label">Role</label><input class="form-input" value="AI/DevOps"/></div>
+          <div class="form-group" style="grid-column:span 2;"><label class="form-label">Email</label><input class="form-input" value="admin@remediai.dev"/></div>
+          <div class="form-group"><label class="form-label">Phone</label><input class="form-input" value="+1 (555) 100-2200"/></div>
+          <div class="form-group"><label class="form-label">Employee ID</label><input class="form-input" value="NVM-0042"/></div>
+        </div>
+        <div class="form-section-title" style="margin-top:24px;">Organization Information</div>
+        <div class="form-grid">
+          <div class="form-group" style="grid-column:span 2;"><label class="form-label">Organization</label><input class="form-input" value="RemediAI"/></div>
+          <div class="form-group" style="grid-column:span 2;"><label class="form-label">Office</label><input class="form-input" value="Remote / Los Angeles, CA"/></div>
+          <div class="form-group"><label class="form-label">Timezone</label><select class="form-input"><option selected>America/Los_Angeles (PST)</option><option>America/New_York (EST)</option><option>America/Chicago (CST)</option></select></div>
+          <div class="form-group"><label class="form-label">Language</label><select class="form-input"><option selected>English</option><option>Spanish</option><option>Mandarin</option></select></div>
+        </div>
+        <div style="margin-top:20px;display:flex;gap:10px;">
+          <button style="padding:8px 20px;border-radius:8px;background:var(--accent);color:#fff;border:none;font-size:13px;font-weight:600;cursor:pointer;">Save Changes</button>
+          <button style="padding:8px 20px;border-radius:8px;background:var(--bg-input);color:var(--text-secondary);border:1px solid var(--border);font-size:13px;font-weight:500;cursor:pointer;">Cancel</button>
+        </div>
+      </div>
+    </div>
+    <!-- Notifications -->
+    <div id="stab-notifications" class="page-body hidden" style="max-width:680px;">
+      <div class="card" style="padding:24px;">
+        <div class="form-section-title">Notification Preferences</div>
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:14px;background:var(--bg-input);border-radius:10px;"><div><div style="font-size:13px;font-weight:600;color:var(--text-primary);">New Critical Incident</div><div style="font-size:12px;color:var(--text-muted);margin-top:2px;">Alert when a Critical severity incident is detected</div></div><label class="tog"><input type="checkbox" checked><span class="tog-sl"></span></label></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:14px;background:var(--bg-input);border-radius:10px;"><div><div style="font-size:13px;font-weight:600;color:var(--text-primary);">Escalation Required</div><div style="font-size:12px;color:var(--text-muted);margin-top:2px;">When AI agents cannot resolve and need human review</div></div><label class="tog"><input type="checkbox" checked><span class="tog-sl"></span></label></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:14px;background:var(--bg-input);border-radius:10px;"><div><div style="font-size:13px;font-weight:600;color:var(--text-primary);">PR Merge Failed</div><div style="font-size:12px;color:var(--text-muted);margin-top:2px;">When an auto-created PR fails CI checks</div></div><label class="tog"><input type="checkbox" checked><span class="tog-sl"></span></label></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:14px;background:var(--bg-input);border-radius:10px;"><div><div style="font-size:13px;font-weight:600;color:var(--text-primary);">Agent Pipeline Error</div><div style="font-size:12px;color:var(--text-muted);margin-top:2px;">When Triage/Root Cause/Fix agent encounters an error</div></div><label class="tog"><input type="checkbox" checked><span class="tog-sl"></span></label></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:14px;background:var(--bg-input);border-radius:10px;"><div><div style="font-size:13px;font-weight:600;color:var(--text-primary);">Weekly Incident Report</div><div style="font-size:12px;color:var(--text-muted);margin-top:2px;">Email digest every Monday at 8:00 AM</div></div><label class="tog"><input type="checkbox" checked><span class="tog-sl"></span></label></div>
+        </div>
+      </div>
+    </div>
+    <!-- AI Config -->
+    <div id="stab-ai-config" class="page-body hidden" style="max-width:680px;">
+      <div class="card" style="padding:24px;">
+        <div class="form-section-title">AI Model Settings</div>
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">AI Model</label><select class="form-input"><option selected>Claude Sonnet 4.6 (Recommended)</option><option>Claude Haiku 4.5 (Faster)</option><option>Claude Opus 4.8 (Most Capable)</option></select></div>
+          <div class="form-group"><label class="form-label">Triage Confidence Threshold</label><select class="form-input"><option>80%</option><option selected>85%</option><option>90%</option><option>95%</option></select></div>
+          <div class="form-group" style="grid-column:span 2;"><label class="form-label">System Prompt Prefix</label><input class="form-input" value="You are RemediAI, an expert software incident remediation agent for RemediAI. Analyze exceptions and generate fixes."/></div>
+          <div class="form-group" style="grid-column:span 2;"><label class="form-label">Escalation Message</label><input class="form-input" value="This incident requires human review. Escalating to on-call engineer."/></div>
+        </div>
+        <div class="form-section-title" style="margin-top:24px;">AI Capabilities</div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--bg-input);border-radius:10px;"><span style="font-size:13px;color:var(--text-primary);font-weight:500;">Automatic PR creation</span><label class="tog"><input type="checkbox" checked><span class="tog-sl"></span></label></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--bg-input);border-radius:10px;"><span style="font-size:13px;color:var(--text-primary);font-weight:500;">Root cause analysis</span><label class="tog"><input type="checkbox" checked><span class="tog-sl"></span></label></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--bg-input);border-radius:10px;"><span style="font-size:13px;color:var(--text-primary);font-weight:500;">Code context retrieval (RAG)</span><label class="tog"><input type="checkbox" checked><span class="tog-sl"></span></label></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--bg-input);border-radius:10px;"><span style="font-size:13px;color:var(--text-primary);font-weight:500;">PII scrubbing before LLM calls</span><label class="tog"><input type="checkbox" checked><span class="tog-sl"></span></label></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--bg-input);border-radius:10px;"><span style="font-size:13px;color:var(--text-primary);font-weight:500;">Audit log all agent decisions</span><label class="tog"><input type="checkbox" checked><span class="tog-sl"></span></label></div>
+        </div>
+        <div style="margin-top:20px;"><button style="padding:8px 20px;border-radius:8px;background:var(--accent);color:#fff;border:none;font-size:13px;font-weight:600;cursor:pointer;">Save AI Settings</button></div>
+      </div>
+    </div>
+    <!-- Security -->
+    <div id="stab-security" class="page-body hidden" style="max-width:680px;">
+      <div class="card" style="padding:24px;">
+        <div class="form-section-title">Security</div>
+        <div class="form-grid">
+          <div class="form-group"><label class="form-label">Current Password</label><input class="form-input" type="password" value="••••••••"/></div>
+          <div class="form-group"></div>
+          <div class="form-group"><label class="form-label">New Password</label><input class="form-input" type="password" placeholder="Min. 12 characters"/></div>
+          <div class="form-group"><label class="form-label">Confirm Password</label><input class="form-input" type="password" placeholder="Repeat new password"/></div>
+        </div>
+        <div class="form-section-title" style="margin-top:24px;">API Keys</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--bg-input);border-radius:10px;border:1px solid var(--border);"><div style="flex:1;"><div style="font-size:12.5px;font-weight:600;color:var(--text-primary);">Production API Key</div><div style="font-family:monospace;font-size:12px;color:var(--text-faint);margin-top:3px;">rmai_live_••••••••••••••••••••3f9a</div></div><button style="font-size:11px;color:var(--accent);background:var(--accent-dim);border:none;padding:4px 10px;border-radius:6px;cursor:pointer;font-weight:600;">Reveal</button><button style="font-size:11px;color:var(--text-muted);background:var(--bg-input);border:1px solid var(--border);padding:4px 10px;border-radius:6px;cursor:pointer;">Rotate</button></div>
+          <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--bg-input);border-radius:10px;border:1px solid var(--border);"><div style="flex:1;"><div style="font-size:12.5px;font-weight:600;color:var(--text-primary);">Webhook Secret</div><div style="font-family:monospace;font-size:12px;color:var(--text-faint);margin-top:3px;">whsec_••••••••••••••••••••7c12</div></div><button style="font-size:11px;color:var(--accent);background:var(--accent-dim);border:none;padding:4px 10px;border-radius:6px;cursor:pointer;font-weight:600;">Reveal</button><button style="font-size:11px;color:var(--text-muted);background:var(--bg-input);border:1px solid var(--border);padding:4px 10px;border-radius:6px;cursor:pointer;">Rotate</button></div>
+        </div>
+        <div style="margin-top:20px;"><button style="padding:8px 20px;border-radius:8px;background:var(--accent);color:#fff;border:none;font-size:13px;font-weight:600;cursor:pointer;">Update Password</button></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="app-toast" role="status" aria-live="polite"></div>
 </main>
 
 <script>
@@ -441,51 +1547,65 @@ function toggleSidebar() {
   sidebarCollapsed = !sidebarCollapsed;
   document.querySelector('.sidebar').classList.toggle('collapsed', sidebarCollapsed);
 
-  // Update sidebar header chevron
   const chevron = document.getElementById('sidebar-chevron');
   if (chevron) chevron.setAttribute('data-lucide', sidebarCollapsed ? 'chevrons-right' : 'chevrons-left');
 
-  // Show/hide collapsed theme button
-  const collapsedBtn = document.getElementById('collapsed-theme-btn');
-  if (collapsedBtn) collapsedBtn.style.display = sidebarCollapsed ? 'flex' : 'none';
-
-  // Sync topbar icon
-  const topIcon = document.getElementById('topbar-menu-icon');
-  if (topIcon) topIcon.setAttribute('data-lucide', sidebarCollapsed ? 'menu' : 'menu');
-
   lucide.createIcons({ attrs: { 'stroke-width': 1.8, width: 14, height: 14 } });
-
-  // Rebuild charts after CSS transition completes
   setTimeout(rebuildCharts, 280);
 }
 
-// ── Theme toggle ────────────────────────────────────────
-let darkMode = false;
+// ── Theme system (3 themes) ─────────────────────────────
+let currentTheme = 'docker-dark';
 let convChart, donutChart;
 
-function toggleTheme() {
-  darkMode = !darkMode;
-  document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
-  document.getElementById('themeToggle').classList.toggle('on', darkMode);
-  document.getElementById('theme-label').textContent = darkMode ? 'Dark mode' : 'Light mode';
+const THEME_META = {
+  light:         { icon: 'sun',     chipId: 'chip-light' },
+  ocean:         { icon: 'monitor', chipId: 'chip-ocean' },
+  'docker-dark': { icon: 'moon',    chipId: 'chip-docker' },
+};
 
-  // Swap icon
-  const sunIcon = document.getElementById('icon-sun');
-  sunIcon.setAttribute('data-lucide', darkMode ? 'moon' : 'sun');
+function setTheme(name) {
+  currentTheme = name;
+  document.documentElement.setAttribute('data-theme', name);
+
+  // Update chips
+  Object.keys(THEME_META).forEach(t => {
+    document.getElementById(THEME_META[t].chipId).classList.toggle('active', t === name);
+  });
+
   lucide.createIcons({ attrs: { 'stroke-width': 1.8, width: 14, height: 14 } });
-
+  updateLegend();
   rebuildCharts();
 }
 
-// ── Chart helpers ───────────────────────────────────────
-function chartColors() {
-  return darkMode
-    ? { grid: '#3A3A3A', tick: '#6A6A6A', line2: '#555560' }
-    : { grid: '#F1F5F9', tick: '#94A3B8', line2: '#CBD5E1' };
+// ── Chart colors per theme ──────────────────────────────
+const CHART_THEMES = {
+  light: { grid: '#F1F5F9', tick: '#94A3B8', line2: '#CBD5E1', accent: '#2563EB', accentBg: 'rgba(37,99,235,0.10)',  pointBorder: '#fff',    donut: ['#2563EB','#60A5FA','#7DD3FC','#FBBF24','#E2E8F0'], donutBorder: '#F4F6FB' },
+  ocean: { grid: '#3A3A3A', tick: '#6A6A6A', line2: '#555560', accent: '#60A5FA', accentBg: 'rgba(96,165,250,0.12)', pointBorder: '#2D2D2D', donut: ['#2563EB','#60A5FA','#93C5FD','#FBBF24','#3E3E42'], donutBorder: '#2D2D2D' },
+  'docker-dark': { grid: '#23262F', tick: '#4E5670', line2: '#2A2D38', accent: '#0091E2', accentBg: 'rgba(0,145,226,0.12)', pointBorder: '#23262F', donut: ['#0091E2','#8B5CF6','#26C281','#F5A623','#2A2D38'], donutBorder: '#23262F' },
+};
+
+function updateLegend() {
+  const c = CHART_THEMES[currentTheme];
+
+  // Main legend line (This Week)
+  const ll = document.getElementById('legend-line');
+  if (ll) ll.setAttribute('stroke', c.accent);
+
+  // Dashed legend lines (Last Week)
+  ['legend-line2-a','legend-line2-b','legend-line2-c'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.setAttribute('stroke', c.line2);
+  });
+
+  // Donut legend dots
+  c.donut.forEach((color, i) => {
+    document.querySelectorAll('.donut-d' + (i + 1)).forEach(el => el.style.background = color);
+  });
 }
 
 function buildLineChart() {
-  const c = chartColors();
+  const c = CHART_THEMES[currentTheme];
   const ctx = document.getElementById('convChart').getContext('2d');
   return new Chart(ctx, {
     type: 'line',
@@ -495,11 +1615,11 @@ function buildLineChart() {
         {
           label: 'This Week',
           data: [80,120,105,150,170,140,190],
-          borderColor: '#2563EB',
-          backgroundColor: darkMode ? 'rgba(37,99,235,0.12)' : 'rgba(37,99,235,0.10)',
+          borderColor: c.accent,
+          backgroundColor: c.accentBg,
           tension: 0.45, fill: true,
-          pointRadius: 4, pointBackgroundColor: '#2563EB',
-          pointBorderColor: darkMode ? '#2D2D2D' : '#fff', pointBorderWidth: 2,
+          pointRadius: 4, pointBackgroundColor: c.accent,
+          pointBorderColor: c.pointBorder, pointBorderWidth: 2,
           borderWidth: 2.5,
         },
         {
@@ -526,29 +1646,495 @@ function buildLineChart() {
 }
 
 function buildDonutChart() {
-  const borderCol = darkMode ? '#2D2D2D' : '#F4F6FB';
+  const c = CHART_THEMES[currentTheme];
+  // Sync legend dots
+  c.donut.forEach((col, i) => {
+    const dot = document.querySelector(`.donut-d${i+1}`);
+    if (dot) dot.style.background = col;
+  });
   const ctx = document.getElementById('donutChart').getContext('2d');
   return new Chart(ctx, {
     type: 'doughnut',
     data: {
-      labels: ['Appointments','Medical Refills','Billing','Scheduling','Other'],
-      datasets: [{ data: [39,22,15,12,12], backgroundColor: ['#2563EB','#60A5FA','#60A5FA','#FBBF24','#E2E8F0'], borderWidth: 3, borderColor: borderCol, hoverOffset: 5 }]
+      labels: ['api','worker','log-bridge','dashboard','Other'],
+      datasets: [{ data: [39,28,15,12,6], backgroundColor: c.donut, borderWidth: 3, borderColor: c.donutBorder, hoverOffset: 5 }]
     },
-    options: { cutout: '70%', plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => ` ${c.label}: ${c.parsed}%` } } }, responsive: false }
+    options: { cutout: '70%', plugins: { legend: { display: false }, tooltip: { callbacks: { label: v => ` ${v.label}: ${v.parsed}%` } } }, responsive: false }
   });
 }
 
 function rebuildCharts() {
-  if (convChart)  { convChart.destroy(); }
-  if (donutChart) { donutChart.destroy(); }
+  if (convChart)  convChart.destroy();
+  if (donutChart) donutChart.destroy();
   convChart  = buildLineChart();
   donutChart = buildDonutChart();
 }
 
 // ── Init ────────────────────────────────────────────────
 lucide.createIcons({ attrs: { 'stroke-width': 1.8, width: 14, height: 14 } });
+updateLegend();
 convChart  = buildLineChart();
 donutChart = buildDonutChart();
+
+// ── Page navigation ────────────────────────────────────
+const PAGE_TITLES = {
+  overview:      ['Good morning, Anji', 'Here\'s your incident overview for today'],
+  logs:          ['Logs', 'Live platform logs with search and filters'],
+  incidents:     ['Incidents', 'AI-triaged exceptions across all monitored services'],
+  services:      ['Services', 'Monitored applications connected to Azure Monitor'],
+  analytics:     ['Analytics', 'Performance metrics and AI agent insights'],
+  runbooks:      ['Runbooks', 'Fix patterns and remediation playbooks used by AI agents'],
+  agents:        ['Agent Runs', 'AI pipeline executions — Triage → Root Cause → Fix Planner'],
+  integrations:  ['Integrations', 'Connected data sources and third-party services'],
+  settings:      ['Settings', 'Account, AI agent, and security configuration'],
+};
+
+function showPage(name) {
+  document.querySelectorAll('.page-content').forEach(p => p.classList.add('hidden'));
+  const page = document.getElementById('page-' + name);
+  page.classList.remove('hidden');
+
+  // Micro-interaction: smooth fade + slide-in
+  page.style.opacity = '0';
+  page.style.transform = 'translateY(6px)';
+  requestAnimationFrame(() => {
+    page.style.transition = 'opacity .18s ease, transform .18s ease';
+    page.style.opacity = '1';
+    page.style.transform = 'translateY(0)';
+  });
+
+  document.querySelectorAll('.nav-item').forEach(n => {
+    const isActive = n.dataset.page === name;
+    n.classList.toggle('active', isActive);
+    if (isActive) n.setAttribute('aria-current', 'page');
+    else n.removeAttribute('aria-current');
+  });
+
+  const titles = PAGE_TITLES[name] || [name, ''];
+  document.querySelector('header .page-title-main').textContent = titles[0];
+  document.querySelector('header .page-title-sub').textContent = titles[1];
+
+  lucide.createIcons({ attrs: { 'stroke-width': 1.8, width: 14, height: 14 } });
+
+  if (name === 'analytics') {
+    setTimeout(() => {
+      buildAnalyticsCharts();
+    }, 50);
+  }
+
+  if (name === 'logs' && !logsInitialized) {
+    logsInitialized = true;
+    initLogs();
+  }
+}
+
+function filterTab(el, group) {
+  el.closest('.filter-tabs').querySelectorAll('.ftab').forEach(t => {
+    t.classList.remove('active');
+    t.setAttribute('aria-selected', 'false');
+  });
+  el.classList.add('active');
+  el.setAttribute('aria-selected', 'true');
+}
+
+function showSettingsTab(tab, el) {
+  document.querySelectorAll('#page-settings .page-body').forEach(t => t.classList.add('hidden'));
+  document.getElementById('stab-' + tab).classList.remove('hidden');
+  document.querySelectorAll('.stab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ── Full Logs Engine ────────────────────────────────────
+let logsInitialized = false;
+let toastTimer = null;
+
+const logsState = {
+  all: [],
+  filtered: [],
+  page: 1,
+  pageSize: 200,
+  sortKey: 'timestamp',
+  sortDir: 'desc',
+  search: '',
+  level: '',
+  service: '',
+  env: '',
+  source: '',
+  time: 'all',
+  liveTail: false,
+  liveTimer: null,
+  selectedId: null
+};
+
+function showToast(message) {
+  const toast = document.getElementById('app-toast');
+  if (!toast) return;
+  toast.textContent = message;
+  toast.classList.add('show');
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(function () { toast.classList.remove('show'); }, 1700);
+}
+
+function randomPick(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function generateLogs(count) {
+  const services = ['api', 'worker', 'ingestion', 'search', 'auth'];
+  const envs = ['prod', 'staging', 'dev'];
+  const levels = ['INFO', 'WARN', 'ERROR', 'DEBUG'];
+  const hosts = ['node-a1', 'node-a2', 'node-b1', 'node-c3', 'node-d7'];
+  const messages = [
+    'Request processed successfully',
+    'Rate limit threshold reached',
+    'Downstream timeout detected',
+    'Job retry scheduled',
+    'Authentication token expired',
+    'Search index refreshed',
+    'Queue depth is elevated',
+    'Unhandled exception in pipeline',
+    'Cache miss for key segment',
+    'Dependency latency spike'
+  ];
+  const tags = [['http','api'], ['queue','worker'], ['auth','security'], ['search','index'], ['incident','alert'], ['scheduler','jobs']];
+  const out = [];
+  const now = Date.now();
+  for (let i = 0; i < count; i += 1) {
+    const level = randomPick(levels);
+    const service = randomPick(services);
+    const env = randomPick(envs);
+    const status = level === 'ERROR' ? randomPick([500, 502, 503, 504]) : (level === 'WARN' ? randomPick([200, 202, 429]) : randomPick([200, 201, 204]));
+    const latency = Math.floor(Math.random() * 1200) + 40;
+    const ts = new Date(now - (Math.floor(Math.random() * 26 * 60) * 60000));
+    out.push({
+      id: 'log-' + i,
+      timestamp: ts.toISOString(),
+      level: level,
+      service: service,
+      source: service,
+      env: env,
+      message: randomPick(messages) + ' (' + service + ')',
+      latencyMs: latency,
+      statusCode: status,
+      traceId: 'trc-' + String(100000 + i) + '-' + String(Math.floor(Math.random() * 9999)),
+      incidentId: level === 'ERROR' ? 'INC-' + String(5000 + i) : '',
+      host: randomPick(hosts),
+      tags: randomPick(tags)
+    });
+  }
+  out.sort(function (a, b) { return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(); });
+  return out;
+}
+
+function levelClass(level) {
+  if (level === 'ERROR') return 'error';
+  if (level === 'WARN') return 'warn';
+  if (level === 'DEBUG') return 'debug';
+  return 'info';
+}
+
+function levelRank(level) {
+  const m = { ERROR: 4, WARN: 3, INFO: 2, DEBUG: 1 };
+  return m[level] || 0;
+}
+
+function fmtTime(iso) {
+  return new Date(iso).toLocaleString();
+}
+
+function getTimeCutoff(range) {
+  if (range === '15m') return Date.now() - (15 * 60 * 1000);
+  if (range === '1h')  return Date.now() - (60 * 60 * 1000);
+  if (range === '6h')  return Date.now() - (6 * 60 * 60 * 1000);
+  if (range === '24h') return Date.now() - (24 * 60 * 60 * 1000);
+  return null;
+}
+
+function escapeHtml(text) {
+  return String(text)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+}
+
+function highlightMatch(line, needle) {
+  if (!needle) return line;
+  const idx = line.toLowerCase().indexOf(needle.toLowerCase());
+  if (idx === -1) return line;
+  return line.slice(0, idx) +
+    "<span style='background:rgba(245,166,35,.25);color:#ffe4a8;'>" + line.slice(idx, idx + needle.length) + '</span>' +
+    line.slice(idx + needle.length);
+}
+
+function applyFilters() {
+  const search = logsState.search.toLowerCase();
+  const cutoff = getTimeCutoff(logsState.time);
+  let rows = logsState.all.filter(function (r) {
+    if (logsState.level && r.level !== logsState.level) return false;
+    if (logsState.service && r.service !== logsState.service) return false;
+    if (logsState.env && r.env !== logsState.env) return false;
+    if (logsState.source && r.source !== logsState.source) return false;
+    if (cutoff && (new Date(r.timestamp).getTime() < cutoff)) return false;
+    if (search) {
+      const hay = (r.message + ' ' + r.service + ' ' + r.traceId + ' ' + r.host + ' ' + r.tags.join(' ') + ' ' + r.incidentId).toLowerCase();
+      if (hay.indexOf(search) === -1) return false;
+    }
+    return true;
+  });
+  rows.sort(function (a, b) {
+    const k = logsState.sortKey;
+    const dir = logsState.sortDir === 'asc' ? 1 : -1;
+    if (k === 'timestamp') return (new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()) * dir;
+    if (k === 'level') return (levelRank(a.level) - levelRank(b.level)) * dir;
+    if (k === 'latencyMs' || k === 'statusCode') return ((a[k] || 0) - (b[k] || 0)) * dir;
+    return String(a[k] || '').localeCompare(String(b[k] || '')) * dir;
+  });
+  logsState.filtered = rows;
+  renderAdvancedSummary();
+  renderKpis();
+  renderConsole();
+}
+
+function renderAdvancedSummary() {
+  const countNode = document.getElementById('advanced-count');
+  if (!countNode) return;
+  let n = 0;
+  if (logsState.source) n += 1;
+  if (logsState.time && logsState.time !== 'all') n += 1;
+  if (!(logsState.sortKey === 'timestamp' && logsState.sortDir === 'desc')) n += 1;
+  countNode.textContent = String(n);
+}
+
+function renderKpis() {
+  const totalNode   = document.getElementById('kpi-total');
+  const matchedNode = document.getElementById('kpi-matched');
+  const errorsNode  = document.getElementById('kpi-errors');
+  const warnsNode   = document.getElementById('kpi-warns');
+  if (totalNode)   totalNode.textContent   = String(logsState.all.length);
+  if (matchedNode) matchedNode.textContent = String(logsState.filtered.length);
+  if (errorsNode)  errorsNode.textContent  = String(logsState.filtered.filter(function (r) { return r.level === 'ERROR'; }).length);
+  if (warnsNode)   warnsNode.textContent   = String(logsState.filtered.filter(function (r) { return r.level === 'WARN'; }).length);
+}
+
+function updateSortHeaders() {
+  document.querySelectorAll('.logs-table thead th[data-sort]').forEach(function (th) {
+    const key = th.getAttribute('data-sort');
+    th.classList.remove('sort-asc', 'sort-desc');
+    if (logsState.sortKey === key) th.classList.add(logsState.sortDir === 'asc' ? 'sort-asc' : 'sort-desc');
+  });
+}
+
+function renderConsole() {
+  const box = document.getElementById('logs-console');
+  if (!box) return;
+  const showTs      = document.getElementById('toggle-timestamp')  && document.getElementById('toggle-timestamp').checked;
+  const doHighlight = document.getElementById('toggle-highlight')  && document.getElementById('toggle-highlight').checked;
+  const wrap        = document.getElementById('toggle-wrap')       && document.getElementById('toggle-wrap').checked;
+  const autoScroll  = document.getElementById('toggle-autoscroll') && document.getElementById('toggle-autoscroll').checked;
+  const needle = logsState.search || '';
+  box.classList.toggle('wrap-lines', !!wrap);
+  const lines = logsState.filtered.map(function (r) {
+    const lvlClass = levelClass(r.level);
+    const tsPart   = showTs ? ("<span class='log-ts'>" + escapeHtml(fmtTime(r.timestamp)) + '</span>') : '';
+    const msgEsc   = escapeHtml(r.message);
+    const msgHtml  = doHighlight ? highlightMatch(msgEsc, escapeHtml(needle)) : msgEsc;
+    const meta     = 'service=' + r.service + ' status=' + r.statusCode + ' lat=' + r.latencyMs + 'ms trace=' + r.traceId;
+    return "<span class='log-row " + lvlClass + "'>" +
+      tsPart +
+      "<span class='log-level-pill " + lvlClass + "'>" + escapeHtml(r.level) + '</span>' +
+      "<span class='log-msg-text'>" + msgHtml + '</span>' +
+      "<span class='log-meta-inline'>" + escapeHtml(meta) + '</span>' +
+      '</span>';
+  });
+  box.innerHTML = lines.length ? lines.join('\n') : "No logs match current filters.";
+  const meta = document.getElementById('logs-meta');
+  if (meta) meta.textContent = lines.length + ' lines';
+  if (autoScroll) box.scrollTop = box.scrollHeight;
+}
+
+function copyText(text) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text);
+    showToast('Copied to clipboard');
+  }
+}
+
+function bindConsoleActions() {
+  const copyBtn = document.getElementById('copy-visible');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', function () {
+      copyText(document.getElementById('logs-console').innerText || '');
+    });
+  }
+  ['toggle-timestamp', 'toggle-highlight', 'toggle-wrap', 'toggle-autoscroll'].forEach(function (id) {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('change', function () { renderConsole(); });
+  });
+  const settingsBtn   = document.getElementById('open-settings');
+  const settingsPanel = document.getElementById('logs-settings');
+  if (settingsBtn && settingsPanel) {
+    settingsBtn.addEventListener('click', function () {
+      settingsPanel.classList.toggle('hidden');
+      showToast(settingsPanel.classList.contains('hidden') ? 'Settings hidden' : 'Settings shown');
+    });
+  }
+  const openAdvanced    = document.getElementById('open-advanced');
+  const advancedPopover = document.getElementById('logs-advanced-popover');
+  const advancedClose   = document.getElementById('advanced-close');
+  if (openAdvanced && advancedPopover) {
+    openAdvanced.addEventListener('click', function (e) { e.stopPropagation(); advancedPopover.classList.toggle('open'); });
+    advancedPopover.addEventListener('click', function (e) { e.stopPropagation(); });
+  }
+  if (advancedClose && advancedPopover) {
+    advancedClose.addEventListener('click', function () { advancedPopover.classList.remove('open'); });
+  }
+  document.addEventListener('click', function () {
+    if (advancedPopover) advancedPopover.classList.remove('open');
+  });
+}
+
+function loadServicesFilter() {
+  const sel = document.getElementById('filter-service');
+  if (!sel) return;
+  const services = Array.from(new Set(logsState.all.map(function (r) { return r.service; }))).sort();
+  services.forEach(function (s) {
+    const opt = document.createElement('option');
+    opt.value = s;
+    opt.textContent = s;
+    sel.appendChild(opt);
+  });
+}
+
+function resetFilters() {
+  logsState.search = ''; logsState.level = ''; logsState.service = '';
+  logsState.env = ''; logsState.source = ''; logsState.time = 'all';
+  logsState.sortKey = 'timestamp'; logsState.sortDir = 'desc'; logsState.page = 1;
+  const ids = ['log-search', 'filter-level', 'filter-service', 'filter-env', 'filter-source'];
+  ids.forEach(function (id) { const el = document.getElementById(id); if (el) el.value = ''; });
+  const ft = document.getElementById('filter-time'); if (ft) ft.value = 'all';
+  const fs = document.getElementById('filter-sort'); if (fs) fs.value = 'timestamp_desc';
+  applyFilters();
+}
+
+function applyQuick(name) {
+  resetFilters();
+  if (name === 'errors')  { logsState.level = 'ERROR'; document.getElementById('filter-level').value = 'ERROR'; }
+  if (name === 'auth')    { logsState.service = 'auth'; document.getElementById('filter-service').value = 'auth'; }
+  if (name === 'last1h')  { logsState.time = '1h';    document.getElementById('filter-time').value = '1h'; }
+  if (name === 'slow') {
+    logsState.filtered = logsState.all.filter(function (r) { return r.latencyMs > 700; });
+    logsState.page = 1;
+    renderKpis();
+    renderConsole();
+    return;
+  }
+  applyFilters();
+}
+
+function toggleLiveTail() {
+  logsState.liveTail = !logsState.liveTail;
+  const label   = document.getElementById('live-label');
+  const btnIcon = document.querySelector('#btn-live-toggle i');
+  if (logsState.liveTail) {
+    if (label) label.textContent = 'Live On';
+    if (btnIcon) btnIcon.setAttribute('data-lucide', 'pause');
+    showToast('Live tail started');
+    logsState.liveTimer = setInterval(function () {
+      const extra = generateLogs(1)[0];
+      extra.id = 'live-' + String(Date.now());
+      extra.timestamp = new Date().toISOString();
+      logsState.all.unshift(extra);
+      applyFilters();
+    }, 3500);
+  } else {
+    if (label) label.textContent = 'Start';
+    if (btnIcon) btnIcon.setAttribute('data-lucide', 'play');
+    if (logsState.liveTimer) clearInterval(logsState.liveTimer);
+    logsState.liveTimer = null;
+    showToast('Live tail paused');
+  }
+  lucide.createIcons({ attrs: { 'stroke-width': 1.8, width: 14, height: 14 } });
+}
+
+function initLogs() {
+  logsState.all = generateLogs(180);
+  loadServicesFilter();
+  document.getElementById('log-search').addEventListener('input', function (e) { logsState.search = e.target.value.trim(); logsState.page = 1; applyFilters(); });
+  document.getElementById('filter-level').addEventListener('change', function (e) { logsState.level = e.target.value; logsState.page = 1; applyFilters(); });
+  document.getElementById('filter-service').addEventListener('change', function (e) { logsState.service = e.target.value; logsState.page = 1; applyFilters(); });
+  document.getElementById('filter-env').addEventListener('change', function (e) { logsState.env = e.target.value; logsState.page = 1; applyFilters(); });
+  document.getElementById('filter-source').addEventListener('change', function (e) { logsState.source = e.target.value; logsState.page = 1; applyFilters(); });
+  document.getElementById('filter-time').addEventListener('change', function (e) { logsState.time = e.target.value; logsState.page = 1; applyFilters(); });
+  document.getElementById('filter-sort').addEventListener('change', function (e) {
+    const parts = e.target.value.split('_');
+    logsState.sortKey = parts[0] || 'timestamp';
+    logsState.sortDir = parts[1] || 'desc';
+    logsState.page = 1;
+    applyFilters();
+  });
+  document.getElementById('btn-clear').addEventListener('click', resetFilters);
+  document.getElementById('btn-live-toggle').addEventListener('click', toggleLiveTail);
+  document.getElementById('btn-export').addEventListener('click', function () {
+    copyText(JSON.stringify(logsState.filtered.slice(0, 200), null, 2));
+    showToast('Filtered logs exported to clipboard');
+  });
+  document.querySelectorAll('.quick-chip').forEach(function (chip) {
+    chip.addEventListener('click', function () { applyQuick(chip.getAttribute('data-quick')); });
+  });
+  bindConsoleActions();
+  applyFilters();
+}
+
+function buildAnalyticsCharts() {
+  const existing1 = Chart.getChart('analyticsChart');
+  const existing2 = Chart.getChart('analyticsBar');
+  if (existing1) existing1.destroy();
+  if (existing2) existing2.destroy();
+
+  const c = CHART_THEMES[currentTheme];
+  const labels30 = ['May 8','May 12','May 16','May 20','May 24','May 28','Jun 1','Jun 4','Jun 7'];
+
+  new Chart(document.getElementById('analyticsChart').getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: labels30,
+      datasets: [{
+        label: 'Incidents', data: [98,112,105,142,138,156,171,148,189],
+        borderColor: c.accent, backgroundColor: c.accentBg, tension: 0.45,
+        fill: true, pointRadius: 4, pointBackgroundColor: c.accent,
+        pointBorderColor: c.pointBorder, pointBorderWidth: 2, borderWidth: 2.5
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: true,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 11 }, color: c.tick }, border: { display: false } },
+        y: { grid: { color: c.grid }, ticks: { font: { size: 11 }, color: c.tick }, border: { display: false } }
+      }
+    }
+  });
+
+  new Chart(document.getElementById('analyticsBar').getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+      datasets: [
+        { label: 'NullReference',    data: [184, 201, 178, 210], backgroundColor: c.accent, borderRadius: 4 },
+        { label: 'TimeoutException', data: [98,  112,  95, 130], backgroundColor: c.accentBg, borderRadius: 4 },
+        { label: 'SqlException',     data: [67,   72,  58,  80], backgroundColor: c.line2, borderRadius: 4 },
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: true,
+      plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, color: c.tick, boxWidth: 10, padding: 16 } } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 11 }, color: c.tick }, border: { display: false } },
+        y: { grid: { color: c.grid }, ticks: { font: { size: 11 }, color: c.tick }, border: { display: false } },
+        stacked: false
+      }
+    }
+  });
+}
 </script>
 </body>
 </html>

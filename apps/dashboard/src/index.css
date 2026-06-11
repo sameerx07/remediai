@@ -31,8 +31,8 @@
   scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
 }
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
@@ -114,3 +114,43 @@
   border-radius: 10px !important;
   box-shadow: var(--shadow-md) !important;
 }
+
+/* ── Filter tab bar ──────────────────────────────────────────────── */
+.filter-tab-bar {
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  border-radius: 10px;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+}
+
+/* ── Log console wrapper ─────────────────────────────────────────── */
+.log-console {
+  font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+  font-size: 11.5px;
+  line-height: 1.6;
+}
+
+/* ── Upgrade card gradient ───────────────────────────────────────── */
+.upgrade-card-gradient {
+  background: var(--color-accent-muted);
+  border: 1px solid var(--color-border-2);
+  border-radius: 12px;
+}
+
+/* ── Upgrade card theme-adaptive text & button ───────────────────── */
+:root .upgrade-card-title,
+[data-theme='light'] .upgrade-card-title  { color: var(--color-text-1); }
+:root .upgrade-card-desc,
+[data-theme='light'] .upgrade-card-desc   { color: var(--color-text-2); }
+:root .upgrade-card-btn,
+[data-theme='light'] .upgrade-card-btn   { background: var(--color-accent); color: #fff; }
+
+[data-theme='ocean'] .upgrade-card-title { color: var(--color-text-1); }
+[data-theme='ocean'] .upgrade-card-desc  { color: var(--color-text-3); }
+[data-theme='ocean'] .upgrade-card-btn  { background: var(--color-accent); color: var(--sidebar-bg); }
+
+[data-theme='docker-dark'] .upgrade-card-title { color: #ffffff; }
+[data-theme='docker-dark'] .upgrade-card-desc  { color: rgba(255,255,255,.8); }
+[data-theme='docker-dark'] .upgrade-card-btn  { background: var(--color-accent); color: #ffffff; }

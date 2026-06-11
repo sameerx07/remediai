@@ -5,7 +5,10 @@ import { NAV_ROUTES } from './nav'
 export function BottomTabBar() {
   return (
     <nav className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-surface/90 px-1 pb-[max(env(safe-area-inset-bottom),0.5rem)] pt-1 backdrop-blur lg:hidden">
-      <ul className="mx-auto grid max-w-lg grid-cols-4">
+      <ul
+        className="mx-auto grid max-w-lg"
+        style={{ gridTemplateColumns: `repeat(${NAV_ROUTES.length}, minmax(0, 1fr))` }}
+      >
         {NAV_ROUTES.map((route) => {
           const Icon = route.icon
           return (

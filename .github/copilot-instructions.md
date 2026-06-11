@@ -86,7 +86,15 @@ Phase specs live in `docs/specs/phase-NN-*.md` — read the spec before implemen
 
 ## What's Next
 
-After every task, end with a **"What's Next"** block: 2–3 options, exactly one marked `✅ Recommended`, tied to `ROADMAP.md` progress. Never ask the user what to do — present options and let them choose.
+After every task, end with a **"What's Next"** block: 2–3 numbered options (1, 2, 3), exactly one marked `✅ Recommended`, tied to `ROADMAP.md` progress. Never ask the user what to do — present numbered options and let them reply with a number. Example format:
+
+```
+**What's Next?**
+1. ✅ Recommended — <description>
+2. <description>
+3. <description>
+Reply with 1, 2, or 3.
+```
 
 ## Documentation Sync
 

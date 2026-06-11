@@ -3,11 +3,16 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { ThemeToggle } from '../ui/ThemeToggle'
 
 const TITLES: Array<{ test: (p: string) => boolean; title: string }> = [
-  { test: (p) => p === '/incidents',          title: 'Incidents' },
+  { test: (p) => p === '/incidents',          title: 'Incidents'     },
   { test: (p) => p.startsWith('/incidents/'), title: 'Incident Detail' },
-  { test: (p) => p === '/metrics',             title: 'Metrics' },
-  { test: (p) => p === '/targets',             title: 'Targets' },
-  { test: (p) => p === '/logs',                title: 'Container Logs' },
+  { test: (p) => p === '/metrics',             title: 'Overview'      },
+  { test: (p) => p === '/targets',             title: 'Services'      },
+  { test: (p) => p === '/logs',                title: 'Logs'          },
+  { test: (p) => p === '/analytics',           title: 'Analytics'     },
+  { test: (p) => p === '/runbooks',            title: 'Runbooks'      },
+  { test: (p) => p === '/agents',              title: 'Agents'        },
+  { test: (p) => p === '/integrations',        title: 'Integrations'  },
+  { test: (p) => p === '/settings',            title: 'Settings'      },
 ]
 
 export function TopBar() {

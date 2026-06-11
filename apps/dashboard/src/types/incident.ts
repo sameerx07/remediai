@@ -1,7 +1,9 @@
 export interface IncidentListItem {
   id: string
+  source: string | null
   exception_type: string
   exception_message: string
+  stack_trace: string | null
   priority: string
   status: string
   created_at: string

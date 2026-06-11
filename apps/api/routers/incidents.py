@@ -4,7 +4,7 @@ from datetime import datetime
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -28,6 +28,7 @@ async def list_incidents(
     priority: str | None = Query(default=None),
     date_from: datetime | None = Query(default=None),
     date_to: datetime | None = Query(default=None),
+    search: str | None = Query(default=None),
     db: AsyncSession = Depends(get_db_session),
 ) -> PaginatedResponse[IncidentListItem]:
     filters = []
@@ -39,6 +40,14 @@ async def list_incidents(
         filters.append(IncidentOrm.created_at >= date_from)
     if date_to:
         filters.append(IncidentOrm.created_at <= date_to)
+    if search:
+        term = f"%{search}%"
+        filters.append(
+            or_(
+                IncidentOrm.exception_type.ilike(term),
+                IncidentOrm.exception_message.ilike(term),
+            )
+        )
 
     count_stmt = select(func.count()).select_from(IncidentOrm)
     if filters:
@@ -67,8 +76,10 @@ async def list_incidents(
     items = [
         IncidentListItem(
             id=inc.id,
+            source=inc.source,
             exception_type=inc.exception_type,
             exception_message=inc.exception_message,
+            stack_trace=inc.stack_trace,
             priority=inc.priority,
             status=inc.status,
             created_at=inc.created_at,

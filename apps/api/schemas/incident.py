@@ -36,8 +36,10 @@ class PaginatedResponse[T](BaseModel):
 
 class IncidentListItem(BaseModel):
     id: UUID
+    source: str
     exception_type: str
     exception_message: str
+    stack_trace: str | None = None
     priority: str
     status: str
     created_at: datetime

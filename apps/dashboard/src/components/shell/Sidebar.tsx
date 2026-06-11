@@ -1,5 +1,4 @@
-import { ChevronLeft } from 'lucide-react'
-import { clsx } from 'clsx'
+import { Activity, ChevronsLeft, MoreVertical } from 'lucide-react'
 import { NAV_ROUTES } from './nav'
 import { NavItem } from './NavItem'
 import { ThemeToggle } from '../ui/ThemeToggle'
@@ -19,80 +18,219 @@ export function Sidebar({ collapsed, onToggle, width }: SidebarProps) {
         backgroundColor: 'var(--sidebar-bg)',
         borderRight: '1px solid var(--sidebar-border)',
         boxShadow: 'var(--shadow-sm)',
-        transition: 'width 220ms cubic-bezier(0.16,1,0.3,1)',
+        transition: 'width 250ms cubic-bezier(.4,0,.2,1)',
         overflow: 'hidden',
       }}
     >
-      {/* ── Logo ── */}
+      {/* ── Logo row (with collapse toggle on right) ── */}
       <div
-        className={clsx(
-          'flex h-[60px] shrink-0 items-center border-b',
-          collapsed ? 'justify-center px-3' : 'gap-3 px-5',
-        )}
-        style={{ borderBottomColor: 'var(--sidebar-border)' }}
+        style={{
+          padding: '14px 12px',
+          borderBottom: '1px solid var(--sidebar-border)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexShrink: 0,
+        }}
       >
-        {/* Brand icon — gradient pill */}
-        <span
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-white text-sm font-black tracking-tight shadow-sm"
-          style={{ background: 'var(--gradient-accent)' }}
-        >
-          R
-        </span>
-        {!collapsed && (
-          <div className="min-w-0 overflow-hidden">
-            <p
-              className="truncate text-[13px] font-bold tracking-[-0.02em] text-text-1"
-              style={{ letterSpacing: '-0.02em' }}
+        {/* Logo */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, overflow: 'hidden' }}>
+          <span
+            style={{
+              width: 28, height: 28,
+              background: 'var(--color-accent)',
+              borderRadius: 8,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              flexShrink: 0,
+            }}
+          >
+            <Activity style={{ color: '#fff', width: 14, height: 14 }} />
+          </span>
+          {!collapsed && (
+            <span
+              style={{
+                fontSize: 15, fontWeight: 700,
+                color: 'var(--text-primary)',
+                whiteSpace: 'nowrap', overflow: 'hidden',
+              }}
             >
               RemediAI
-            </p>
-            <p className="truncate text-[10px] font-medium uppercase tracking-[0.08em] text-text-3">
-              AI Ops Platform
-            </p>
-          </div>
-        )}
-      </div>
-
-      {/* ── Navigation ── */}
-      <nav className="flex-1 overflow-hidden p-2.5">
-        <div className="space-y-0.5">
-          {NAV_ROUTES.map((route) => (
-            <NavItem key={route.to} route={route} compact={collapsed} />
-          ))}
-        </div>
-      </nav>
-
-      {/* ── Bottom controls ── */}
-      <div
-        className="shrink-0 space-y-1.5 border-t p-2.5"
-        style={{ borderTopColor: 'var(--sidebar-border)' }}
-      >
-        {/* Theme toggle */}
-        <div className={clsx('flex', collapsed ? 'justify-center' : '')}>
-          <ThemeToggle compact={collapsed} className={collapsed ? undefined : 'w-full'} />
+            </span>
+          )}
         </div>
 
-        {/* Collapse button */}
+        {/* Collapse toggle */}
         <button
           type="button"
           onClick={onToggle}
           title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          className={clsx(
-            'flex h-9 w-full items-center rounded-lg text-xs font-medium text-text-3',
-            'border border-transparent transition-all duration-150',
-            'hover:border-border hover:bg-surface-2 hover:text-text-2',
-            collapsed ? 'justify-center px-2' : 'justify-between px-3',
-          )}
+          aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          style={{
+            width: 24, height: 24,
+            borderRadius: 6,
+            background: 'transparent',
+            border: '1px solid var(--sidebar-border)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer',
+            flexShrink: 0,
+            transition: 'all .15s',
+          }}
+          onMouseOver={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.background = 'var(--nav-hover-bg)'
+          }}
+          onMouseOut={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.background = 'transparent'
+          }}
         >
-          {!collapsed && <span>Collapse</span>}
-          <ChevronLeft
-            className={clsx(
-              'h-3.5 w-3.5 shrink-0 transition-transform duration-[220ms]',
-              collapsed && 'rotate-180',
-            )}
+          <ChevronsLeft
+            style={{
+              width: 13, height: 13,
+              color: 'var(--text-faint)',
+              transition: 'transform 250ms cubic-bezier(.4,0,.2,1)',
+              transform: collapsed ? 'rotate(180deg)' : 'none',
+            }}
           />
         </button>
       </div>
+
+      {/* ── Navigation ── */}
+      <nav
+        role="navigation"
+        aria-label="Main navigation"
+        style={{ flex: 1, padding: '12px 8px', display: 'flex', flexDirection: 'column', gap: 2, overflow: 'hidden' }}
+      >
+        {NAV_ROUTES.map((route) => (
+          <div key={route.to}>
+            {route.dividerBefore && (
+              <div
+                style={{ height: 1, background: 'var(--sidebar-border)', margin: '6px 4px' }}
+              />
+            )}
+            <NavItem route={route} compact={collapsed} />
+          </div>
+        ))}
+      </nav>
+
+      {/* ── Upgrade card (hidden when collapsed) ── */}
+      {!collapsed && (
+        <div
+          className="upgrade-card"
+          style={{
+            margin: '0 10px 10px',
+            borderRadius: 12,
+            padding: 14,
+            background: 'var(--upgrade-gradient)',
+          }}
+        >
+          <UpgradeCardContent />
+        </div>
+      )}
+
+      {/* ── Theme switcher ── */}
+      <div
+        style={{
+          padding: '6px 8px',
+          borderTop: '1px solid var(--sidebar-border)',
+          borderBottom: '1px solid var(--sidebar-border)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 4,
+          overflow: 'hidden',
+        }}
+      >
+        <ThemeToggle compact={collapsed} className={collapsed ? undefined : 'w-full'} />
+      </div>
+
+      {/* ── User row ── */}
+      <div
+        style={{
+          padding: '10px 12px 14px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          overflow: 'hidden',
+        }}
+      >
+        <span
+          style={{
+            width: 32, height: 32,
+            borderRadius: '50%',
+            background: 'var(--color-accent)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 10, fontWeight: 700, color: '#fff',
+            flexShrink: 0,
+          }}
+        >
+          AK
+        </span>
+        {!collapsed && (
+          <>
+            <div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
+              <div
+                style={{
+                  fontSize: 12, fontWeight: 600,
+                  color: 'var(--text-primary)',
+                  whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                }}
+              >
+                Anji Keesari
+              </div>
+              <div style={{ fontSize: 10.5, color: 'var(--text-faint)' }}>
+                admin@remediai.dev
+              </div>
+            </div>
+            <MoreVertical
+              style={{ color: 'var(--text-faint)', width: 14, height: 14, cursor: 'pointer', flexShrink: 0 }}
+            />
+          </>
+        )}
+      </div>
     </aside>
+  )
+}
+
+// ── Upgrade card content — theme-adaptive ─────────────────────────────────────
+
+function UpgradeCardContent() {
+  return (
+    <>
+      <div
+        className="upgrade-card-title"
+        style={{ fontSize: 12.5, fontWeight: 700, marginBottom: 4 }}
+      >
+        Upgrade to Pro
+      </div>
+      <div
+        className="upgrade-card-desc"
+        style={{ fontSize: 11, lineHeight: 1.5, marginBottom: 10 }}
+      >
+        Get unlimited access to AI analytics and priority support.
+      </div>
+      <UpgradeButton />
+    </>
+  )
+}
+
+function UpgradeButton() {
+  return (
+    <button
+      type="button"
+      className="upgrade-card-btn"
+      style={{
+        width: '100%',
+        fontSize: 11.5,
+        fontWeight: 700,
+        padding: '6px 0',
+        borderRadius: 8,
+        border: 'none',
+        cursor: 'pointer',
+        transition: 'opacity .15s',
+      }}
+      onMouseOver={(e) => { (e.currentTarget as HTMLButtonElement).style.opacity = '.85' }}
+      onMouseOut={(e) => { (e.currentTarget as HTMLButtonElement).style.opacity = '1' }}
+    >
+      Upgrade Now
+    </button>
   )
 }

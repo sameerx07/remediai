@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Sidebar } from './Sidebar'
 import { BottomTabBar } from './BottomTabBar'
 import { TopBar } from './TopBar'
+import { DesktopHeader } from './DesktopHeader'
 
 const STORAGE_KEY = 'remediai.sidebar.collapsed'
 
@@ -22,7 +23,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     localStorage.setItem(STORAGE_KEY, String(collapsed))
   }, [collapsed])
 
-  const sidebarW = collapsed ? 64 : 240
+  const sidebarW = collapsed ? 52 : 200
 
   return (
     <div className="min-h-screen bg-bg text-text-1">
@@ -45,7 +46,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           {/* TopBar visible only on mobile */}
         </div>
         <TopBar />
-        <main className="mx-auto max-w-[1320px] px-5 pb-[calc(5.5rem+env(safe-area-inset-bottom))] pt-7 sm:px-8 lg:pb-10 lg:pt-8">
+        <DesktopHeader />
+        <main className="w-full px-5 pb-[calc(5.5rem+env(safe-area-inset-bottom))] pt-7 sm:px-8 lg:pb-10 lg:pt-8">
           {children}
         </main>
       </div>

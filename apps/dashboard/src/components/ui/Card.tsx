@@ -21,11 +21,11 @@ export function Card({ children, className, interactive, onClick, bare }: CardPr
         !bare && [
           'border border-border bg-surface',
           'shadow-sm',
+          'transition-[border-color,box-shadow,transform] duration-200',
+          'hover:border-border-2 hover:shadow-md hover:-translate-y-px',
         ],
         interactive && [
           'cursor-pointer',
-          'transition-all duration-150',
-          'hover:shadow-md hover:-translate-y-px',
           'active:translate-y-0 active:shadow-sm',
         ],
         className,

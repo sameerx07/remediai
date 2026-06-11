@@ -54,6 +54,10 @@ export function IncidentDetail() {
 
   const shortType = data.exception_type.split('.').pop() ?? data.exception_type
 
+  function fmtLabel(s: string) {
+    return s.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+  }
+
   return (
     <div className="space-y-4">
       <PageHeader
@@ -61,8 +65,8 @@ export function IncidentDetail() {
         subtitle={data.exception_message}
         actions={
           <>
-            <Badge text={data.priority} variant={priorityVariant(data.priority)} />
-            <Badge text={data.status} variant={statusVariant(data.status)} />
+            <Badge text={fmtLabel(data.priority)} variant={priorityVariant(data.priority)} />
+            <Badge text={fmtLabel(data.status)} variant={statusVariant(data.status)} />
             <Button type="button" onClick={() => navigate(-1)}>
               Back
             </Button>

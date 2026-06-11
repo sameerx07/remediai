@@ -41,9 +41,10 @@ interface StatCardProps {
   icon?: LucideIcon
   gradient?: GradientKey
   description?: string
+  delta?: { value: string; positive: boolean }
 }
 
-export function StatCard({ label, value, icon: Icon, gradient = 'accent', description }: StatCardProps) {
+export function StatCard({ label, value, icon: Icon, gradient = 'accent', description, delta }: StatCardProps) {
   const glow = GLOW_COLORS[gradient]
 
   return (
@@ -76,6 +77,18 @@ export function StatCard({ label, value, icon: Icon, gradient = 'accent', descri
           </p>
           {description && (
             <p className="mt-1.5 text-xs font-medium text-text-3">{description}</p>
+          )}
+          {delta && (
+            <span
+              className="mt-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10.5px] font-bold"
+              style={
+                delta.positive
+                  ? { color: 'var(--color-success)', background: 'var(--color-success-muted)' }
+                  : { color: 'var(--color-error)',   background: 'var(--color-error-muted)'   }
+              }
+            >
+              {delta.positive ? '↑' : '↓'} {delta.value}
+            </span>
           )}
         </div>
         {Icon && (

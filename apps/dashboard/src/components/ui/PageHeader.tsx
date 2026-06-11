@@ -7,24 +7,27 @@ interface PageHeaderProps {
 
 export function PageHeader({ title, subtitle, actions, eyebrow }: PageHeaderProps) {
   return (
-    <header className="mb-7 flex flex-wrap items-start justify-between gap-4">
+    <header
+      className="mb-5 flex flex-wrap items-start justify-between gap-3 pb-4"
+      style={{ borderBottom: '1px solid var(--color-border)' }}
+    >
       <div>
         {eyebrow && (
           <p
-            className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.1em]"
+            className="mb-1 text-[10.5px] font-semibold uppercase tracking-[0.1em]"
             style={{ color: 'var(--color-accent)' }}
           >
             {eyebrow}
           </p>
         )}
         <h1
-          className="font-black tracking-tight text-text-1"
-          style={{ fontSize: 'clamp(1.5rem, 3vw, 2rem)', letterSpacing: '-0.03em', lineHeight: 1.15 }}
+          className="text-[17px] font-bold tracking-tight text-text-1"
+          style={{ lineHeight: 1.25, letterSpacing: '-0.01em' }}
         >
           {title}
         </h1>
         {subtitle && (
-          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-text-2">
+          <p className="mt-0.5 text-[12px] leading-snug text-text-3">
             {subtitle}
           </p>
         )}

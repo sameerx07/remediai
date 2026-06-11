@@ -16,27 +16,28 @@ export function NavItem({ route, compact = false }: NavItemProps) {
       className={clsx(
         'relative flex h-9 w-full items-center rounded-lg text-[13px] font-medium',
         'transition-all duration-150',
-        compact ? 'justify-center px-2' : 'gap-3 px-3',
+        compact ? 'justify-center px-2' : 'gap-3',
         isActive
           ? 'text-accent'
           : 'text-text-2 hover:bg-surface-2 hover:text-text-1',
       )}
       style={
         isActive
-          ? { backgroundColor: 'var(--color-accent-muted)' }
-          : undefined
+          ? {
+              backgroundColor: 'var(--color-accent-muted)',
+              borderLeft: compact ? undefined : '2px solid var(--color-accent)',
+              paddingLeft: compact ? undefined : '10px',
+              paddingRight: compact ? undefined : '12px',
+            }
+          : {
+              borderLeft: compact ? undefined : '2px solid transparent',
+              paddingLeft: compact ? undefined : '12px',
+              paddingRight: compact ? undefined : '12px',
+            }
       }
     >
-      {/* Active left-bar */}
-      {isActive && !compact && (
-        <span
-          className="absolute left-0 top-2 bottom-2 w-0.5 rounded-full"
-          style={{ backgroundColor: 'var(--color-accent)' }}
-          aria-hidden="true"
-        />
-      )}
       <Icon
-        className={clsx('h-[18px] w-[18px] shrink-0')}
+        className={clsx('h-[15px] w-[15px] shrink-0')}
         strokeWidth={isActive ? 2.5 : 1.75}
         style={{ color: isActive ? 'var(--color-accent)' : undefined }}
       />

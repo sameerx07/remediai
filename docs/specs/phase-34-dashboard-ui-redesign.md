@@ -344,6 +344,99 @@ priority badge, status badge, relative timestamp, and a chevron-right icon.
 
 ---
 
+---
+
+## Phase 34b — Visual Polish Pass (docker-dark theme, settings, filter tabs, delta badges)
+
+### Goal
+
+Extend the Phase 34 shell with targeted visual improvements derived from the RemediAI mockup
+(`apps/dashboard/ui-design/remediai-dashboard.html`): a third `docker-dark` theme, a 3-chip
+theme selector, a Settings placeholder page, status filter tabs on the incident list,
+redesigned log rows, trend delta badges on stat cards, card hover polish, and CSS utility classes.
+
+### Deliverables
+
+| Artifact | Change |
+|---|---|
+| `src/styles/tokens.css` | Add `[data-theme='docker-dark']` block (Docker-inspired deep navy palette) |
+| `src/components/shell/ThemeContext.tsx` | `Theme` type extended to `'light' \| 'dark' \| 'docker-dark'`; cycle `light → dark → docker-dark → light`; expose `setTheme` on context |
+| `src/components/ui/ThemeToggle.tsx` | Replace binary toggle with 3-chip selector (Sun / Moon / Box icons); compact mode cycles on click |
+| `src/components/shell/Sidebar.tsx` | Add ProUpgrade card (hidden when collapsed); add user avatar row above collapse button |
+| `src/components/shell/NavItem.tsx` | Active state uses `border-left: 2px solid var(--color-accent)` with `padding-left` compensation |
+| `src/components/ui/PageHeader.tsx` | Compact 17 px bold heading with bottom border; eyebrow uses accent color |
+| `src/pages/IncidentList.tsx` | Add `FilterTabs` sub-component; replace status `<select>` with filter tabs |
+| `src/pages/LocalLogsPage.tsx` | `LogRow` redesigned with 3 px colored left border and level pill badge |
+| `src/components/shell/nav.tsx` | Add Settings route (`/settings`, `Settings` icon) as 5th nav item |
+| `src/pages/SettingsPage.tsx` | New placeholder page with `PageHeader` + `Card` |
+| `src/App.tsx` | Import and register `/settings` route |
+| `src/components/shell/TopBar.tsx` | Add `{ test: (p) => p === '/settings', title: 'Settings' }` to `TITLES` |
+| `src/components/shell/BottomTabBar.tsx` | Update mobile grid to accommodate 5 nav items |
+| `src/components/ui/StatCard.tsx` | Add optional `delta?: { value: string; positive: boolean }` prop with trend badge |
+| `src/pages/MetricsPage.tsx` | Pass `delta` to each `StatCard`; update `useChartTheme` for `docker-dark` |
+| `src/components/ui/Card.tsx` | Add hover transitions (`border-color`, `box-shadow`, `transform`) to all non-bare cards |
+| `src/index.css` | Add `.filter-tab-bar`, `.log-console`, `.upgrade-card-gradient` utility classes |
+
+### Security Touchpoints
+
+- No new LLM calls, agent decisions, credentials, or HTTP endpoints introduced.
+- No `dangerouslySetInnerHTML` usage in any new or modified component.
+
+### Acceptance Criteria
+
+- All tasks from the prompt file pass: docker-dark theme cycles correctly, 3-chip selector
+  highlights the active theme, Settings page loads at `/settings`, filter tabs replace the
+  status select on `/incidents`, log rows have colored left borders, delta badges render on
+  MetricsPage stat cards.
+- `tsc --noEmit` zero errors.
+- `npm run build` clean.
+
+### Out of Scope
+
+- Settings page tab content (Profile / Notifications / Integrations / API).
+- Real sparkline SVGs on StatCard.
+- New API endpoints or backend changes.
+
+---
+
+## Phase 34c — Full Mockup Alignment (all pages, CSS aliases, nav reorder)
+
+### Goal
+
+Align every page in the React dashboard to match `apps/dashboard/ui-design/remediai-dashboard.html`
+element-by-element. All placeholder pages receive real content. The CSS token layer gains
+`--bg-card`, `--text-primary`, `--accent` and other mockup-compatible aliases so inline styles
+copied from the mockup resolve correctly against the theme system.
+
+### Changes
+
+| Page / File | What changes |
+|---|---|
+| `src/styles/tokens.css` | Add mockup-compatible CSS variable aliases per theme block |
+| `src/components/shell/nav.tsx` | Reorder nav to Overview/Logs/Incidents/Services/Analytics/Runbooks/Agents/Integrations/Settings; update icons to match mockup (LayoutGrid, ScrollText, AlertTriangle, Server, BarChart2, BookOpen, Cpu, Link2, Settings) |
+| `src/pages/MetricsPage.tsx` | Complete redesign as "Overview" dashboard: 4 sparkline stat cards, Incident Trend line chart, Agent Pipeline Status card, Incidents by Service donut, Recent Incidents list, Agent Activity list |
+| `src/pages/AnalyticsPage.tsx` | 4 stat cards + Area/Bar charts (Recharts) + By Service horizontal bars |
+| `src/pages/RunbooksPage.tsx` | Filter tabs (All/.NET/Node.js/Python/Azure) + search + data table |
+| `src/pages/AgentsPage.tsx` | Agent pipeline runs table (Run ID, Service, Exception, stage badges, PR, Duration) |
+| `src/pages/IntegrationsPage.tsx` | Connected (4) + Available (4) integration card grids |
+| `src/pages/SettingsPage.tsx` | Four tabs: Profile form, Notifications toggles, AI Config form, Security/API keys |
+| `src/pages/IncidentList.tsx` | Toolbar: filter tabs + search box + service select + New Alert Rule button |
+
+### Acceptance Criteria
+
+- Every page visually matches the mockup in docker-dark theme; ocean and light themes also render correctly.
+- No TypeScript errors. Clean `npm run build`.
+- No `dangerouslySetInnerHTML`. All external links use `rel="noopener noreferrer"`.
+- Data-driven pages (Overview, Incidents) use real API data; static/illustrative data used only where no API equivalent exists.
+
+### Out of Scope
+
+- Backend API changes, new API endpoints.
+- Real-time sparkline data (static SVG paths acceptable).
+- Donut chart interactivity beyond hover tooltips (Recharts `PieChart` acceptable).
+
+---
+
 ## Acceptance Criteria
 
 - `tsc --noEmit` reports zero errors across the dashboard package.

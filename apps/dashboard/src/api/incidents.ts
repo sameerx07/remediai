@@ -8,6 +8,7 @@ export interface ListIncidentsParams {
   priority?: string
   date_from?: string
   date_to?: string
+  search?: string
 }
 
 export async function listIncidents(

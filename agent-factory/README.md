@@ -11,7 +11,7 @@ Reusable AI agents. Drop into any project, attach in chat, get results.
 | **docs-site-builder** | Generates a Stripe-style documentation site from any folder of Markdown files. Next.js 15, Tailwind, clean design. | [`docs-site-builder/docs-site-builder.agent.md`](./docs-site-builder/docs-site-builder.agent.md) |
 | **codebase-docs** | Reads code files and generates documentation markdown from them. | [`codebase-docs/codebase-docs.agent.md`](./codebase-docs/codebase-docs.agent.md) |
 | **azure-pipeline-creator** | Generates production-grade Azure DevOps pipelines. Docker build+push, Terraform plan/apply, Helm deploy, QA automation, GitOps image-tag pinning. | [`azure-pipeline-creator/azure-pipeline-creator.agent.md`](./azure-pipeline-creator/azure-pipeline-creator.agent.md) |
-| **database-schema-generator** | Reads a canonical database design spec and generates EF Core entities, DbContext, configurations, and code-first migrations. Re-reads spec on every run to stay in sync. | [`database-schema-generator/database-schema-generator.agent.md`](./database-schema-generator/database-schema-generator.agent.md) |
+| **database-schema-generator** | Generates production-ready PostgreSQL schemas for any .NET project. Reads design docs for conventions + tables, scans existing code, or uses battle-tested defaults. EF Core, Dapper, raw SQL. | [`database-schema-generator/database-schema-generator.agent.md`](./database-schema-generator/database-schema-generator.agent.md) |
 
 ---
 

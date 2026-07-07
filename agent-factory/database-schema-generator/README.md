@@ -1,23 +1,40 @@
 # Database Schema Generator
 
-Reads the SHAPE platform's canonical database design spec (`docs/architecture/04-database-design.md`) and generates production-ready EF Core entities, DbContext, configurations, and PostgreSQL migrations.
+Generates production-ready PostgreSQL database schemas for any .NET project. Scans existing code to match conventions, reads design docs for table definitions and standards, or uses battle-tested defaults.
 
----
-
-## Prerequisites
-
-- The **SHAPE project repo** must be open in your workspace (the agent reads the spec doc from the SHAPE repo directly)
-- For auto-sync (hook), both the `remediai` and `shape` repos must be in the same multi-root workspace
+**Database:** PostgreSQL only.
 
 ---
 
 ## Quick Start
 
-1. Open your project in any AI editor (Kiro, Copilot, Cursor, Claude Code)
-2. Make sure the SHAPE repo is in your workspace
-3. Attach `database-schema-generator.agent.md` in chat — **only this one file**
-4. Send a short trigger: "Generate the database schema"
-5. Agent reads the spec, asks at most 2 questions, then generates everything
+1. Open your .NET project in any AI editor (Kiro, Copilot, Cursor, Claude Code)
+2. Attach `database-schema-generator.agent.md` in chat — **only this one file**
+3. Say: "Create a notifications table" or "Generate from the design doc"
+4. Agent scans your project, generates all files matching your conventions
+
+---
+
+## How It Works
+
+| Step | What Happens |
+|---|---|
+| 1. Find design doc | Looks for `*database-design*` or `*db-schema*` in `docs/` |
+| 2. Read conventions | Extracts naming rules, PK strategy, timestamps, etc. from the doc |
+| 3. Scan existing code | Detects ORM (EF Core/Dapper), entity patterns, migration style |
+| 4. Generate | Creates schema matching doc conventions + project patterns |
+
+---
+
+## Convention Priority
+
+```
+1. Design doc conventions (highest — always wins when doc exists)
+2. Existing project patterns (match what's already there)
+3. Baked-in defaults (fallback when nothing else exists)
+```
+
+**Key point:** If the design doc adds a new convention (e.g. "all tables must have a `version` column"), the agent picks it up automatically on next run. The doc is always the source of truth.
 
 ---
 
@@ -25,138 +42,169 @@ Reads the SHAPE platform's canonical database design spec (`docs/architecture/04
 
 | Artefact | Description |
 |---|---|
-| Raw PostgreSQL SQL | `CREATE TABLE`, `CREATE INDEX`, constraints, FKs — ready to run against Postgres |
-| Entity classes | One C# class per table, grouped by entity group (Identity, RBAC, Commerce, etc.) |
-| Entity configurations | `IEntityTypeConfiguration<T>` with indexes, constraints, defaults, column mappings |
-| DbContext | Full `ShapeDbContext` with DbSets, global query filters, multi-tenancy |
-| Migrations | Named EF Core code-first migrations (`Phase5_InitialSchema`) |
-| Interfaces | `ITenantScoped`, `IAuditable`, `ISoftDeletable` |
-| Enums | Status field enums for application-layer validation |
-| Cosmos DB models | Typed model classes for each Cosmos container |
-| Cache keys | Redis cache key constants class |
+| Raw PostgreSQL SQL | `CREATE TABLE`, `CREATE INDEX`, constraints, FKs — always generated |
+| EF Core entities | C# classes with properties mapped to columns (if project uses EF Core) |
+| EF Core configurations | `IEntityTypeConfiguration<T>` with indexes, constraints, defaults |
+| Migrations | Named EF Core migrations or raw SQL migration files |
+| Dapper models | POCOs + SQL migration files (if project uses Dapper) |
+| Interfaces | `ITenantScoped`, `IAuditable`, `ISoftDeletable` (if applicable) |
 
 ---
 
-## Key Features
+## Scenarios & Prompts
 
-- **Spec-driven** — `04-database-design.md` is the single source of truth. Agent never freelances.
-- **Delta detection** — On re-run, detects what changed in the spec and generates only incremental migrations.
-- **Multi-tenancy** — Automatically applies `organisation_id` global query filters on all tenant-scoped entities.
-- **PII awareness** — Marks encrypted columns with `[PersonalData]` and documents encryption requirements.
-- **Phase-aware** — Respects deferred tables (post-Phase-5) and generates only in-scope schema.
-- **Auto-sync via hook** — A Kiro hook watches `04-database-design.md`; when the file is saved, the agent auto-triggers.
-
----
-
-## Sync Across Editors
-
-### Kiro (Automatic)
-
-A Kiro hook (`db-spec-sync`) watches `**/04-database-design.md`. When the file is saved, the agent fires automatically — no manual action needed.
-
-**Requirement:** The SHAPE repo must be open in the same workspace.
-
-### VS Code + GitHub Copilot (Manual)
-
-1. Open the workspace with the SHAPE repo
-2. In Copilot chat, attach `database-schema-generator.agent.md`
-3. Send: `Sync with spec` or `Generate the RBAC Group entities`
-4. Copilot reads the latest `04-database-design.md` and generates the output
-
-### Cursor (Manual)
-
-1. Open the workspace with the SHAPE repo
-2. In chat, reference `@database-schema-generator.agent.md`
-3. Send: `Sync with spec`
-4. Cursor reads the latest spec and generates the output
-
-### Claude Code / CLI (Manual)
-
-1. Navigate to the workspace containing the SHAPE repo
-2. Reference the agent file: `Read agent-factory/database-schema-generator/database-schema-generator.agent.md and follow its instructions`
-3. Send: `Sync with spec`
-
-### CI/CD Auto-Sync (GitHub Actions — Optional Future Enhancement)
-
-For fully automated sync regardless of editor, a GitHub Action can be configured to:
-1. Trigger when `04-database-design.md` is modified in a PR/push
-2. Run the schema generation
-3. Commit the generated code back to the branch
-
-This ensures no one forgets to sync after updating the spec.
-
----
-
-**Summary:** The agent always reads the latest file from disk. In Kiro it's automatic. In all other editors, you trigger it manually — but it always picks up the freshest version of the doc.
-
----
-
-## Usage Examples
+### Scenario 1: Existing project + has design doc
 
 ```text
-# Full generation (all Phase 5 tables)
-"Generate the database schema"
-
-# Specific group only
-"Generate only the Survey group entities"
-
-# After spec update — manual sync
+"Generate all tables from the design doc"
+"Generate the Survey group from the database spec"
 "Sync with spec"
-
-# Cosmos DB models
-"Generate typed models for the Cosmos DB containers"
-
-# Raw SQL only
-"Generate PostgreSQL DDL for the Commerce group"
 ```
+
+Agent reads doc for WHAT tables to create and HOW (conventions).
 
 ---
 
-## Spec Update Workflow
+### Scenario 2: Existing project + no design doc
 
-When `04-database-design.md` is updated:
+```text
+"Create a notifications table with title, body, user_id, status, created_at"
+"Add a comments table linked to the posts table"
+"Add an archived_at column to the orders table"
+```
 
-1. **Automatic:** Hook fires → agent syncs (if both repos are in workspace)
-2. **Manual:** Attach agent in chat → say "Sync with spec" → agent diffs and generates migration
-
-The agent will:
-- Detect new tables → generate new entity + configuration + SQL
-- Detect new columns → add property + update config + ALTER TABLE migration
-- Detect changed constraints/indexes → update configuration
-- Flag removals for review (never auto-deletes without confirmation)
+Agent scans existing entities, matches their patterns.
 
 ---
 
-## Output Structure
+### Scenario 3: New project + has design doc
 
+```text
+"This is a new project. Generate the full schema from docs/architecture/04-database-design.md"
+"Generate all Phase 5 tables from the design doc"
 ```
-src/Infrastructure/Persistence/
-├── Entities/
-│   ├── Identity/          (organisations, users, organisation_memberships)
-│   ├── RBAC/              (roles, user_roles)
-│   ├── Creator/           (creator_profiles, service_definitions, ...)
-│   ├── Commerce/          (subscriptions, transactions, invoices, ...)
-│   ├── Deployment/        (deployments, audiences, audience_members, ...)
-│   ├── Survey/            (survey_schedules, survey_rounds, ...)
-│   ├── Reporting/         (reports, report_access_grants, ...)
-│   ├── Support/           (support_tickets, ticket_messages)
-│   ├── Chat/              (chat_sessions, chat_messages)
-│   ├── Notifications/     (notification_templates, notification_log)
-│   └── Audit/             (audit_events)
-├── Configurations/        (IEntityTypeConfiguration per entity, same grouping)
-├── Interfaces/            (ITenantScoped, IAuditable, ISoftDeletable)
-├── Enums/                 (Status enums)
-├── Cosmos/                (Typed Cosmos DB models)
-├── Cache/                 (Redis cache key constants)
-├── Migrations/            (Named EF Core migrations)
-└── ShapeDbContext.cs      (DbSets, global filters, model configuration)
-```
+
+Agent reads doc for both conventions AND table definitions.
 
 ---
 
-## Dependencies
+### Scenario 4: New project + no design doc
 
-- .NET 8+ with EF Core 8+
-- Npgsql EF Core Provider (PostgreSQL)
-- Azure Cosmos DB SDK (for Cosmos models)
-- StackExchange.Redis (for cache patterns)
+```text
+"Create a users, organisations, and memberships table for a multi-tenant app"
+"Scaffold the database for a SaaS platform with auth and billing"
+```
+
+Agent uses baked-in PostgreSQL best practices (UUID PKs, snake_case, timestamps, etc.)
+
+---
+
+### Scenario 5: Sync after doc update
+
+```text
+"Sync with spec"
+"The design doc was updated — generate the new tables"
+"What changed in the spec since last generation?"
+```
+
+Agent re-reads doc, diffs against existing code, generates only the delta.
+
+---
+
+### Scenario 6: Table not in design doc
+
+```text
+"Create a feature_flags table"
+```
+
+If doc exists and this table isn't in it:
+1. Agent warns: "This table is not in the design doc."
+2. Offers to generate it using the doc's conventions with a `-- NOT IN SPEC` marker.
+
+---
+
+## Spec Doc Auto-Sync
+
+**Manual (any editor):**
+```text
+"Sync with spec"
+```
+
+**Automatic (Kiro only):**
+
+A Kiro hook (`db-spec-sync`) watches `**/04-database-design.md`. When the file is saved, the agent fires automatically — no manual trigger needed.
+
+**What happens on sync:**
+1. Agent reads the design doc (latest version)
+2. Reads both conventions AND table definitions
+3. Compares against existing entities/migrations
+4. Generates only new/changed tables
+5. If conventions changed — applies new rules to generated code
+6. Flags removals for review (never auto-deletes)
+
+### Self-Updating Defaults
+
+When the agent detects a new convention in the **SHAPE project's design doc** (`docs/architecture/04-database-design.md`) that isn't in its baked-in defaults:
+
+1. **Auto-adds it** to the agent.md file's defaults section
+2. **Logs** what was added: "New convention added: {description}"
+3. **All future new projects** (without their own doc) automatically get the updated standard
+
+**Only the SHAPE design doc triggers self-updates.** Other projects' docs are used for generation but don't modify the agent's global defaults.
+
+This means:
+- SHAPE's design doc is the single source of truth for team standards
+- The agent keeps itself up to date from SHAPE
+- No manual maintenance of the agent file needed
+- Standards evolve in one place (SHAPE doc) and propagate to all new projects
+
+---
+
+## Default Conventions (When No Doc Exists)
+
+| Convention | Default |
+|---|---|
+| Primary keys | UUID (`uuid_generate_v4()`) |
+| Table naming | snake_case, plural (`users`, `audit_events`) |
+| Column naming | snake_case (`created_at`, `user_id`) |
+| Foreign keys | `{entity_singular}_id` with explicit constraints |
+| Timestamps | `created_at` + `updated_at` TIMESTAMPTZ DEFAULT NOW() |
+| Soft deletes | `deleted_at TIMESTAMPTZ` where applicable |
+| Status fields | `VARCHAR(50)` with documented allowed values |
+| Tenant scope | `organisation_id UUID NOT NULL` on scoped tables |
+| JSON fields | `JSONB` (not JSON) |
+| Indexes | Named `idx_{table}_{columns}`, on all FKs |
+| Extensions | `uuid-ossp` for UUID generation |
+
+---
+
+## Adapts To
+
+- **EF Core** → entities, configurations, Fluent API, code-first migrations
+- **Dapper** → POCOs, raw SQL migrations, repository pattern
+- **Both** → generates both layers
+- **Any folder structure** — flat or grouped by domain
+- **Any naming** — matches existing entity/property naming
+
+---
+
+## Quality Standards (Always Enforced)
+
+- FK integrity — every FK has an explicit constraint
+- Index all FKs — no unindexed foreign keys
+- Named constraints — `uq_`, `idx_`, `chk_` prefixes
+- Topological order — creates tables in dependency order
+- UTC timestamps — always `TIMESTAMPTZ`, never without timezone
+- Explicit NULL/NOT NULL on every column
+- Never DROP without user confirmation
+- Idempotent SQL — `IF NOT EXISTS` in raw migrations
+
+---
+
+## Works With
+
+- .NET 6, 7, 8+
+- PostgreSQL 14, 15, 16+
+- EF Core (Npgsql provider)
+- Dapper
+- Any migration tool (EF Core migrations, DbUp, FluentMigrator, raw SQL)

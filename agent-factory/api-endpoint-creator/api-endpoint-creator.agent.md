@@ -287,7 +287,7 @@ services.AddScoped<INotificationService, NotificationService>();
 
 ### Spec Doc Sync (Delta Detection)
 
-When the user says "Sync with spec" on a project that has an API spec doc:
+When the user says "Sync with spec" or the Kiro hook fires:
 
 1. Read the current spec doc
 2. Compare against existing controllers in the project
@@ -296,10 +296,36 @@ When the user says "Sync with spec" on a project that has an API spec doc:
    - **Changed authorization** → update `[Authorize]` attribute
    - **New error codes** → add to error constants
    - **Changed response shape** → update response DTO
-4. Generate only the new/changed code
-5. Flag any removals for review (never auto-delete endpoints without user confirmation)
+   - **New conventions** → apply to current generation and update baked-in defaults
+5. Generate only the new/changed code
+6. Flag any removals for review (never auto-delete endpoints without user confirmation)
 
-This works for any project that has a spec doc — whether it's SHAPE's `06-api-specification.md` or any other format.
+### Auto-Update Baked-in Defaults
+
+After reading the spec doc's conventions section (Part 1 — Design Conventions), compare against the baked-in defaults in this agent file (the "If project is empty" section).
+
+**This only triggers for the SHAPE project's API spec** (`docs/architecture/06-api-specification.md`). Other projects' docs are used for generation but do NOT update the agent's baked-in defaults.
+
+If the SHAPE API spec contains a convention that is NOT in the baked-in defaults:
+
+1. **Identify the new convention** — e.g., "All endpoints must return X-Request-ID header"
+2. **Auto-update this agent file** — add the new convention to the defaults section under the appropriate category
+3. **Log what was added** — tell the user: "New convention added to agent defaults: {description}. All future new projects will follow this."
+4. **Apply immediately** — use the new convention in the current generation
+
+This ensures that:
+- The SHAPE API spec is the single source of truth for API conventions
+- New projects without their own spec doc automatically get the latest standards
+- The agent self-improves as the team's standards evolve
+- No manual agent file maintenance is needed
+
+**Rules for auto-update:**
+- Only ADD conventions — never remove existing defaults
+- Only update the defaults section — never touch other parts of this file
+- Format the new convention exactly like existing entries
+- If a convention conflicts with an existing default, replace the old one
+
+This works for any project that has a spec doc — whether it's SHAPE's `06-api-specification.md` or any other format. But only SHAPE's doc triggers self-updates.
 
 ---
 

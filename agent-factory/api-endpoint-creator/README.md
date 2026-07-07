@@ -168,6 +168,22 @@ A Kiro hook (`api-spec-sync`) watches `**/06-api-specification.md`. When the fil
 4. Generates only the delta — no duplicate code
 5. Flags removals for review (never auto-deletes)
 
+### Self-Updating Defaults
+
+When the agent detects a new convention in the **SHAPE project's API spec** (`docs/architecture/06-api-specification.md`) that isn't in its baked-in defaults:
+
+1. **Auto-adds it** to the agent.md file's defaults section
+2. **Logs** what was added: "New convention added: {description}"
+3. **All future new projects** (without their own spec) automatically get the updated standard
+
+**Only the SHAPE API spec triggers self-updates.** Other projects' docs are used for generation but don't modify the agent's global defaults.
+
+This means:
+- SHAPE's API spec is the single source of truth for API conventions
+- The agent keeps itself up to date from SHAPE
+- No manual maintenance of the agent file needed
+- Standards evolve in one place (SHAPE spec) and propagate to all new projects
+
 Works with any spec doc format — just tell the agent where it is.
 
 ---

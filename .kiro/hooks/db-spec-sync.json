@@ -1,0 +1,13 @@
+{
+  "name": "DB Spec Auto-Sync",
+  "version": "1.0.0",
+  "description": "When 04-database-design.md is edited, automatically triggers the database schema generator agent to detect changes and generate incremental migrations.",
+  "when": {
+    "type": "fileEdited",
+    "patterns": ["**/04-database-design.md"]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "The database design spec (04-database-design.md) was just updated. Read the file, compare against the existing generated entities, identify what changed (new tables, new columns, new conventions, changed constraints, new indexes), and generate an incremental EF Core migration for the changes. If new conventions are found that aren't in your baked-in defaults, auto-update your agent file. Follow the instructions in agent-factory/database-schema-generator/database-schema-generator.agent.md."
+  }
+}

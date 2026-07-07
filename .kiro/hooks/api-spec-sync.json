@@ -1,0 +1,13 @@
+{
+  "name": "API Spec Auto-Sync",
+  "version": "1.0.0",
+  "description": "When 06-api-specification.md is edited, automatically triggers the API endpoint creator agent to detect new/changed endpoints and generate the incremental code.",
+  "when": {
+    "type": "fileEdited",
+    "patterns": ["**/06-api-specification.md"]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "The API specification doc (06-api-specification.md) was just updated. Read the file, compare against existing controllers in the project, identify new or changed endpoints, and generate the incremental code for those changes. Follow the instructions in agent-factory/api-endpoint-creator/api-endpoint-creator.agent.md. Scan the existing codebase first to match its conventions."
+  }
+}

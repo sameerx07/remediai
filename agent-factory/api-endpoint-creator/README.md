@@ -1,178 +1,198 @@
 # API Endpoint Creator
 
-Reads the SHAPE platform's canonical API specification (`docs/architecture/06-api-specification.md`) and generates production-ready ASP.NET Core endpoints — controllers, DTOs, validators, service interfaces, and authorization policies.
-
----
-
-## Prerequisites
-
-- The **SHAPE project repo** must be open in your workspace (the agent reads the API spec from the SHAPE repo directly)
-- For auto-sync (Kiro hook), both the `remediai` and `shape` repos must be in the same multi-root workspace
+Generates production-ready ASP.NET Core API endpoints for any .NET project. Scans existing code to match conventions or uses battle-tested defaults from real production APIs (TradeSignal, SHAPE).
 
 ---
 
 ## Quick Start
 
-1. Open your project in any AI editor (Kiro, Copilot, Cursor, Claude Code)
-2. Make sure the SHAPE repo is in your workspace
-3. Attach `api-endpoint-creator.agent.md` in chat — **only this one file**
-4. Send a short trigger: "Generate the Support module endpoints"
-5. Agent reads the spec, asks at most 2 questions, then generates everything
+1. Open your .NET project in any AI editor (Kiro, Copilot, Cursor, Claude Code)
+2. Attach `api-endpoint-creator.agent.md` in chat — **only this one file**
+3. Say: "Create a GET /api/v1/notifications endpoint"
+4. Agent scans your project, generates all files matching your conventions
 
 ---
 
-## What It Generates
+## How It Works
 
-| Artefact | Description |
+| Step | What Happens |
 |---|---|
-| Controllers | One controller per resource group with full routing, auth, and response handling |
-| Request DTOs | Strongly typed request bodies with camelCase JSON serialization |
-| Response DTOs | Response shapes matching the spec's envelope format |
-| Validators | FluentValidation validators per request DTO |
-| Service interfaces | Business logic contracts per module |
-| Service implementations | Business logic calling repositories |
-| Authorization policies | Policy definitions matching spec's role model |
-| Error codes | Typed constants from the spec's error code registry |
-| Middleware | Rate limiting, idempotency, tenant resolution |
+| 1. Scan | Reads your `.csproj`, controllers, models, `Program.cs` to detect patterns |
+| 2. Spec (optional) | If you have an API spec doc, reads it for endpoint definitions |
+| 3. Generate | Creates all files matching your project's exact conventions |
 
 ---
 
-## Key Features
+## What It Generates Per Endpoint
 
-- **Spec-driven** — `06-api-specification.md` is the single source of truth. Agent never freelances.
-- **155 endpoints** across 17 modules — generate one module at a time or all at once.
-- **Convention-compliant** — Response envelopes, error shapes, pagination, auth attributes all match the spec exactly.
-- **Delta detection** — On re-run, detects what changed in the spec and generates only new/changed endpoints.
-- **Multi-tenancy built in** — `organisation_id` always from `ICurrentTenant`, never from request body.
-
----
-
-## Sync Across Editors
-
-### Kiro (Automatic)
-
-Configure a hook to watch `**/06-api-specification.md`. When the file is saved, the agent fires automatically.
-
-### VS Code + GitHub Copilot (Manual)
-
-1. Open the workspace with the SHAPE repo
-2. In Copilot chat, attach `api-endpoint-creator.agent.md`
-3. Send: `Generate the Support module endpoints` or `Sync with spec`
-
-### Cursor (Manual)
-
-1. In chat, reference `@api-endpoint-creator.agent.md`
-2. Send: `Generate the Deployment module`
-
-### Claude Code / CLI (Manual)
-
-1. Reference the agent file
-2. Send: `Sync with spec`
+| File | Description |
+|---|---|
+| Controller action | Route, auth, parameters, response handling |
+| Request DTO | Typed request body (POST/PUT/PATCH) |
+| Response DTO | Typed response model |
+| Validator | FluentValidation or DataAnnotations (matches project) |
+| Service interface | Business logic contract |
+| Service implementation | Business logic with logging |
+| DI registration | Shows what to add to `Program.cs` |
+| Repository method | If new data access is needed |
+| Swagger example | If project uses `SwaggerExamples/` |
 
 ---
 
-## Usage Examples
+## Adapts to Your Project
+
+The agent detects and follows your existing patterns:
+
+- **Routing** — `v{version}/resource` or `api/v1/resource` or custom
+- **Auth** — Azure AD, API Key, Auth0, policies, roles
+- **Responses** — Raw objects or envelope wrappers
+- **Errors** — Custom ApiErrorResponse or ProblemDetails
+- **Validation** — FluentValidation, DataAnnotations, or manual
+- **Serialization** — Newtonsoft.Json or System.Text.Json
+- **Data access** — EF Core, Dapper, or raw SQL
+- **Architecture** — Flat structure or Clean Architecture
+- **Libraries** — MediatR (CQRS), AutoMapper, SignalR, Polly
+
+---
+
+## New Projects (No Existing Code)
+
+For brand new projects, uses the best of TradeSignal (simplicity) + SHAPE (structure):
+
+```
+Structure:    Controllers/ Models/Requests/ Models/Responses/ Interfaces/ Services/ Validators/
+Routing:      [Route("v{version:apiVersion}/{resource}")] + [ApiVersion("1.0")]
+Auth:         [Authorize] on class, [AllowAnonymous] where needed
+Serialization: Newtonsoft.Json + camelCase resolver + [JsonProperty]
+Validation:   FluentValidation (separate validator per request DTO)
+Responses:    Lists → envelope { data, meta }. Single items → direct return.
+Errors:       ApiErrorResponse { Error, Code, Details, CorrelationId }
+Controllers:  sealed, ILogger<T>, CancellationToken on all methods
+Swagger:      [ProducesResponseType] + XML comments + <remarks>
+Health:       /health/live + /health/ready
+```
+
+---
+
+## Scenarios & Prompts
+
+### Scenario 1: Existing project, no spec doc — you know what endpoint you want
 
 ```text
-# Full module generation
-"Generate the Support module endpoints"
+"Create a GET /api/v1/notifications endpoint"
+"Scaffold a Payments controller with CRUD operations"
+"Add a batch delete endpoint to the existing UsersController"
+"Create a POST /v1/webhooks/stripe endpoint with signature validation"
+```
 
-# Single endpoint
-"Create the POST /api/v1/deployments endpoint"
+Agent scans your existing code → generates endpoint matching your conventions.
 
-# Shared infrastructure (run first)
-"Generate shared infrastructure (auth policies, error codes, response envelopes)"
+---
 
-# Only validators
-"Generate validators for the Commerce module"
+### Scenario 2: Existing project, has a spec doc — generate from the doc
 
-# Only DTOs
-"Generate DTOs for the Survey module"
+```text
+"Generate all endpoints from docs/architecture/06-api-specification.md"
+"Generate the Support module from the API spec"
+"Read the spec doc at docs/api-spec.md and generate the Identity module"
+```
 
-# After spec update
+Agent reads the doc for WHAT to build, scans code for HOW to build it.
+
+---
+
+### Scenario 3: New project, no existing code — start fresh
+
+```text
+"Scaffold a new API project with a Users controller"
+"Create a notifications endpoint — this is a new project"
+"Set up a CRUD controller for Products"
+```
+
+Agent uses TradeSignal/SHAPE best-practice defaults for folder structure, routing, error handling.
+
+---
+
+### Scenario 4: New project, has a spec doc — build from scratch using the doc
+
+```text
+"This is a new project. Generate endpoints from docs/api-specification.md"
+"Read the spec and scaffold the full API from it"
+```
+
+Agent reads doc for WHAT to build, uses best-practice defaults for HOW.
+
+---
+
+### Scenario 5: Add to an existing endpoint or modify
+
+```text
+"Add pagination to the GET /v1/users endpoint"
+"Add a search query parameter to the existing ScannersController"
+"Refactor the QuotesController to use FluentValidation instead of manual checks"
+```
+
+---
+
+### Scenario 6: Endpoint not in spec doc
+
+```text
+"Create a GET /api/v1/analytics/dashboard endpoint"
+```
+
+If a spec doc exists and this endpoint isn't in it, agent will:
+1. Warn you: "This endpoint is not in the spec doc."
+2. Offer to generate it anyway with a `// NOT IN SPEC` marker.
+3. Generate it following the project's conventions if you confirm.
+
+---
+
+## Spec Doc Sync
+
+If your project has an API spec doc (like SHAPE's `06-api-specification.md`), the agent supports syncing:
+
+**Manual (any editor):**
+```text
 "Sync with spec"
+"The spec was updated — generate the new endpoints"
 ```
 
----
+**Automatic (Kiro only):**
 
-## Spec Update Workflow
+A Kiro hook (`api-spec-sync`) watches `**/06-api-specification.md`. When the file is saved, the agent fires automatically — no manual trigger needed.
 
-When `06-api-specification.md` is updated:
+**What happens on sync:**
+1. Agent reads the spec doc (latest version)
+2. Compares against existing controllers
+3. Detects new/changed endpoints
+4. Generates only the delta — no duplicate code
+5. Flags removals for review (never auto-deletes)
 
-1. **In Kiro:** Hook fires → agent syncs automatically
-2. **Elsewhere:** Attach agent in chat → say "Sync with spec"
-
-The agent will:
-- Detect new endpoints → generate controller action + DTO + validator
-- Detect changed auth rules → update `[Authorize]` attributes
-- Detect new error codes → add to `ErrorCodes` constants
-- Flag removals for review (never auto-deletes endpoints)
+Works with any spec doc format — just tell the agent where it is.
 
 ---
 
-## Output Structure
+## Quality Standards (Always Enforced)
 
-```
-src/
-├── API/
-│   ├── Controllers/
-│   │   ├── Identity/          (UsersController, OrganisationsController, MembershipsController)
-│   │   ├── RBAC/              (RolesController, UserRolesController)
-│   │   ├── Creator/           (CreatorProfilesController, ServicesController, PackagesController)
-│   │   ├── Commerce/          (StoreListingsController, SubscriptionsController, ...)
-│   │   ├── Deployment/        (DeploymentsController, AudiencesController, ...)
-│   │   ├── Survey/            (SchedulesController, RoundsController, ...)
-│   │   ├── Reporting/         (ReportsController, ReportAccessController)
-│   │   ├── Support/           (SupportTicketsController, TicketMessagesController)
-│   │   ├── Chat/              (ChatSessionsController, ChatMessagesController)
-│   │   ├── Notifications/     (NotificationTemplatesController, NotificationLogController)
-│   │   ├── Audit/             (AuditEventsController)
-│   │   ├── Search/            (SearchController)
-│   │   ├── Webhooks/          (StripeWebhookController, SendGridWebhookController)
-│   │   └── Admin/             (PlatformAdminController, CreatorAdminController, ...)
-│   ├── Contracts/
-│   │   ├── Requests/{Module}/
-│   │   └── Responses/{Module}/
-│   ├── Validators/{Module}/
-│   ├── Authorization/         (Policies.cs, AuthorizationExtensions.cs)
-│   ├── Errors/                (ErrorCodes.cs, ApiErrors.cs)
-│   └── Middleware/            (RateLimitMiddleware, IdempotencyMiddleware, TenantResolutionMiddleware)
-└── Application/
-    ├── Interfaces/{Module}/   (Service interfaces)
-    └── Services/{Module}/     (Service implementations)
-```
+- Async all the way with CancellationToken
+- No business logic in controllers
+- Typed responses (never object/dynamic)
+- Input validation on every mutation
+- Structured logging on errors
+- Sealed classes by default
+- XML docs on all public actions
+- No magic strings — constants for codes and roles
 
 ---
 
-## Module Inventory (from spec)
+## Works With
 
-| Module | Endpoints | Primary Resources |
-|---|---|---|
-| Identity | 13 | Users, Organisations, Memberships |
-| RBAC | 5 | Roles, User Roles |
-| Creator | 18 | Creator Profiles, Services, Packages, Package Reports |
-| Commerce | 22 | Store Listings, Subscriptions, Transactions, Invoices, Entitlements, BYOS, Library |
-| Deployment | 21 | Deployments, Onboarding, Audiences, Audience Members |
-| Survey | 11 | Schedules, Rounds, Invitations, Participant Survey |
-| Reporting | 9 | Reports, Report Access, Report Access Log |
-| Support | 6 | Tickets, Ticket Messages |
-| Chat | 6 | Sessions, Messages |
-| Notifications | 5 | Templates, Notification Log |
-| Audit | 2 | Audit Events |
-| Search | 2 | Unified Search, Suggestions |
-| Webhooks | 2 | Stripe, SendGrid |
-| Admin — Platform | 12 | Cross-tenant operations |
-| Admin — Creator | 6 | Creator management views |
-| Admin — Client | 7 | Client admin centre |
-| Admin — Service | 8 | Service operator views |
-| **Total** | **155** | |
-
----
-
-## Dependencies
-
-- .NET 8+ with ASP.NET Core
-- FluentValidation.AspNetCore
-- Microsoft.AspNetCore.Authentication.JwtBearer
-- Swashbuckle (OpenAPI/Swagger generation)
-- MediatR (optional, for CQRS pattern)
+- .NET 6, 7, 8+
+- ASP.NET Core Web API
+- EF Core / Dapper / ADO.NET
+- FluentValidation / MediatR / AutoMapper
+- Newtonsoft.Json / System.Text.Json
+- Swashbuckle / NSwag
+- Azure AD / Auth0 / API Key auth
+- SignalR for real-time
+- Any folder structure
